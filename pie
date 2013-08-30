@@ -1,6 +1,6 @@
 #!/bin/bash
 
-erl -pa apps/pie/ebin apps/msc/ebin deps/eslang/ebin +A 100 -s edit start
+erl -pa apps/pie/ebin apps/msc/ebin deps/eslang/ebin +A 100 -s edit start $1 $2 $3
 
 #stty sane
 

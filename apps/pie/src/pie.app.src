@@ -1,0 +1,9 @@
+{application, pie,
+ [
+  {description, "Programmer's Interactive Editor"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [kernel, stdlib]},
+  {mod, { pie_app, []}},
+  {env, []}
+ ]}.

@@ -1,0 +1,9 @@
+{application, msc,
+ [
+  {description, "BLUETAIL MSC"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [kernel, stdlib]},
+  {mod, { msc_app, []}},
+  {env, []}
+ ]}.

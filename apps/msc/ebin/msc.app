@@ -1,0 +1,10 @@
+{application,msc,
+             [{description,"BLUETAIL MSC"},
+              {vsn,"1"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {mod,{msc_app,[]}},
+              {env,[]},
+              {modules,[bench,disk_log_h,fdoc,file_gl,gz,internal_exports,
+                        ipcalc,logger,msc_app,msc_sup,rec_info,syslog,
+                        trace_lib]}]}.

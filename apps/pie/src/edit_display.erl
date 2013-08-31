@@ -97,25 +97,22 @@ draw_modeline(Window) ->
     Buffer = Window#window.buffer,
     Where = modeline_where(Window, Buffer),
     Text = lists:flatten(
-	     io_lib:format("-U:-mx ~s (~s) ~s",
-			   [atom_to_list(Buffer),
-			    (edit_buf:get_mode(Buffer))#mode.name,
-			    Where])),
+         io_lib:format("-U:-mx ~s (~s) ~s",
+           [atom_to_list(Buffer), (edit_buf:get_mode(Buffer))#mode.name, Where])),
     ?EDIT_TERMINAL:font_reverse(),
-    ?EDIT_TERMINAL:move_to(0, Window#window.y +
-			  edit_window:physical_lines(Window) - 1),
+    slang:tt_set_color(1,"mode-line","white","blue"),
+    slang:smg_set_color(1),
+    ?EDIT_TERMINAL:move_to(0, Window#window.y + edit_window:physical_lines(Window) - 1),
     draw_line(Text),
     ?EDIT_TERMINAL:font_normal().
 
 modeline_where(Window, Buffer) ->
     case edit_buf:get_size(Buffer) of
-	0 ->
-	    "ALL";
-	BSize ->
-	    Start = edit_buf:mark_pos(Buffer, Window#window.start_mark),
-	    Percentage = trunc(Start * 100 / BSize),
-	    io_lib:format("~p%", [Percentage])
-    end.
+        0 -> "ALL";
+        BSize ->
+            Start = edit_buf:mark_pos(Buffer, Window#window.start_mark),
+            Percentage = trunc(Start * 100 / BSize),
+            io_lib:format("~p%", [Percentage]) end.
 
 %% Update the display_start of a window so that it presents the point
 %% in the middle of the screen.

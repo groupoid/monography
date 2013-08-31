@@ -44,11 +44,14 @@ eval_tokens(Buf, Tokens, Bindings) ->
 	{ok, Parse} ->
 	    case erl_eval:exprs(Parse, Bindings, lf_handler(Buf)) of
 		{value, V, NewBs} ->
+                    error_logger:info_msg("Eval Tokens OK: ~p",[{V,NewBs}]),
 		    {ok, V, NewBs};
 		Error ->
+                    error_logger:error_msg("Eval Tokens Error: ~p",[Error]),
 		    {error, Error}
 	    end;
 	{error, {_, erl_parse, Err}} ->
+            error_logger:errro_msg("Eval Tokens Parse Error: ~p",[Err]),
 	    {error, fmt("~s", [Err])}
     end.
 
@@ -283,17 +286,16 @@ gl_serv_work(Buffer, Req) ->
     end.
 
 %% Perform an I/O request by writing the result into the buffer.
+do_gl_request(Buffer, {io_request, From, ReplyAs, {put_chars, unicode, M, F, A}}) ->
+    do_gl_request(Buffer, {io_request, From, ReplyAs, {put_chars, M, F, A}});
 do_gl_request(Buffer, {io_request, From, ReplyAs, {put_chars, M, F, A}}) ->
     case catch apply(M, F, A) of
-	{'EXIT', Reason} ->
-	    exit(From, Reason);
-	IOList ->
-	    do_gl_request(Buffer,
-			  {io_request, From, ReplyAs, {put_chars, IOList}})
+        {'EXIT', Reason} -> exit(From, Reason);
+        IOList ->  do_gl_request(Buffer, {io_request, From, ReplyAs, {put_chars, IOList}})
     end;
 do_gl_request(Buffer, {io_request, From, ReplyAs, {put_chars, IOList}}) ->
     From ! {io_reply, ReplyAs, ok},
-    Bin = iolist_to_binary(IOList),
+    Bin = list_to_binary(IOList), 
     Pos = edit_buf:mark_pos(Buffer, ?output_mark),
     edit_buf:insert(Buffer, Bin, Pos),
     redraw();

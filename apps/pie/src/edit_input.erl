@@ -23,14 +23,18 @@ loop(Receiver) ->
         219 -> case ?EDIT_TERMINAL:read() of
                     53 -> [219,53,?EDIT_TERMINAL:read()];
                     54 -> [219,54,?EDIT_TERMINAL:read()];
-                    X -> Receiver ! {key_input, 219}, X end;
+                    X -> Receiver ! {key_input, 219}, 
+                         Receiver ! {key_input, X},
+                         ?MODULE:loop(Receiver) end;
         207 -> case ?EDIT_TERMINAL:read() of
                     70 -> [207,70];
                     72 -> [207,72];
-                    X -> Receiver ! {key_input, 207}, X end;
+                    X -> Receiver ! {key_input, 207},
+                         Receiver ! {key_input, X},
+                         ?MODULE:loop(Receiver) end;
         XXX -> XXX end,
     error_logger:info_msg("Input Char: ~p",[Ch]),
     Receiver ! {key_input, Ch},
-    edit_input:loop(Receiver).
+    ?MODULE:loop(Receiver).
 
 panic() -> halt().

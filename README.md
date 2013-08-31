@@ -28,7 +28,7 @@ editor saving your hands from RSI.
 
 Remember that Pie is an Emacs (Erlang Macros) editor thus
 it supports all basic Emacs commands which you can find
-in edit_globalmap bindings. Here is most important:
+in edit_globalmap bindings. Here are most important:
 
 File Operations
 ---------------

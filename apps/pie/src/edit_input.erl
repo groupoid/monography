@@ -1,12 +1,5 @@
-%%%----------------------------------------------------------------------
-%%% File    : edit_input.erl
-%%% Author  : Luke Gorrie <luke@bluetail.com>
-%%% Purpose : Keyboard input server
-%%% Created : 22 Jan 2001 by Luke Gorrie <luke@bluetail.com>
-%%%----------------------------------------------------------------------
-
 -module(edit_input).
--author('luke@bluetail.com').
+-author('maxim@synrc.com').
 -include_lib("pie/include/edit.hrl").
 -export([start_link/1, loop/1]).
 

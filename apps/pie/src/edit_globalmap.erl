@@ -69,6 +69,7 @@ bindings() -> [
     {"C-M-r",   {edit_lib, regexp_search, [backward]}},
     %% Misc
     {"C-@",     {edit_lib, set_mark, []}},
+    {"S-RIGHT", {edit_lib, set_mark, []}},
     {"M-!",     {edit_lib, unix_command, []}},
     {"C-t",     {edit_lib, printf, []}},
     {"M-:",     {edit_eval, eval_expression, []}},
@@ -129,4 +130,4 @@ help_bindings() -> [
     {"k", {edit_help, describe_key, []}},
     {"s", {edit_help, find_source, []}}].
 
-self_inserts() -> (((("\n\t" ++ lists:seq(32, 125)) -- [67]) -- [66]) -- [65]) -- [68].
+self_inserts() -> "\n\t" ++ lists:seq(32, 125).

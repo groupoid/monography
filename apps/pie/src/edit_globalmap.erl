@@ -79,7 +79,7 @@ bindings() -> [
     {"M-[",    {keymap, term_escape_map}},
     {"C-x",    {keymap, global_cx_map}},
     %% Help
-    {"M-h",    {keymap, help_map}},
+    {"C-j",    {keymap, help_map}},
     %% self insert commands (\r becomes \n)
     {$\r,      {edit_lib, self_insert_command, [$\n]}}
     | [{Ch,    {edit_lib, self_insert_command, [Ch]}} || Ch <- self_inserts()] ].

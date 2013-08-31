@@ -1,6 +1,9 @@
 #!/bin/bash
 
-erl -pa deps/gproc/ebin deps/sync/ebin deps/lager/ebin \
-     apps/pie/ebin apps/msc/ebin deps/eslang/ebin +A 100 -config sys.config -s pie start $1 $2 $3
+PIE=/home/maxim/synrc/pie
+
+erl -pa $PIE/deps/gproc/ebin $PIE/deps/sync/ebin $PIE/deps/lager/ebin \
+     $PIE/apps/pie/ebin $PIE/apps/msc/ebin $PIE/deps/eslang/ebin \
+     +A 100 -config $PIE/sys.config -s pie start $1 $2 $3
 
 stty sane

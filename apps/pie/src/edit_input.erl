@@ -19,6 +19,11 @@ loop(Receiver) ->
                     X -> Receiver ! {key_input, 219}, 
                          Receiver ! {key_input, X},
                          ?MODULE:loop(Receiver) end;
+        59 -> case ?EDIT_TERMINAL:read() of
+                    53 -> [59,53,?EDIT_TERMINAL:read()];
+                    X -> Receiver ! {key_input, 59}, 
+                         Receiver ! {key_input, X},
+                         ?MODULE:loop(Receiver) end;
         207 -> case ?EDIT_TERMINAL:read() of
                     70 -> [207,70];
                     72 -> [207,72];

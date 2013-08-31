@@ -15,6 +15,8 @@
 
 -compile(export_all).
 
+keyname([59,53,67]) -> "C-RIGHT";
+keyname([59,53,68]) -> "C-LEFT";
 keyname([219,53,126]) -> "Fn-PGUP";
 keyname([219,54,126]) -> "Fn-PGDN";
 keyname([207,72]) -> "Fn-HOME";
@@ -22,6 +24,7 @@ keyname([207,70]) -> "Fn-END";
 keyname(L) when is_list(L) -> L;
 keyname(263) -> "C-h";
 keyname(127) -> "C-h";
+keyname(126) -> "DEL";
 keyname(272) -> "C-h";
 keyname(C) ->
     case ctrl_p(C) of

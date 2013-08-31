@@ -4,7 +4,6 @@
 %% Created : 15 Jun 1998 by tobbe@serc.rmit.edu.au
 %% Function: Core library routines for the Edit editor.
 %%----------------------------------------------------------------------
--vc('$Id$ ').
 
 -include_lib("pie/include/edit.hrl").
 

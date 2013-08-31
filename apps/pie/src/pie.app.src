@@ -3,7 +3,7 @@
   {description, "Programmer's Interactive Editor"},
   {vsn, "1"},
   {registered, []},
-  {applications, [kernel, stdlib]},
+  {applications, [kernel, stdlib, gproc]},
   {mod, { pie_app, []}},
   {env, []}
  ]}.

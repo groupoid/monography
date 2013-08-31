@@ -66,6 +66,7 @@ bindings() ->
      {"C-t", {edit_lib, printf, []}},
      {"M-:", {edit_eval, eval_expression, []}},
      {"M-x", {edit_extended, execute_extended_command, []}},
+     {"M-r", {edit_extended, execute_erlang_command, []}},
      {"C-g", {edit_lib, abort, []}},
      %% Keymaps
      {"M-[", {keymap, term_escape_map}},

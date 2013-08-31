@@ -31,6 +31,7 @@ start(Args) ->
 		  Filenames),
     start().
 
+
 %% Another command-line entry function. Starts the editor with some
 %% modules loaded for debugging.
 debug() ->
@@ -45,10 +46,11 @@ debug_modules() ->
 %% ----------------------------------------------------------------------
 %% API program
 
-invoke_async(M, F, A, Proc) -> Proc ! {invoke, {M, F, A}}.
-invoke_async(Fn, Proc) -> Proc ! {invoke, Fn}.
-invoke_extended_async(M, F, A, Proc) -> Proc ! {invoke_extended, {M, F, A}}.
-get_key(Proc) -> Proc ! {want_key, self()}, receive {key_input, Ch} -> Ch end.
+invoke_async(M, F, A, Proc) -> pie:send(loop,{invoke, {M, F, A}}).
+invoke_async(Fn, Proc) -> pie:send(loop,{invoke, Fn}).
+invoke_extended_async(M, F, A, Proc) -> pie:send(loop,{invoke_extended, {M, F, A}}).
+invoke_erlang_async(M, F, A, Proc) -> pie:send(loop,{invoke_erlang, {M, F, A}}).
+get_key(Proc) -> pie:send(loop,{want_key, self()}), receive {key_input, Ch} -> Ch end.
 
 %% ----------------------------------------------------------------------
 %% Turn this process into a lean, mean, editing machine
@@ -67,8 +69,8 @@ init() ->
     State = init_windows(#state{}),
     State1 = load_dot_pie(State),
     State2 = redraw(State1),
-    error_logger:info_msg("Starting Pie~n"),
     %%profile(State2),
+    pie:reg(loop),
     loop(State2).
 
 init_io_traps() ->
@@ -114,6 +116,7 @@ init_vars() ->
 init_mods() ->
     edit_mod:init(),
     %% special-case explicit initialisations for the core stuffs
+    em_erlang:mod_init(),
     edit_file:mod_init(),
     ok.
 
@@ -159,6 +162,8 @@ dispatch(State) ->
 	    dispatch_proc(State, fun() -> Fun(State) end);
 	{invoke_extended, {Mod, Func, Args}} ->
 	    dispatch_extended(State, Mod, Func, Args);
+	{invoke_erlang, {Mod, Func, Args}} ->
+	    dispatch_erlang(State, Mod, Func, Args);
 	{key_input, Ch} ->
 	    case find_cmd(State, Keymaps, Ch) of
 		unbound ->
@@ -176,6 +181,10 @@ dispatch(State) ->
 
 dispatch_extended(State, Mod, Func, Args) ->
     F = fun() -> edit_extended:extended_command(State, Mod, Func, Args) end,
+    dispatch_proc(State, F).
+
+dispatch_erlang(State, Mod, Func, Args) ->
+    F = fun() -> edit_extended:erlang_command(State, Mod, Func, Args) end,
     dispatch_proc(State, F).
 
 %% ----------------------------------------------------------------------
@@ -203,7 +212,8 @@ dispatch_loop(State, Pid, WantKey) ->
 	{want_key, Pid} when WantKey == false ->
 	    dispatch_loop(State, Pid, true);
 	{'EXIT', Pid, Reason} ->
-	    edit_util:status_msg(State,"Dispatch error: ~p~n",[Reason])
+            F = io_lib:format("~p",[Reason]),
+	    edit_util:status_msg(State,"Dispatch error: ~p",[F])
     end.
 
 

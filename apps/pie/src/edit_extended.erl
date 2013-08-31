@@ -18,17 +18,22 @@ extended_command(State, Mod, Func, Args) ->
     NewState = execute(State, Mod, Func, Args, Params),
     NewState#state{lastcmd={Mod, Func, Args}}.
 
+erlang_command(State, Mod, Func, Args) ->
+    {Params, _Doc} = find_cmd_info(Mod, Func),
+    NewState = execute_erlang(State, Mod, Func, Args, Params),
+    NewState#state{lastcmd={Mod, Func, Args}}.
+
+execute_erlang(State, Mod, Func, Args, []) ->
+    case apply(Mod, Func, Args) of
+        S -> edit_util:status_msg(State, "Result: ~p",[S]);
+        Other -> State end.
+
 execute(State, Mod, Func, Args, []) ->
-    case catch apply(Mod, Func, [State | Args]) of
-	S when record(S, state) ->
-	    S;
-	{'EXIT', Rsn} ->
-	    edit_util:popup_message(State, '*Error*', "** Crash: ~p", [Rsn]);
-	Other ->
-	    State
-    end;
-execute(State, Mod, Func, Args, Params)
-  when State#state.pending_cmd /= undefined ->
+    case apply(Mod, Func, [State|Args]) of
+        S when record(S, state) -> S;
+        {'EXIT', Rsn} -> edit_util:popup_message(State, '*Error*', "** Crash: ~p", [Rsn]);
+        Other -> State end;
+execute(State, Mod, Func, Args, Params) when State#state.pending_cmd /= undefined ->
     edit_util:status_msg(State, "Minibuffer busy!");
 execute(State, Mod, Func, Args, Params) ->
     Cont = make_execute_continuation(Mod, Func, Args, Params),
@@ -111,15 +116,26 @@ abort(State) ->
 
 %% M-x
 
-
 -command({execute_extended_command, [{mod_func, "M-x"}], "Like M-x in emacs."}).
+-command({execute_erlang_command, [{mod_func, "M-r"}], "Direct Erlang Run"}).
+
+execute_erlang_command(State, MF) ->
+    case string:tokens(MF, ":") of
+	[ModStr, FunStr] ->
+	    Mod = list_to_atom(ModStr),
+	    Fun = list_to_atom(FunStr),
+	    edit:invoke_erlang_async(Mod, Fun, [], self()),
+	    State;
+	_ ->
+	    edit_util:status_msg(State, "Bad string; must be \"Mod:Fun\"")
+    end.
 
 execute_extended_command(State, MF) ->
     case string:tokens(MF, ":") of
 	[ModStr, FunStr] ->
 	    Mod = list_to_atom(ModStr),
 	    Fun = list_to_atom(FunStr),
-            error_logger:info_msg("Command: ~p",[{Mod,Fun}]),
+            error_logger:error_msg("Command: ~p",[{Mod,Fun}]),
 	    edit:invoke_extended_async(Mod, Fun, [], self()),
 	    State;
 	_ ->

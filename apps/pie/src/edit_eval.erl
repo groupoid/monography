@@ -27,12 +27,12 @@ eval_buffer(State) ->
 	{ok, Parse} ->
 	    case catch erl_eval:exprs(Parse, []) of
 		{value, V, _} ->
-		    edit_util:status_msg(State, "~p", [V]);
+		    edit_util:status_msg(State, "Eval Result: ~p", [V]);
 		{'EXIT', Reason} ->
 		    edit_util:status_msg(State, "** exited: ~p **", [Reason])
 	    end;
 	{error, {_, erl_parse, Err}} ->
-	    edit_util:status_msg(State, "~p", [Err])
+	    edit_util:status_msg(State, "Eval Result Error: ~p", [Err])
     end.
 
 eval_string(State, String) ->
@@ -62,9 +62,9 @@ fmt(Fmt, Args) -> lists:flatten(io_lib:format(Fmt, Args)).
 eval_expression(State, Expr) ->
     Str = case eval_string(State, Expr) of
 	      {ok, Val, NewBS} ->
-		  fmt("~p", [Val]);
+		  fmt("Ok: ~p", [Val]);
 	      {error, Rsn} ->
-		  fmt("~p", [Rsn])
+		  fmt("Error: ~p", [Rsn])
 	  end,
     edit_util:popup_message(State, '*Eval*', Str).
 

@@ -16,12 +16,14 @@ Futher tasks
 ------------
 
 * Error Logging to STDERR device
-* OTP start
+* Syntax Coloring
+* CUA mode
+* Selection
 
 Credits
 -------
 
-Luke Gorrie
-Maxim Sokhatsky
+* Luke Gorrie
+* Maxim Sokhatsky
 
 OM A HUM

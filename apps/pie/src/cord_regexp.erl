@@ -37,7 +37,7 @@ first_match_c(RE, Cord, Pos, forward) ->
     first_match1(RE, cord:walker(Region, forward), Pos);
 
 first_match_c(RE, Cord, Pos, backward) ->
-    case regexp:parse(RE) of
+    case re:compile(RE) of
 	{ok, REP} ->
 	    {Region,_} = cord:split(Cord, Pos),
 	    RREP = reverse(REP),
@@ -60,7 +60,7 @@ continue_match(RE, {W, N}) ->
     end.
 
 first_match1(RE, W, Pos) when list(RE) ->
-    case regexp:parse(RE) of
+    case re:compile(RE) of
 	{ok, REP} ->
 	    first_match1(optimise(REP), W, Pos);
 	X = {error, Rsn} ->
@@ -202,7 +202,7 @@ push(Ch, Cont) ->
 
 %% reverse(RE)
 %% Returns an equivalent regexp which takes its input in reverse order.
-%% RE should come from regexp:parse/1
+%% RE should come from re:compile/1
 reverse({'or', A, B}) ->
     {'or', reverse(B), reverse(A)};
 reverse({concat, A, B}) ->
@@ -258,16 +258,16 @@ same(Inp, REStr) ->
     forwards(Inp, REStr) == backwards(Inp, REStr).
 
 forwards(Inp, RE) ->
-    regexp:match(Inp, RE).
+    regexp:run(Inp, RE).
 
 backwards(Inp, REStr) ->
-    {ok, RE} = regexp:parse(REStr),
-    BackwardsResult = regexp:match(lists:reverse(Inp), reverse(RE)).
+    {ok, RE} = re:compile(REStr),
+    BackwardsResult = re:run(lists:reverse(Inp), reverse(RE)).
 
 complain({Inp, REStr}) ->
-    {ok, RE} = regexp:parse(REStr),
-    ForwardsResult = regexp:match(Inp, RE),
-    BackwardsResult = regexp:match(lists:reverse(Inp), reverse(RE)),
+    {ok, RE} = re:compile(REStr),
+    ForwardsResult = re:run(Inp, RE),
+    BackwardsResult = re:run(lists:reverse(Inp), reverse(RE)),
     error_logger:info_msg("match(~p, ~p):~n  Fwds = ~p~n  Bwds = ~p~n",
           [Inp, REStr, ForwardsResult, BackwardsResult]).
 
@@ -281,6 +281,7 @@ bench(Regexp, Cord) ->
       [round(CordSpeed * 100 / ListSpeed),
        round(CordSpeed/1000),
        round(ListSpeed/1000)]).
+
 
 escape([H|T]) ->
     case lists:member(H, specials()) of

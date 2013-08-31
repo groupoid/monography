@@ -102,7 +102,7 @@ cx_bindings() ->
      {"0",   {edit_lib, delete_window, []}},
      {"1",   {edit_lib, delete_other_windows, []}},
      {"2",   {edit_lib, split_window_vertically, []}},
-%      {"e",   {edit_erlang, erlang_mode, []}},
+      {"e",   {edit_erlang, erlang_mode, []}},
      {"d",   {edit_lib, buffer_cord_info, []}}
     ].
 

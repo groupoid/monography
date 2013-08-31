@@ -85,7 +85,7 @@ auto_set_mode(State) ->
 auto_set_mode(State, Filename, []) ->
     State;
 auto_set_mode(State, Filename, [{RE, {Mod, Fun}}|T]) ->
-    case regexp:match(Filename, RE) of
+    case regexp:run(Filename, RE) of
 	nomatch ->
 	    auto_set_mode(State, Filename, T);
 	{match, _, _} ->

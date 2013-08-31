@@ -211,9 +211,9 @@ dispatch_loop(State, Pid, WantKey) ->
 	    dispatch_loop(State, Pid, false);
 	{want_key, Pid} when WantKey == false ->
 	    dispatch_loop(State, Pid, true);
-	{'EXIT', Pid, Reason} ->
+	{'EXIT', Pid, {_,Reason}} ->
             F = io_lib:format("~p",[Reason]),
-	    edit_util:status_msg(State,"Dispatch error: ~p",[F])
+	    edit_util:status_msg(State,"Dispatch error: ~s",[F])
     end.
 
 

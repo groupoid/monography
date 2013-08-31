@@ -268,8 +268,8 @@ complain({Inp, REStr}) ->
     {ok, RE} = regexp:parse(REStr),
     ForwardsResult = regexp:match(Inp, RE),
     BackwardsResult = regexp:match(lists:reverse(Inp), reverse(RE)),
-    io:format("match(~p, ~p):~n  Fwds = ~p~n  Bwds = ~p~n",
-	      [Inp, REStr, ForwardsResult, BackwardsResult]).
+    error_logger:info_msg("match(~p, ~p):~n  Fwds = ~p~n  Bwds = ~p~n",
+          [Inp, REStr, ForwardsResult, BackwardsResult]).
 
 %% Compare speed of this module on a cord to the speed of the 'regexp'
 %% module on a string.
@@ -277,10 +277,10 @@ bench(Regexp, Cord) ->
     List = cord:to_list(Cord),
     {CordSpeed,_} = timer:tc(?MODULE, first_match, [Regexp, Cord]),
     {ListSpeed, _} = timer:tc(regexp, first_match, [List, Regexp]),
-    io:format("Cord takes ~p% time of List (~pms vs ~pms).~n",
-	      [round(CordSpeed * 100 / ListSpeed),
-	       round(CordSpeed/1000),
-	       round(ListSpeed/1000)]).
+    error_logger:info_msg("Cord takes ~p% time of List (~pms vs ~pms).~n",
+      [round(CordSpeed * 100 / ListSpeed),
+       round(CordSpeed/1000),
+       round(ListSpeed/1000)]).
 
 escape([H|T]) ->
     case lists:member(H, specials()) of

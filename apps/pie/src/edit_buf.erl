@@ -9,14 +9,13 @@
 -author('luke@bluetail.com').
 
 -compile(export_all).
-%%-export([Function/Arity, ...]).
 
 -record(state, {name,
-		filename,		% optional
-		text,			% text()
-		mode,
-		borrower=nobody		% for a lock pid()
-	       }).
+                filename, % optional
+                text, % text()
+                mode,
+                borrower=nobody % for a lock pid()
+            }).
 
 %% ----------------------------------------------------------------------
 %% API
@@ -151,10 +150,9 @@ cast(Buf, Msg) ->
     ok.
 
 init(Name) ->
-    {'EXIT', Reason} = (loop(#state{name=Name,
-					  mode=edit_lib:fundamental_mode_rec(),
-					  text=edit_text:new()})),
-    io:format("Buffer ~p crashed: ~p~n", [Name, Reason]),
+    {'EXIT', Reason} = loop(#state{name=Name,
+                                    mode=edit_lib:fundamental_mode_rec(),
+                                    text=edit_text:new()}),
     exit(Reason).
 
 loop(State) ->
@@ -266,8 +264,7 @@ loop(State) ->
 	%% borrow
 	{call, From, {borrow, Borrower}} when State#state.borrower == nobody ->
 	    From ! {reply, true},
-            io:format("Borrowing buffer for ~p at ~s~n", [Borrower,
-                                                          os:cmd("date")]),
+%            iox:format("Borrowing buffer for ~p at ~s~n", [Borrower, os:cmd("date")]),
 	    %% monitor the borrower so we know when to release
 	    erlang:monitor(process, Borrower),
 	    edit_buf:loop(State#state{borrower=Borrower});

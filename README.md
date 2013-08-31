@@ -15,7 +15,6 @@ Run
 Futher tasks
 ------------
 
-* Error Logging to STDERR device
 * Syntax Coloring
 * CUA mode
 * Selection

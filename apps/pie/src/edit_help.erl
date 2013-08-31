@@ -72,14 +72,14 @@ guess_source_file(S0) ->
 %% Keymap lookup - cut&paste from edit.erl
 
 lookup_key(State) ->
-    io:format("here.~n"),
+%    iox:format("here.~n"),
     Buf = buffer(State),
     Keymaps = (edit_buf:get_mode(Buf))#mode.keymaps ++ [global_map],
     lookup_key(State, Keymaps).
 
 lookup_key(State, Keymaps) ->
     Ch = edit:get_key(),
-    io:format("Snarfed key: ~p ~p~n", [Ch, Keymaps]),
+%    iox:format("Snarfed key: ~p ~p~n", [Ch, Keymaps]),
     lookup_key(State, Keymaps, Ch).
 
 lookup_key(State, [], Ch) ->
@@ -87,7 +87,7 @@ lookup_key(State, [], Ch) ->
 lookup_key(State, [Keymap|Keymaps], Ch) ->
     case edit_keymap:lookup(Keymap, Ch) of
 	{ok, {keymap, NewMap}} ->
-	    io:format("Retrying with ~p~n", [NewMap]),
+%	    iox:format("Retrying with ~p~n", [NewMap]),
 	    lookup_key(State, [NewMap]);
 	{ok, Cmd} ->
 	    Cmd;

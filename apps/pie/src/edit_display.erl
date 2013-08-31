@@ -97,7 +97,7 @@ draw_modeline(Window) ->
     Buffer = Window#window.buffer,
     Where = modeline_where(Window, Buffer),
     Text = lists:flatten(
-	     io_lib:format("--:?? ~s (~s) ~s",
+	     io_lib:format("-U:-mx ~s (~s) ~s",
 			   [atom_to_list(Buffer),
 			    (edit_buf:get_mode(Buffer))#mode.name,
 			    Where])),

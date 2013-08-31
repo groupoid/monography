@@ -81,14 +81,10 @@ region(Buffer) ->
 
 erlang_interaction_mode(State) ->
     case edit_keymap:keymap_exists(?keymap) of
-	false ->
-	    init_map();
-	true ->
-	    ok
+        false -> init_map();
+        true -> ok
     end,
-    Mode = #mode{name="Erlang Interaction",
-		 id=erlang_interaction,
-		 keymaps=[?keymap]},
+    Mode = #mode{name="Erlang Interaction", id=erlang_interaction,keymaps=[?keymap]},
     Buf = buffer(State),
     edit_buf:set_mode(Buf, Mode),
     edit_buf:add_mark(Buf, ?output_mark, 1, forward),
@@ -101,7 +97,7 @@ init_map() ->
 bindings() ->
     [{"C-m", {?MODULE, interactive_eval, []}},
      {"C-a", {?MODULE, beginning_of_prompt, []}}]
-	++ edit_history:bindings(?history, {?MODULE, region}).
+    ++ edit_history:bindings(?history, {?MODULE, region}).
 
 interactive_eval(State) ->
     P = find_start(buffer(State)),
@@ -115,19 +111,15 @@ interactive_eval1(State, CodeStart, SearchStart) ->
     Region = edit_buf:get_region(Buf, CodeStart, CodeEnd),
     Bindings = edit_var:lookup(erlang_interaction_bindings, []),
     case erl_scan:tokens([], Region ++ "\n", 1) of
-	{done, {ok, Tokens, _}, _} ->	% ok - enough
-	    %% Move point to the end
-	    edit_buf:move_mark(Buf, point, CodeEnd),
-	    %% eval
-	    edit_util:spawn_with([Buf],
-				 fun() ->
-					 eval_async(Buf, Tokens, Bindings)
-				 end),
-	    edit_history:add(?history, Region);
-	{more, _} when CodeEnd == Max ->
-	    edit_buf:insert(Buf, "\n", edit_buf:mark_pos(Buf, point));
-	{more, _} ->
-	    interactive_eval1(State, CodeStart, CodeEnd + 1)
+        {done, {ok, Tokens, _}, _} ->	% ok - enough
+            %% Move point to the end
+            edit_buf:move_mark(Buf, point, CodeEnd),
+            %% eval
+            edit_util:spawn_with([Buf], fun() -> eval_async(Buf, Tokens, Bindings) end),
+            edit_history:add(?history, Region);
+        {more, _} when CodeEnd == Max ->
+            edit_buf:insert(Buf, "\n", edit_buf:mark_pos(Buf, point));
+        {more, _} -> interactive_eval1(State, CodeStart, CodeEnd + 1)
     end.
 
 eval_async(Buf, Tokens, Bindings) ->
@@ -138,15 +130,16 @@ eval_async(Buf, Tokens, Bindings) ->
     edit_buf:move_mark(Buf, ?output_mark, InsertionPoint),
     %% eval
     Str = case serv_eval(Buf, Tokens, Bindings) of
-	      {ok, Value, NewBs} ->
-		  %% FIXME: bindings
-		  edit_var:set(erlang_interaction_bindings, NewBs),
-		  fmt("=> ~p\n", [Value]);
-	      {error, {'EXIT', Rsn}} ->
-		  fmt("** exited: ~p **\n", [Rsn]);
-	      {error, Rsn} ->
-		  fmt("** ~s **\n", [Rsn])
-	  end,
+        {ok, Value, NewBs} -> % FIXME: bindings
+            edit_var:set(erlang_interaction_bindings, NewBs),
+            fmt("=> ~p\n", [Value]);
+        {error, {'EXIT', Rsn}} ->
+            fmt("** exited: ~p **\n", [Rsn]);
+        {error, Rsn} ->
+            fmt("** ~s **\n", [Rsn]);
+        X -> error_logger:info_msg("IE Serv Eval Unknown: ~p",[X])
+
+    end,
     edit_buf:insert(Buf, Str, edit_buf:mark_pos(Buf, point)),
     PromptPos = edit_buf:mark_pos(Buf, point),
     edit_buf:insert(Buf, ?PROMPT, PromptPos),
@@ -167,18 +160,14 @@ beginning_of_prompt_pos(Buf) ->
     Point = edit_buf:mark_pos(Buf, point),
     BOL = edit_lib:beginning_of_line_pos(Buf),
     case find_start(Buf) of
-	Pos when Pos > BOL, Pos =< Point ->
-	    Pos;
-	_ ->
-	    BOL
+        Pos when Pos > BOL, Pos =< Point -> Pos;
+        _ -> BOL
     end.
 
 find_start(Buf) ->
     case edit_lib:find_string_backward(Buf, ?PROMPT) of
-	not_found ->
-	    1;
-	X ->
-	    edit_lib:min(X + length(?PROMPT), edit_buf:point_max(Buf))
+        not_found -> 1;
+        X ->  edit_lib:min(X + length(?PROMPT), edit_buf:point_max(Buf))
     end.
 
 %% local_func(Function, Args, Bindings, Shell) ->
@@ -188,10 +177,8 @@ find_start(Buf) ->
 local_func(F, As0, Bs0, Buf) ->
     {As,Bs} = erl_eval:expr_list(As0, Bs0, {eval,{?MODULE,local_func},[Buf]}),
     case erlang:function_exported(user_default, F, length(As)) of
-	true ->
-	    {value,apply(user_default, F, As),Bs};
-	false ->
-	    {value,apply(shell_default, F, As),Bs}
+        true -> {value,apply(user_default, F, As),Bs};
+        false -> {value,apply(shell_default, F, As),Bs}
     end;
 local_func(F, As0, Bs0, Buf) ->
     {As,Bs} = erl_eval:expr_list(As0, Bs0, {eval,{?MODULE,local_func},[Buf]}),
@@ -208,8 +195,7 @@ ensure_serv_started(Buffer) ->
 	    Pid = spawn(?MODULE, eval_serv_init, [Buffer]),
 	    register(serv_name(Buffer), Pid),
 	    ok;
-	Pid ->
-	    already_started
+	Pid -> already_started
     end.
 
 serv_eval(Buffer, Tokens, Bindings) ->
@@ -217,10 +203,9 @@ serv_eval(Buffer, Tokens, Bindings) ->
     erlang:monitor(process, Serv),
     Serv ! {call, self(), {eval, Tokens, Bindings}},
     receive
-	{reply, Result} ->
-	    Result;
-	{'DOWN', _, process, Serv, Rsn} ->
-	    {error, {'EXIT', Rsn}}
+        {reply, Result} -> Result;
+        {'DOWN', _, process, Serv, Rsn} -> {error, {'EXIT', Rsn}};
+        X -> error_logger:info_msg("serv_eval Unknown: ~p",[X])
     end.
 
 %% serv_name(foo) -> 'foo:eval_serv'
@@ -237,15 +222,18 @@ eval_serv_init(Buffer) ->
 
 eval_serv_loop(Buffer, GL) ->
     receive
-	{call, From, {eval, Tokens, Bindings}} ->
-	    GL ! {got_shared_lock, self()},
-	    Result = eval_tokens(Buffer, Tokens, Bindings),
+        {call, From, {eval, Tokens, Bindings}} ->
+            GL ! {got_shared_lock, self()},
+            Result = eval_tokens(Buffer, Tokens, Bindings),
 	    GL ! {releasing_shared_lock, self()},
 	    receive gl_ack -> ok end,
 	    From ! {reply, Result},
 	    eval_serv_loop(Buffer, GL);
 	{'DOWN', _, _, _, _} ->
-	    exit(buffer_died)
+	    exit(buffer_died);
+        X -> 
+            error_logger:info_msg("eval_serv_loop Unknown: ~p",[X])
+
     end.
 
 %% ----------------------------------------------------------------------
@@ -265,12 +253,9 @@ gl_serv_init(Buffer) ->
 
 %% State: Nothing known about Buffer's lock
 gl_serv_without_lock(Buffer) ->
-    ?debug("STATE: no lock~n", []),
     receive
-	Msg = {io_request, From, ReplyAs, Req} ->
-	    gl_serv_work(Buffer, Msg);
-	{got_shared_lock, Holder} ->
-	    gl_serv_with_lock(Buffer)
+        Msg = {io_request, From, ReplyAs, Req} -> gl_serv_work(Buffer, Msg);
+        {got_shared_lock, Holder} -> gl_serv_with_lock(Buffer)
     end.
 
 %% State: Buffer is locked by eval_server, so we can use it.
@@ -308,11 +293,9 @@ do_gl_request(Buffer, {io_request, From, ReplyAs, {put_chars, M, F, A}}) ->
     end;
 do_gl_request(Buffer, {io_request, From, ReplyAs, {put_chars, IOList}}) ->
     From ! {io_reply, ReplyAs, ok},
-    Bin = list_to_binary(IOList),
+    Bin = iolist_to_binary(IOList),
     Pos = edit_buf:mark_pos(Buffer, ?output_mark),
     edit_buf:insert(Buffer, Bin, Pos),
     redraw();
 do_gl_request(Buffer, {io_request, From, ReplyAs, {get_until, _, _, _}}) ->
     From ! {io_reply, ReplyAs, eof}.
-
-

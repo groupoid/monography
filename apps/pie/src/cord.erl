@@ -172,7 +172,7 @@ split(Cord, Pos) when record(Cord, cord) ->
     ?assert(Pos =< cord_size(Cord)),
     LeftSz = cord_size(Cord#cord.left),
     RightSz = cord_size(Cord#cord.right),
-    %%io:format("Split - left:~p right:~p~n", [LeftSz, RightSz]),
+    error_logger:info_msg("Split - left:~p right:~p~n", [LeftSz, RightSz]),
     if LeftSz == Pos ->
 	    {Cord#cord.left, Cord#cord.right};
        LeftSz > Pos ->

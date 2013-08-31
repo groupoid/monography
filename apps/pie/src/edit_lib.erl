@@ -283,10 +283,8 @@ find_char_forward1(finish, Pred, Pos) ->
     {result, not_found};
 find_char_forward1(C, Pred, Pos) ->
     case Pred(C) of
-	true ->
-	    {result, Pos};
-	false ->
-	    {more, fun(New) -> find_char_forward1(New, Pred, Pos+1) end}
+        true -> {result, Pos};
+        false -> {more, fun(New) -> find_char_forward1(New, Pred, Pos+1) end}
     end.
 
 recenter(State) ->
@@ -295,16 +293,11 @@ recenter(State) ->
     Lines = trunc(Win#window.height/2),
     Point = edit_buf:mark_pos(Buf, point),
     NewDStart = case find_nth(Buf, backward, Point, $\n, Lines) of
-		    not_found ->
-			1;
-		    Pos ->
-			Pos + 1
-		end,
+        not_found -> 1;
+        Pos -> Pos + 1 end,
     edit_buf:move_mark(Buf, Win#window.start_mark, NewDStart),
     ?EDIT_TERMINAL:invalidate(),
     State.
-
-%% These scrolling functions are ugly
 
 scroll_up(State) ->
     Win = State#state.curwin,
@@ -312,24 +305,15 @@ scroll_up(State) ->
     Buf = buffer(State),
     DStart = edit_buf:mark_pos(Buf, Win#window.start_mark),
     NewDStart =
-	case find_nth(Buf, backward, DStart, $\n, Height - 1) of
-	    not_found ->
-		1;
-	    X when integer(X) ->
-		X + 1
-	end,
+        case find_nth(Buf, backward, DStart, $\n, Height - 1) of
+            not_found -> edit_buf:move_mark(Buf, point, 1), 1;
+            X when integer(X) -> X + 1 end,
     DEnd = case find_nth(Buf, forward, NewDStart, $\n, Height) of
-	       not_found ->
-		   edit_buf:point_max(Buf);
-	       N ->
-		   N
-	   end,
+       not_found ->  edit_buf:point_max(Buf);
+       N -> N end,
     Point = edit_buf:mark_pos(Buf, point),
-    if Point > DEnd ->
-	    move_to(Buf, beginning_of_line_pos(Buf, DEnd));
-       true ->
-	    ok
-    end,
+    if Point > DEnd -> move_to(Buf, beginning_of_line_pos(Buf, DEnd));
+       true -> ok end,
     edit_buf:move_mark(Buf, Win#window.start_mark, NewDStart),
     State.
 
@@ -339,24 +323,19 @@ scroll_down(State) ->
     DStart = edit_buf:mark_pos(Buf, Win#window.start_mark),
     PMax = edit_buf:point_max(Buf),
     case find_nth(Buf, forward, DStart, $\n, edit_window:text_lines(Win)-2) of
-	X when integer(X),
-	       X < PMax ->
-	    %% We want to be just after the newline - i.e. start of next line
-	    Pos = X + 1,
-	    Point = edit_buf:mark_pos(Buf, point),
-	    if Point < Pos ->
-		    %% Scrolled the point off the screen, move the
-		    %% point to the old display start (up near the
-		    %% top).
-		    edit_buf:move_mark(Buf, point, Pos);
-	       true ->
-		    ok
-	    end,
-	    edit_buf:move_mark(Buf, Win#window.start_mark, Pos),
-	    State;
-	_ ->
-	    State
-    end.
+        X when integer(X), X < PMax ->
+            %% We want to be just after the newline - i.e. start of next line
+            Pos = X + 1,
+            Point = edit_buf:mark_pos(Buf, point),
+            if Point < Pos ->
+                %% Scrolled the point off the screen, move the
+                %% point to the old display start (up near the
+                %% top).
+                edit_buf:move_mark(Buf, point, Pos);
+                true -> ok end,
+            edit_buf:move_mark(Buf, Win#window.start_mark, Pos),
+            State;
+        _ -> State end.
 
 scroll_down_wrap(Win) ->
     Buf = Win#window.buffer,

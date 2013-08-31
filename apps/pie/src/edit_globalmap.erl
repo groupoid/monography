@@ -74,15 +74,15 @@ bindings() -> [
     {"M-:",     {edit_eval, eval_expression, []}},
     {"M-x",     {edit_extended, execute_extended_command, []}},
     {"M-r",     {edit_extended, execute_erlang_command, []}},
-    {"C-g",    {edit_lib, abort, []}},
+    {"C-g",     {edit_lib, abort, []}},
     %% Keymaps
-    {"M-[",    {keymap, term_escape_map}},
-    {"C-x",    {keymap, global_cx_map}},
+    {"M-[",     {keymap, term_escape_map}},
+    {"C-x",     {keymap, global_cx_map}},
     %% Help
-    {"C-j",    {keymap, help_map}},
+    {"C-j",     {keymap, help_map}},
     %% self insert commands (\r becomes \n)
-    {$\r,      {edit_lib, self_insert_command, [$\n]}}
-    | [{Ch,    {edit_lib, self_insert_command, [Ch]}} || Ch <- self_inserts()] ].
+    {$\r,       {edit_lib, self_insert_command, [$\n]}}
+    | [{Ch,     {edit_lib, self_insert_command, [Ch]}} || Ch <- self_inserts()] ].
 
 %% ESC [ <key> - for arrows etc
 term_escape_bindings() -> [
@@ -129,4 +129,4 @@ help_bindings() -> [
     {"k", {edit_help, describe_key, []}},
     {"s", {edit_help, find_source, []}}].
 
-self_inserts() -> "\n\t" ++ lists:seq(32, 125).
+self_inserts() -> (((("\n\t" ++ lists:seq(32, 125)) -- [67]) -- [66]) -- [65]) -- [68].

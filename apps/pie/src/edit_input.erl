@@ -14,19 +14,20 @@ loop(Receiver) ->
         $\n -> $\r;
         145 -> panic(); % C-M-q is reserved for panic 
         219 -> case ?EDIT_TERMINAL:read() of
-                    53 -> [219,53,?EDIT_TERMINAL:read()];
-                    54 -> [219,54,?EDIT_TERMINAL:read()];
-                    X -> Receiver ! {key_input, 219}, 
+                    53 -> [219,53,?EDIT_TERMINAL:read()]; % Fn-UP
+                    54 -> [219,54,?EDIT_TERMINAL:read()]; % Fn-DOWN
+                    X -> Receiver ! {key_input, 219},
                          Receiver ! {key_input, X},
                          ?MODULE:loop(Receiver) end;
         59 -> case ?EDIT_TERMINAL:read() of
-                    53 -> [59,53,?EDIT_TERMINAL:read()];
-                    X -> Receiver ! {key_input, 59}, 
+                    53 -> [59,53,?EDIT_TERMINAL:read()]; % CTRL+CURSON
+                    50 -> [59,50,?EDIT_TERMINAL:read()]; % SHIFT+CURSOR
+                    X -> Receiver ! {key_input, 59},
                          Receiver ! {key_input, X},
                          ?MODULE:loop(Receiver) end;
         207 -> case ?EDIT_TERMINAL:read() of
-                    70 -> [207,70];
-                    72 -> [207,72];
+                    70 -> [207,70]; % Fn-RIGHT
+                    72 -> [207,72]; % Fn-LEFT
                     X -> Receiver ! {key_input, 207},
                          Receiver ! {key_input, X},
                          ?MODULE:loop(Receiver) end;

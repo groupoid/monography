@@ -9,7 +9,6 @@
 -author('luke@bluetail.com').
 
 -include_lib("pie/include/edit.hrl").
-
 -compile({parse_transform, edit_transform}).
 
 -import(edit_lib, [buffer/1]).

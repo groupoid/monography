@@ -7,9 +7,7 @@
 
 -module(edit_input).
 -author('luke@bluetail.com').
-
 -include_lib("pie/include/edit.hrl").
-
 -export([start_link/1, loop/1]).
 
 %% Receiver will be sent {key_input, Char} each time a key is pressed.
@@ -20,15 +18,19 @@ start_link(Receiver) ->
 
 loop(Receiver) ->
     Ch = case ?EDIT_TERMINAL:read() of
-	     $\n ->
-		 $\r;
-	     145 ->			% C-M-q is reserved for panic
-		 panic();
-	     X ->
-		 X
-	 end,
+        $\n -> $\r;
+        145 -> panic(); % C-M-q is reserved for panic 
+        219 -> case ?EDIT_TERMINAL:read() of
+                    53 -> [219,53,?EDIT_TERMINAL:read()];
+                    54 -> [219,54,?EDIT_TERMINAL:read()];
+                    X -> Receiver ! {key_input, 219}, X end;
+        207 -> case ?EDIT_TERMINAL:read() of
+                    70 -> [207,70];
+                    72 -> [207,72];
+                    X -> Receiver ! {key_input, 207}, X end;
+        XXX -> XXX end,
+    error_logger:info_msg("Input Char: ~p",[Ch]),
     Receiver ! {key_input, Ch},
-    loop(Receiver).
+    edit_input:loop(Receiver).
 
-panic() ->
-    halt().
+panic() -> halt().

@@ -29,8 +29,10 @@ bindings() ->
     [
      %% Motion
      {"C-a", {edit_lib, beginning_of_line, []}},
+     {"Fn-HOME", {edit_lib, beginning_of_line, []}},
      {"C-b", {edit_lib, backward_char, []}},
      {"C-e", {edit_lib, end_of_line, []}},
+     {"Fn-END", {edit_lib, end_of_line, []}},
      {"C-f", {edit_lib, forward_char, []}},
      {"M-b", {edit_lib, backward_word, []}},
      {"M-f", {edit_lib, forward_word, []}},
@@ -41,6 +43,8 @@ bindings() ->
      {"C-M-a", {edit_erlang, beginning_of_function, []}},
      {"C-v", {edit_lib, scroll_down, []}},
      {"M-v", {edit_lib, scroll_up, []}},
+     {"Fn-PGDN", {edit_lib, scroll_down, []}},
+     {"Fn-PGUP", {edit_lib, scroll_up, []}},
      {"C-l", {edit_lib, recenter, []}},
      %% Editing
      {"C-h", {edit_lib, delete_char_backward, []}},

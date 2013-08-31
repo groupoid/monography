@@ -15,6 +15,11 @@
 
 -compile(export_all).
 
+keyname([219,53,126]) -> "Fn-PGUP";
+keyname([219,54,126]) -> "Fn-PGDN";
+keyname([207,72]) -> "Fn-HOME";
+keyname([207,70]) -> "Fn-END";
+keyname(L) when is_list(L) -> L;
 keyname(263) -> "C-h";
 keyname(127) -> "C-h";
 keyname(272) -> "C-h";

@@ -29,6 +29,8 @@ bindings() -> [
     % CUA
     {"Fn-HOME", {edit_lib, beginning_of_line, []}},
     {"Fn-END",  {edit_lib, end_of_line, []}},
+    {"SC-LEFT", {edit_lib, beginning_of_line, []}},
+    {"SC-RIGHT",{edit_lib, end_of_line, []}},
     {"C-LEFT",  {edit_lib, backward_word, []}},
     {"C-RIGHT", {edit_lib, forward_word, []}},
     {"Fn-PGDN", {edit_lib, scroll_down, []}},

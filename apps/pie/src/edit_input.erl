@@ -20,6 +20,7 @@ loop(Receiver) ->
                          Receiver ! {key_input, X},
                          ?MODULE:loop(Receiver) end;
         59 -> case ?EDIT_TERMINAL:read() of
+                    54 -> [59,54,?EDIT_TERMINAL:read()]; % SHIFT+CTRL+CURSOR
                     53 -> [59,53,?EDIT_TERMINAL:read()]; % CTRL+CURSON
                     50 -> [59,50,?EDIT_TERMINAL:read()]; % SHIFT+CURSOR
                     X -> Receiver ! {key_input, 59},

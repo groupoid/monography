@@ -15,6 +15,8 @@
 
 -compile(export_all).
 
+keyname([59,54,67]) -> "SC-RIGHT";
+keyname([59,54,68]) -> "SC-LEFT";
 keyname([59,53,67]) -> "C-RIGHT";
 keyname([59,53,68]) -> "C-LEFT";
 keyname([219,53,126]) -> "Fn-PGUP";

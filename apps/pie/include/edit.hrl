@@ -19,7 +19,8 @@
 	 lastcmd,		 % {M, F, A} of the last command executed
 	 %% for edit_extended
 	 pending_cmd,
-	 pending_win
+	 pending_win,
+         selection
 	}).
 
 %% Window: an area of the display used for viewing a particular

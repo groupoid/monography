@@ -165,13 +165,14 @@ dispatch(State) ->
 	{invoke_erlang, {Mod, Func, Args}} ->
 	    dispatch_erlang(State, Mod, Func, Args);
 	{key_input, Ch} ->
-	    case find_cmd(State, Keymaps, Ch) of
+            SState = selection_changed(State,Ch),
+	    case find_cmd(SState, Keymaps, Ch) of
 		unbound ->
-		    edit_util:status_msg(State, "Unbound key");
+		    edit_util:status_msg(SState, "Unbound key");
 		{Mod, Func, Args} ->
-		    dispatch_extended(State, Mod, Func, Args);
+		    dispatch_extended(SState, Mod, Func, Args);
 		Other ->
-		    edit_util:status_msg(State,"Bad binding: ~p~n",[Other])
+		    edit_util:status_msg(SState,"Bad binding: ~p~n",[Other])
 	    end;
 	{'EXIT', _Someone, _SomeReason} ->
 	    dispatch(State);
@@ -186,6 +187,13 @@ dispatch_extended(State, Mod, Func, Args) ->
 dispatch_erlang(State, Mod, Func, Args) ->
     F = fun() -> edit_extended:erlang_command(State, Mod, Func, Args) end,
     dispatch_proc(State, F).
+
+selection_changed(State,Ch) ->
+    SState = State#state{selection = edit_util:shift(Ch)},
+    Keyname = edit_util:keyname(Ch),
+    case State#state.selection =:= SState#state.selection of
+         false -> error_logger:info_msg("Selection Changed: ~p ~p ~p ~w",[State#state.selection,SState#state.selection,Keyname,Ch]);
+         true ->  error_logger:info_msg("Selection Preserves: ~p ~w",[Keyname,Ch]) end, SState.
 
 %% ----------------------------------------------------------------------
 %% Dispatch a command in a new process. The process gets aborted if

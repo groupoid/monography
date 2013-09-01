@@ -15,18 +15,34 @@
 
 -compile(export_all).
 
-keyname([59,54,67]) -> "SC-RIGHT";
-keyname([59,54,68]) -> "SC-LEFT";
-keyname([59,53,67]) -> "C-RIGHT";
-keyname([59,53,68]) -> "C-LEFT";
-keyname([219,53,126]) -> "Fn-PGUP";
-keyname([219,54,126]) -> "Fn-PGDN";
-keyname([207,72]) -> "Fn-HOME";
-keyname([207,70]) -> "Fn-END";
-keyname([59,50,68]) -> "S-LEFT";
-keyname([59,50,67]) -> "S-RIGHT";
-keyname([59,50,65]) -> "S-UP";
-keyname([59,50,66]) -> "S-DOWN";
+keyname([219,65])          -> "UP";
+keyname([219,66])          -> "DOWN";
+keyname([219,67])          -> "RIGHT";
+keyname([219,68])          -> "LEFT";
+keyname([207,70])          -> "Fn-END";
+keyname([207,72])          -> "Fn-HOME";
+keyname([219,53,126])      -> "Fn-PGUP";
+keyname([219,54,126])      -> "Fn-PGDN";
+keyname([219,49,59,50,65]) -> "S-UP";
+keyname([219,49,59,50,66]) -> "S-DOWN";
+keyname([219,49,59,50,67]) -> "S-RIGHT";
+keyname([219,49,59,50,68]) -> "S-LEFT";
+keyname([219,49,59,51,65]) -> "A-UP";
+keyname([219,49,59,51,66]) -> "A-DOWN";
+keyname([219,49,59,51,67]) -> "A-RIGHT";
+keyname([219,49,59,51,68]) -> "A-LEFT";
+keyname([219,49,59,52,65]) -> "SA-UP";
+keyname([219,49,59,52,66]) -> "SA-DOWN";
+keyname([219,49,59,52,67]) -> "SA-RIGHT";
+keyname([219,49,59,52,68]) -> "SA-LEFT";
+keyname([219,49,59,53,65]) -> "C-UP";
+keyname([219,49,59,53,66]) -> "C-DOWN";
+keyname([219,49,59,53,67]) -> "C-RIGHT";
+keyname([219,49,59,53,68]) -> "C-LEFT";
+keyname([219,49,59,54,65]) -> "SC-UP";
+keyname([219,49,59,54,66]) -> "SC-DOWN";
+keyname([219,49,59,54,67]) -> "SC-RIGHT";
+keyname([219,49,59,54,68]) -> "SC-LEFT";
 keyname(L) when is_list(L) -> L;
 keyname(263) -> "C-h";
 keyname(127) -> "C-h";
@@ -53,6 +69,9 @@ meta_bit() -> 2#10000000.
 
 ctrl_p(C) -> Base = unmeta(C), ((Base band 2#01000000) == 0) and (Base < 32).
 unctrl(C) -> C + 64.
+
+shift([_,_,_,X,_]) -> X band 1 == 0;
+shift(C) -> false.
 
 tolower(C) when C >= $A, C =< $Z ->
     C - $A + $a;

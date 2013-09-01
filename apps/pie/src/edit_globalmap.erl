@@ -36,6 +36,10 @@ bindings() -> [
     {"Fn-PGDN", {edit_lib, scroll_down, []}},
     {"Fn-PGUP", {edit_lib, scroll_up, []}},
     {"DEL",     {edit_lib, delete_char_forward, []}},
+    {"DOWN",    {edit_lib, next_line, []}},
+    {"UP",      {edit_lib, previous_line, []}},
+    {"LEFT",    {edit_lib, backward_char, []}},
+    {"RIGHT",   {edit_lib, forward_char, []}},
     %% Motion
     {"C-a",     {edit_lib, beginning_of_line, []}},
     {"C-b",     {edit_lib, backward_char, []}},

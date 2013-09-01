@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PIE=$(dirname $(readlink $0))
+PIE=$(dirname $(readlink -f $0))
 echo "$PIE"
 
 erl -pa $PIE/deps/gproc/ebin $PIE/deps/sync/ebin $PIE/deps/lager/ebin \

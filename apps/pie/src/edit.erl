@@ -147,6 +147,15 @@ redraw(State) ->
     lists:foreach(fun(W) -> edit_display:draw_window(W) end,
 		  State#state.windows),
     Cur = edit_display:draw_window(State#state.curwin),
+
+    Buf = edit_lib:buffer(State),
+    Point = edit_buf:mark_pos(Buf, point),
+
+    case State#state.selection of
+         true -> error_logger:info_msg("Point: ~p",[Point]),
+%                     ?EDIT_TERMINAL:selection(),
+                     ok;
+         _ -> ok end,
     ?EDIT_TERMINAL:refresh(),
     State#state{curwin=Cur,
 		windows=Wins}.
@@ -192,7 +201,9 @@ selection_changed(State,Ch) ->
     SState = State#state{selection = edit_util:shift(Ch)},
     Keyname = edit_util:keyname(Ch),
     case State#state.selection =:= SState#state.selection of
-         false -> error_logger:info_msg("Selection Changed: ~p ~p ~p ~w",[State#state.selection,SState#state.selection,Keyname,Ch]);
+         false ->  edit_terminal:selection(),
+            error_logger:info_msg("Selection Changed: ~p ~p ~p ~w",
+                [State#state.selection,SState#state.selection,Keyname,Ch]);
          true ->  error_logger:info_msg("Selection Preserves: ~p ~w",[Keyname,Ch]) end, SState.
 
 %% ----------------------------------------------------------------------

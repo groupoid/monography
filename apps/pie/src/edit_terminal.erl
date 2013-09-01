@@ -7,13 +7,9 @@
 
 -module(edit_terminal).
 -author('luke@bluetail.com').
-
 -include_lib("eslang/include/slang.hrl").
-
 -define(ESC, 27).
-
 -compile(export_all).
-%%-export([Function/Arity, ...]).
 
 setup() ->
     slang:tt_get_terminfo(),
@@ -25,6 +21,14 @@ setup() ->
     slang:setvar(newline_behaviour, ?NEWLINE_MOVES),
     refresh(),
     ok.
+
+selection() ->
+    error_logger:info_msg("draw selection"),
+    edit_terminal:font_reverse(),
+    slang:tt_set_color(2,"mode-line2","white","blue"),
+    slang:smg_set_color_in_region(2,5,5,10,10),
+    edit_terminal:font_normal(),
+    invalidate(), refresh().
 
 teardown() ->
     slang:smg_reset_smg(),

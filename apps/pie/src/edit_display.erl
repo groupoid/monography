@@ -102,6 +102,7 @@ draw_modeline(Window) ->
     ?EDIT_TERMINAL:font_reverse(),
     slang:tt_set_color(1,"mode-line","white","blue"),
     slang:smg_set_color(1),
+%    slang:smg_set_color_in_region(1,5,5,10,10),
     ?EDIT_TERMINAL:move_to(0, Window#window.y + edit_window:physical_lines(Window) - 1),
     draw_line(Text),
     ?EDIT_TERMINAL:font_normal().

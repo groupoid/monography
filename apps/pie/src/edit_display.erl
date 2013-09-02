@@ -1,25 +1,13 @@
-%%%----------------------------------------------------------------------
-%%% File    : edit_display.erl
-%%% Author  : Luke Gorrie <luke@bluetail.com>
-%%% Purpose : Editor display process: talks to curses
-%%% Created : 16 Sep 2000 by Luke Gorrie <luke@bluetail.com>
-%%%----------------------------------------------------------------------
-
 -module(edit_display).
--author('luke@bluetail.com').
-
+-copyright('Luke Gorrie 16 Sep 2000').
 -include_lib("pie/include/edit.hrl").
-
 -compile(export_all).
-%%-export([Function/Arity, ...]).
 
-draw_window(Window) when Window#window.minibuffer == true,
-			 Window#window.status_text /= undefined ->
+draw_window(Window) when Window#window.minibuffer == true, Window#window.status_text /= undefined ->
     ?EDIT_TERMINAL:move_to(0, Window#window.y),
     draw_line(Window#window.status_text),
-    Window#window{status_text=undefined};
-draw_window(Window) ->
-    try_update(Window).
+    {Window#window{status_text=undefined},{0,Window#window.y}};
+draw_window(Window) -> try_update(Window).
 
 try_update(Window) ->
     Buf = Window#window.buffer,
@@ -39,8 +27,11 @@ try_update(Window) ->
 	    %% draw mode line
 	    draw_modeline(Window),
 	    TrimX = edit_lib:min(X, Window#window.width - 1),
+            XX = TrimX,
+            YY = Y + Window#window.y,
 	    ?EDIT_TERMINAL:move_to(TrimX, Y + Window#window.y),
-	    Window;
+%            error_logger:info_msg("Cursor: ~p",[{XX,YY}]),
+	    {Window,{XX,YY}};
 	undefined ->
 	    %% The point wasn't inside the area we drew, so we
 	    %% recenter the display with the point in the middle and
@@ -51,9 +42,7 @@ try_update(Window) ->
 %% Returns the location of the point in a tuple {X, Y}, or undefined
 %% if it wasn't in the area drawn.
 
-try_update_loop(Text, NRows, Scan, Col, Row, Point, PointXY, Acc)
-  when Scan == Point,
-       PointXY == undefined ->
+try_update_loop(Text, NRows, Scan, Col, Row, Point, PointXY, Acc) when Scan == Point, PointXY == undefined ->
     try_update_loop(Text,NRows,Scan,Col,Row,Point,{Col, Row},Acc);
 try_update_loop([$\n|T], NRows, Scan, Col, Row, Point, PointXY, Acc) ->
     draw_line(lists:reverse(Acc)),

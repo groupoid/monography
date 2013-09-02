@@ -102,6 +102,7 @@ Credits
 -------
 
 * Luke Gorrie
+* Torbjorn Tornkvist
 * Maxim Sokhatsky
 
 Notes

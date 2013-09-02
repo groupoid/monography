@@ -10,7 +10,9 @@ start_link(Receiver) ->
     Pid.
 
 loop(Acc,Receiver) ->
-    Ch = case ?EDIT_TERMINAL:read() of
+    Read = ?EDIT_TERMINAL:read(),
+    
+    Ch = case Read of
         $\n -> $\r;
         145 -> panic(); % C-M-q is reserved for panic 
         219 -> case ?EDIT_TERMINAL:read() of
@@ -21,7 +23,10 @@ loop(Acc,Receiver) ->
                     66 -> [219,66];
                     67 -> [219,67];
                     68 -> [219,68];
-                    X -> Receiver ! {key_input, 219},
+                    70 -> [219,70]; % xterm
+                    72 -> [219,72]; % xterm
+                    X -> error_logger:info_msg("Read: ~p",[X]),
+                         Receiver ! {key_input, 219},
                          X end;
         59 -> case ?EDIT_TERMINAL:read() of
                     54 -> Acc ++ [59,54,?EDIT_TERMINAL:read()]; % SHIFT+CTRL+CURSOR

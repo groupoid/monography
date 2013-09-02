@@ -138,27 +138,28 @@ load_dot_pie(State) ->
 %% The Main Loop
 
 loop(S) ->
-    State = S#state{curwin=edit_display:draw_window(S#state.curwin)},
+    {Curr,LastCursor} = edit_display:draw_window(S#state.curwin),
+    State = S#state{curwin=Curr,last_cursor=LastCursor},
     NewState = dispatch(State),
     ?MODULE:loop(redraw(NewState)).
 
 redraw(State) ->
-    Wins = [edit_display:draw_window(W) || W <- State#state.windows],
-    lists:foreach(fun(W) -> edit_display:draw_window(W) end,
-		  State#state.windows),
-    Cur = edit_display:draw_window(State#state.curwin),
-
-    Buf = edit_lib:buffer(State),
-    Point = edit_buf:mark_pos(Buf, point),
-
+    Wins = [ begin {Win,_} = edit_display:draw_window(W), Win end || W <- State#state.windows],
+%    lists:foreach(fun(W) ->  edit_display:draw_window(W) end, State#state.windows),
+    {Cur,{X,Y}} = edit_display:draw_window(State#state.curwin),
+    SM = State#state.selection_mode,
+    SC = State#state.selection_changed,
     case State#state.selection of
-         true -> error_logger:info_msg("Point: ~p",[Point]),
-%                     ?EDIT_TERMINAL:selection(),
+         {XX,YY} -> error_logger:info_msg("Last: ~p Curr: ~p",[{XX,YY},{X,Y}]),
+                     XMin=edit_lib:min(XX,X),
+                     XMax=edit_lib:max(XX,X),
+                     YMin=edit_lib:min(YY,Y),
+                     YMax=edit_lib:max(YY,Y), 
+                     ?EDIT_TERMINAL:selection(YMin,XMin,YMax-YMin+1,XMax-XMin+1),
                      ok;
          _ -> ok end,
     ?EDIT_TERMINAL:refresh(),
-    State#state{curwin=Cur,
-		windows=Wins}.
+    State#state{curwin=Cur,windows=Wins}.
 
 %% Dispatch a command, based on the next message we receive.
 dispatch(State) ->
@@ -198,13 +199,19 @@ dispatch_erlang(State, Mod, Func, Args) ->
     dispatch_proc(State, F).
 
 selection_changed(State,Ch) ->
-    SState = State#state{selection = edit_util:shift(Ch)},
+    Shift = edit_util:shift(Ch),
+    SState = State#state{selection_mode = Shift},
+    Window = State#state.curwin,
+    Buf = edit_lib:buffer(State),
+    Point = edit_buf:mark_pos(Buf, point),
     Keyname = edit_util:keyname(Ch),
-    case State#state.selection =:= SState#state.selection of
-         false ->  edit_terminal:selection(),
-            error_logger:info_msg("Selection Changed: ~p ~p ~p ~w",
-                [State#state.selection,SState#state.selection,Keyname,Ch]);
-         true ->  error_logger:info_msg("Selection Preserves: ~p ~w",[Keyname,Ch]) end, SState.
+    NewSelection = case State#state.selection_mode =:= Shift of
+         false -> error_logger:info_msg("Selection Changed: ~p ~p ~w",[Point,Keyname,Ch]),changed;
+         true ->  error_logger:info_msg("Selection Preserves: ~p ~w",[Keyname,Ch]),preserved end,
+    SState#state{selection_changed=NewSelection,
+                 selection=case {NewSelection,Shift} of {changed,false} -> ok;
+                                                        {changed,true} -> SState#state.last_cursor;
+                                                        _ -> SState#state.selection end}.
 
 %% ----------------------------------------------------------------------
 %% Dispatch a command in a new process. The process gets aborted if

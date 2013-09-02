@@ -85,6 +85,7 @@ move_mark(Text0, Name, Pos) ->
 %% mark_pos
 
 mark_pos(#text{marks=Marks}, Name) ->
+%    error_logger:info_msg("Marks: ~p Name ~p",[Marks,Name]),
     {found, Mark} = find(fun(M) -> M#mark.name == Name end, Marks),
     Mark#mark.pos.
 

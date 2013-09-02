@@ -20,8 +20,10 @@
 	 %% for edit_extended
 	 pending_cmd,
 	 pending_win,
-         selection
-	}).
+         last_cursor,
+         selection_changed = preserved,
+         selection_mode,
+         selection }).
 
 %% Window: an area of the display used for viewing a particular
 %% buffer, just like an emacs window.

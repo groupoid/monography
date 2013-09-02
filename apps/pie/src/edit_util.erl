@@ -19,10 +19,14 @@ keyname([219,65])          -> "UP";
 keyname([219,66])          -> "DOWN";
 keyname([219,67])          -> "RIGHT";
 keyname([219,68])          -> "LEFT";
+keyname([219,70])          -> "Fn-END"; % xterm
+keyname([219,72])          -> "Fn-HOME"; % xterm
 keyname([207,70])          -> "Fn-END";
 keyname([207,72])          -> "Fn-HOME";
 keyname([219,53,126])      -> "Fn-PGUP";
 keyname([219,54,126])      -> "Fn-PGDN";
+keyname([219,49,59,50,70]) -> "S-Fn-END";
+keyname([219,49,59,50,72]) -> "S-Fn-HOME";
 keyname([219,49,59,50,65]) -> "S-UP";
 keyname([219,49,59,50,66]) -> "S-DOWN";
 keyname([219,49,59,50,67]) -> "S-RIGHT";

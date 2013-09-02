@@ -5,7 +5,7 @@ Emacs-like Erlang editor fully written in Erlang with S-Lang driver.
 It is refined and ready to run on R16B01 with built-in sync and lager.
 Pie codebase is very tiny, clean and extendable.
 
-![Pie](http://synrc.com/lj/pie.png)
+![Pie](http://synrc.com/lj/pie2.png)
 
 Run
 ---

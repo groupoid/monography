@@ -150,7 +150,7 @@ redraw(State) ->
     SM = State#state.selection_mode,
     SC = State#state.selection_changed,
     case State#state.selection of
-         {XX,YY} -> error_logger:info_msg("Last: ~p Curr: ~p",[{XX,YY},{X,Y}]), 
+         {XX,YY} -> %error_logger:info_msg("Last: ~p Curr: ~p",[{XX,YY},{X,Y}]),
                      XMin=edit_lib:min(XX,X),
                      XMax=edit_lib:max(XX,X),
                      YMin=edit_lib:min(YY,Y),

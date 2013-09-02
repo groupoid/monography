@@ -10,11 +10,15 @@ reg(Pool) ->
 
 start(Args) ->
     application:start(sasl),
+    application:start(crypto),
+    application:start(tools),
     application:start(compiler),
     application:start(syntax_tools),
     application:start(lager),
     application:start(gproc),
-    application:start(sync),
+    application:start(rebar),
+    application:start(erlfsmon),
+    application:start(active),
     edit:start(Args).
 
 start() ->

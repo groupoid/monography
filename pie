@@ -3,8 +3,9 @@
 PIE=$(dirname $(readlink -f $0))
 echo "$PIE"
 
-erl -pa $PIE/deps/gproc/ebin $PIE/deps/sync/ebin $PIE/deps/lager/ebin \
+erl -pa $PIE/deps/gproc/ebin $PIE/deps/lager/ebin \
      $PIE/apps/pie/ebin $PIE/apps/msc/ebin $PIE/deps/eslang/ebin \
+     $PIE/deps/erlfsmon/ebin $PIE/deps/active/ebin $PIE/deps/rebar/ebin \
      +A 100 -config $PIE/sys.config -s pie start $1 $2 $3
 
 stty sane

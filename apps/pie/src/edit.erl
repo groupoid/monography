@@ -145,12 +145,12 @@ loop(S) ->
 
 redraw(State) ->
     Wins = [ begin {Win,_} = edit_display:draw_window(W), Win end || W <- State#state.windows],
-%    lists:foreach(fun(W) ->  edit_display:draw_window(W) end, State#state.windows),
+%    lists:foreach(fun(W) ->  edit_display:draw_window(W) end, State#state.windows), 
     {Cur,{X,Y}} = edit_display:draw_window(State#state.curwin),
     SM = State#state.selection_mode,
     SC = State#state.selection_changed,
     case State#state.selection of
-         {XX,YY} -> error_logger:info_msg("Last: ~p Curr: ~p",[{XX,YY},{X,Y}]),
+         {XX,YY} -> error_logger:info_msg("Last: ~p Curr: ~p",[{XX,YY},{X,Y}]), 
                      XMin=edit_lib:min(XX,X),
                      XMax=edit_lib:max(XX,X),
                      YMin=edit_lib:min(YY,Y),

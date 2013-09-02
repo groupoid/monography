@@ -150,13 +150,19 @@ redraw(State) ->
     SM = State#state.selection_mode,
     SC = State#state.selection_changed,
     case State#state.selection of
-         {XX,YY} -> %error_logger:info_msg("Last: ~p Curr: ~p",[{XX,YY},{X,Y}]),
+         {XX,YY} ->  %error_logger:info_msg("Last: ~p Curr: ~p",[{XX,YY},{X,Y}]),
                      XMin=edit_lib:min(XX,X),
                      XMax=edit_lib:max(XX,X),
                      YMin=edit_lib:min(YY,Y),
-                     YMax=edit_lib:max(YY,Y), 
-                     ?EDIT_TERMINAL:selection(YMin,XMin,YMax-YMin+1,XMax-XMin+1),
-                     ok;
+                     YMax=edit_lib:max(YY,Y),
+                     Up = fun(Y,YY) -> case YY < Y of true -> XX; false -> X end end,
+                     Bt = fun(Y,YY) -> case YY > Y of true -> XX; false -> X end end,
+                     case Y == YY of
+                          true  -> ?EDIT_TERMINAL:selection(YMin,XMin,YMax-YMin+1,XMax-XMin+1); 
+                          false -> ?EDIT_TERMINAL:selection(YMin,Up(Y,YY),1,Cur#window.width-Up(Y,YY)+1),
+                                   ?EDIT_TERMINAL:selection(YMin+1,0,YMax-YMin-1,Cur#window.width),
+                                   ?EDIT_TERMINAL:selection(YMax,0,1,Bt(Y,YY))
+                     end;
          _ -> ok end,
     ?EDIT_TERMINAL:refresh(),
     State#state{curwin=Cur,windows=Wins}.

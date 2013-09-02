@@ -80,8 +80,7 @@ trunc_line(_,     1) -> [$$];
 trunc_line([H|T], N) -> [H|trunc_line(T, N-1)];
 trunc_line([], _)    -> [].
 
-draw_modeline(Window) when Window#window.minibuffer == true ->
-    ok;
+draw_modeline(Window) when Window#window.minibuffer == true -> ok;
 draw_modeline(Window) ->
     Buffer = Window#window.buffer,
     Where = modeline_where(Window, Buffer),
@@ -91,7 +90,6 @@ draw_modeline(Window) ->
     ?EDIT_TERMINAL:font_reverse(),
     slang:tt_set_color(1,"mode-line","white","blue"),
     slang:smg_set_color(1),
-%    slang:smg_set_color_in_region(1,5,5,10,10),
     ?EDIT_TERMINAL:move_to(0, Window#window.y + edit_window:physical_lines(Window) - 1),
     draw_line(Text),
     ?EDIT_TERMINAL:font_normal().
@@ -115,27 +113,16 @@ recenter_window(Window) ->
 
 backward_lines(Buf, N) ->
     StartPos = edit_lib:beginning_of_line_pos(Buf),
-    edit_buf:walk_backward(Buf,
-			   fun(X) -> back_lines(X, N, StartPos) end,
-			   StartPos).
+    edit_buf:walk_backward(Buf, fun(X) -> back_lines(X, N, StartPos) end, StartPos).
 
-back_lines(finish, N, Pos) ->
-    {result, 1};
+back_lines(finish, N, Pos) -> {result, 1};
 back_lines($\n, N, Pos) ->
-    if
-	N == 1 ->
-	    {result, Pos};
-	true ->
-	    {more, fun(New) -> back_lines(New, N-1, Pos-1) end}
-    end;
-back_lines(_, N, Pos) ->
-    {more, fun(New) -> back_lines(New, N, Pos-1) end}.
+    if N == 1 -> {result, Pos};
+    true -> {more, fun(New) -> back_lines(New, N-1, Pos-1) end} end;
+back_lines(_, N, Pos) -> {more, fun(New) -> back_lines(New, N, Pos-1) end}.
 
-dotimes(Fun, 0) ->
-    true;
-dotimes(Fun, N) when integer(N), N > 0 ->
-    Fun(),
-    dotimes(Fun, N-1).
+dotimes(Fun, 0) -> true;
+dotimes(Fun, N) when integer(N), N > 0 -> Fun(), dotimes(Fun, N-1).
 
 min(X, Y) when X < Y -> X;
 min(X, Y)            -> Y.

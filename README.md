@@ -34,7 +34,7 @@ Selection
     M-S-LEFT    -- Word left
     M-S-RIGHT   -- Word right
 
-Selection CUA mode limitations due to Linux Terminal limitation 
+Selection CUA mode caveats due to Linux Terminal limitations
     
     C-S-UP/DN   -- unbinded
     S-PGUP/PGDN -- unbinded

@@ -22,6 +22,7 @@
 	 pending_win,
          last_cursor,
          selection_changed = preserved,
+         selection_pos,
          selection_mode,
          selection }).
 

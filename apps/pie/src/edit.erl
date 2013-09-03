@@ -211,13 +211,31 @@ selection_changed(State,Ch) ->
     Buf = edit_lib:buffer(State),
     Point = edit_buf:mark_pos(Buf, point),
     Keyname = edit_util:keyname(Ch),
+
     NewSelection = case State#state.selection_mode =:= Shift of
          false -> error_logger:info_msg("Selection Changed: ~p ~p ~w",[Point,Keyname,Ch]),changed;
          true ->  error_logger:info_msg("Selection Preserves: ~p ~w",[Keyname,Ch]),preserved end,
-    SState#state{selection_changed=NewSelection,
-                 selection=case {NewSelection,Shift} of {changed,false} -> ok;
-                                                        {changed,true} -> SState#state.last_cursor;
-                                                        _ -> SState#state.selection end}.
+
+    {NewState,Selection} = case {NewSelection,Shift} of
+        {changed,false} -> {SState,ok};
+         {changed,true} -> {SState=edit_lib:set_mark(SState),SState#state.last_cursor};
+                      _ -> {SState,SState#state.selection} end,
+
+    NewState#state{selection_changed=NewSelection,selection=Selection}.
+
+copy(State) ->
+    Buf = edit_lib:buffer(State),
+    Mark = edit_buf:mark_pos(Buf, mark),
+    Point = edit_buf:mark_pos(Buf, point),
+    Region = edit_buf:get_region(Buf,Mark,Point),
+    error_logger:info_msg("Copied: ~p",[Region]),
+    State#state{selection = Region}.
+
+paste(State = #state{selection=Selection}) when is_list(Selection) ->
+    Buf = edit_lib:buffer(State),
+    edit_buf:insert(Buf, State#state.selection, edit_buf:mark_pos(Buf, point));
+paste(State = #state{selection=Selection}) ->
+    error_logger:info_msg("Pasting Error: ~p",[Selection]), State.
 
 %% ----------------------------------------------------------------------
 %% Dispatch a command in a new process. The process gets aborted if

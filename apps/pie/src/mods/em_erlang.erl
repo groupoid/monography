@@ -42,11 +42,14 @@ bindings() ->
     ].
 
 reindent_cmd(State) ->
+    error_logger:info_msg("reindent_cmd"),
     case scan_fun(State) of
 	no_previous_line ->
+            error_logger:info_msg("~p: NPR",[?MODULE]),
 	    State;
 	Scan ->
 	    B = buffer(State),
+            error_logger:info_msg("~p: Buffer: ~p",[?MODULE,B]),
 	    Indent = max(0,
 			 idt(Scan)), %% + indent_cur_line_adjust(B)),
 	    reindent(B, edit_lib:beginning_of_line_pos(B), Indent)

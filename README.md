@@ -14,19 +14,33 @@ Run
     $ rebar compile
     $ ./pie README.md
 
-Emacs CUA mode
---------------
+CUA mode
+--------
 
 Pie suports Extended Kystrokes and CUA mode being general purpose
 editor saving your hands from RSI.
 
-    {"Fn-HOME", {edit_lib, beginning_of_line, []}},
-    {"Fn-END",  {edit_lib, end_of_line, []}},
-    {"C-LEFT",  {edit_lib, backward_word, []}},
-    {"C-RIGHT", {edit_lib, forward_word, []}},
-    {"Fn-PGDN", {edit_lib, scroll_down, []}},
-    {"Fn-PGUP", {edit_lib, scroll_up, []}},
-    {"DEL",     {edit_lib, delete_char_forward, []}},
+    PGUP        -- Page up
+    PGDN        -- Page down
+    CURSOR      -- Navigation
+
+Selection
+    
+    S-CURSOR    -- Selection
+    C-S-LEFT    -- Begining of line
+    C-S-RIGHT   -- End of line
+    M-S-LEFT    -- Word left
+    M-S-RIGHT   -- Word right
+
+Selection CUA mode limitations due to Linux Terminal limitation 
+    
+    C-S-UP/DN   -- unbinded
+    S-PGUP/PGDN -- unbinded
+    
+Copy & Paste
+
+    M-c -- Copy
+    M-v -- Paste
 
 Remember that Pie is an Emacs (Erlang Macros) editor thus
 it supports all basic Emacs commands which you can find
@@ -35,23 +49,23 @@ in edit_globalmap bindings. Here are most important:
 File Operations
 ---------------
 
-    {"C-c", {edit_lib, quit, []}},
-    {"C-f", {edit_file, find_file, []}},
-    {"C-s", {edit_file, save_file, []}},
+    C-x C-c -- Quit
+    C-x C-f -- Find File
+    C-x C-s -- Save File
 
-Window Management "C-x" extensions
-----------------------------------
+Window Management
+-----------------
 
-    {"o",   {edit_lib, next_window, []}},
-    {"0",   {edit_lib, delete_window, []}},
-    {"1",   {edit_lib, delete_other_windows, []}},
-    {"2",   {edit_lib, split_window_vertically, []}},
-
+    C-x o -- Next Window
+    C-x 0 -- Delete selected Window
+    C-x 1 -- Delete other Windows
+    C-x 2 -- Vertical Split 
+    
 Pie Commands
 ------------
 
-"M-x" will run internal Pie command in module:function format.
-E.g. you can type "edit_lib:scroll_up"
+    M-x --  will run internal Pie command in module:function format.
+            E.g. you can type "edit_lib:scroll_up"
 
 For developing Pie commands a parse_transform syntax was introduced.
 Here is example of edit_lib:unix_command
@@ -73,30 +87,33 @@ one line another window will be created.
 Interactive Mode
 ----------------
 
-"C-x i" command will enter Erlang Interactive shell where you can
-evaluate Erlang expressions inside editor buffer by pressing ENTER on them.
-The result would be displayed also in the editor buffer below.
+    C-x i --  command will enter Erlang Interactive shell 
+              where you can evaluate Erlang expressions 
+              inside editor buffer by pressing ENTER on them.
+              The result would be displayed also in the 
+              editor buffer below.
 
-    os:type(). ENTER
-    => {unix,linux}
-    >>
+                    os:type(). ENTER
+                    => {unix,linux}
+                    >>
 
 Fundamental Mode
 ----------------
 
-"C-x f" command will bring you back to Fundamental mode which
-is defaul editing mode.
+    C-x f -- command will bring you back to Fundamental mode which
+             is defaul editing mode.
 
 Erlang Mode
 -----------
 
-"C-x e" command will dive you into Erlang mode which helps you edit Erlang code.
+    C-x e -- command will dive you into Erlang mode which helps you edit Erlang code.
+    C-i   -- reformat selected code
 
 Futher tasks
 ------------
 
 * Syntax Coloring
-* Selection
+* UTF-8
 
 Credits
 -------

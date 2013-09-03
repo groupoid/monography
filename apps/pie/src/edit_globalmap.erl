@@ -72,8 +72,8 @@ bindings() -> [
 %    {"M-v",     {edit_lib, scroll_up, []}},
     {"C-l",     {edit_lib, recenter, []}},
     %% Editing
-    {"C-c",     {edit,     copy,[]}},
-    {"C-v",     {edit,     paste,[]}},
+    {"M-c",     {edit,     copy,[]}},
+    {"M-v",     {edit,     paste,[]}},
     {"C-h",     {edit_lib, delete_char_backward, []}},
     {"C-?",     {edit_lib, delete_char_backward, []}},
     {"C-d",     {edit_lib, delete_char_forward, []}},

@@ -20,9 +20,11 @@ CUA mode
 Pie suports Extended Kystrokes and CUA mode being general purpose
 editor saving your hands from RSI.
 
-    PGUP        -- Page up
-    PGDN        -- Page down
-    CURSOR      -- Navigation
+    CURSOR            -- Navigation
+    HOME (Fn-LEFT)    -- Begining of line
+    END  (Fn-RIGHT)   -- End of line
+    PGUP (Fn-UP)      -- Page up
+    PGDN (Fn-DOWN)    -- Page down
 
 Selection
     

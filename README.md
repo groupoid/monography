@@ -52,7 +52,7 @@ File Operations
 ---------------
 
     C-x C-c -- Quit
-    C-x C-f -- Find File
+    C-x C-f -- Find File, supports autocompletion in popup-windows
     C-x C-s -- Save File
 
 Window Management

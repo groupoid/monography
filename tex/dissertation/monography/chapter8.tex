@@ -1,0 +1,342 @@
+\chapter{Додаткові матеріали}
+\epigraph{Присвячується майстрам тибетського буддизму}{Атіша, Нагарджуна, Лонгченпа}
+
+У додатках ми використаємо три різних мови, та покаже два застосування
+формальних мов: 1) формальна філософія (на мові $O_{HTS}$; 2) формальний ввід-вивід для
+системної інженерії (на двох промислових мовах Erlang та OCaml).
+
+\section*{Вступне слово}
+
+\section{Формалізація мадх'яміки}
+
+Сейчас я дам вам почувствовать вкус формальной философии по-настоящему!
+А то, вам может показаться, что это канал по формальной математике,
+а не формальной философии. Я же считаю, что если формальная философия
+не опирается на формальную математику, то грош цена такой формальной философии. 
+
+\begin{lstlisting}
+module buddhism where
+import path
+\end{lstlisting}
+
+Сегодня мы будем формализировать понятие недвойственности в буддизме,
+которое связано сразу со многими концепциями на уровнях Сутры,
+Тантры и Дзогчена: понятием взаимозависимого возникновения и
+понятием пустотности всех феноменов (Сутра Праджняпарамиты).
+Классический пример с расчленением тела ставит вопрос, когда
+тело перестает быть человеком-существом, если от него начать
+отрубывать куски мяса (мы буддисты любим и лилеем такие мысленные
+образы-эксперименты) или другими словами, чтобы отличить тело от
+не-тела, нам нужен двуместный предикат (семья типов), функция,
+которая может идентифицировать конректные два эклемпляры тела.
+Фактически речь идет об индентификации двух объектов, т.е. обычном
+типе-равенстве Мартина-Лёфа.
+
+За фреймворк возьмем концепты Готтлоба Фреге, согласно определению,
+концепт -- это предикат над объектом или, другими словами, Пи-тип
+Мартина-Лёфа, индексированный тип, семья типов, тривиальное
+расслоение и т.д. Где объект x из o принадлежит концепту,
+только если сам концепт, параметризированный этим объектом,
+населен p(o) : U (где p : concept o).
+
+\begin{lstlisting}
+concept (o: U): U
+  = o -> U
+\end{lstlisting}
+
+Концепт p должен предоставлять пример или контрпример в различении,
+т.е. чтобы определить тело это или не-тело еще, пока мы его расчленяем,
+нам нужно как минимум два куска: тело и не-тело как примеры идентификации.
+Таким образом, недвойственность может быть представлена, как равенство
+между всеми расслоениями (предекатами над объектами).
+
+\begin{lstlisting}
+nondual (o: U) (p: concept o): U
+  = (x y: o) -> Path U (p x) (p y)
+\end{lstlisting}
+
+Итак, недвойственность устраняет различие между примерами
+и контрпримерами на примордиальном уровне мандалы MLTT,
+иными словами идентифицирует все концепты. Сама же идентификация
+классов объектов, которые принадлежат разным концептам — это условие,
+сжимающее все объекты в точку, или стягиваемое пространство,
+вершина конуса мандалы MLTT, или, другими словами,
+пустотность всех феноменов.
+
+\begin{lstlisting}
+allpaths (o: U): U
+  = (x y: o) -> Path o x y
+\end{lstlisting}
+
+Формулировка буддийской теоремы недвойственности которая
+распространяется для всех типов учеников (тупых, средних и смышленых),
+может звучать так: недвойственность концепта есть способ идентификации
+его объектов. Сформулируем эту же теорему в другую сторону:
+способ идентификации объектов задает предикат недвойственности
+концептов. Туда — ((p: concept o) -> nondual o p) -> allpaths o,
+Сюда — allpaths o -> ((p: concept o) -> nondual o p).
+И докажем ее! Как видно из сигнатур нам всего-лишь надо
+построить функцию транспорта между двумя пространствами
+путей: (p x) =$_U$ (p y) и x =$_o$ y. Воспользуемся приведением
+пути в стрелку (coerce) и конгруэнтностью (cong) из базовой библиотеки.
+
+\begin{lstlisting}
+encode (o:U): ((p: concept o) -> nondual o p) -> allpaths o
+  = \(nd: (p: concept o) -> nondual o p) (a b: o)
+  -> coerce(Path o a a)(Path o a b)(nd(\(z:o)->Path o a z)a b)(refl o a)
+\end{lstlisting}
+
+\begin{lstlisting}
+decode (o:U): allpaths o -> ((p: concept o) -> nondual o p)
+  = \(all: allpaths o)(p: concept o)(x y: o) -> cong o U p x y (all x y)
+\end{lstlisting}
+
+Как видите, теоремка о пустотности всех феноменов получилась на пару
+строчек, которые демонстрируют: 1) основы формальной философии и быстрый вкат;
+2) хороший пример к первой главе HoTT на пространство путей и модуль path.
+
+\newpage
+\section{Формалізація вводу-виводу для Coq/OCaml}
+
+\begin{lstlisting}
+CoInductive Co (E : Effect.t) : Type -> Type :=
+    | Bind : forall (A B : Type), Co E A -> (A -> Co E B) -> Co E B
+    | Split : forall (A : Type), Co E A -> Co E A -> Co E A
+    | Join : forall (A B : Type), Co E A -> Co E B -> Co E (A * B).
+    | Ret : forall (A : Type) (x : A), Co E A
+    | Call : forall (command : Effect.command E),
+                    Co E (Effect.answer E command)
+
+Definition run (argv : list LString.t): Co effect unit :=
+    ido! log (LString.s "What is your name?") in
+    ilet! name := read_line in
+    match name with
+      | None => ret tt
+      | Some name => log (LString.s "Hello " ++ name ++ LString.s "!")
+    end.
+
+Parameter infinity : nat.
+Definition eval {A} (x : Co effect A) : Lwt.t A := eval_aux infinity x.
+\end{lstlisting}
+
+% \newpage
+\begin{lstlisting}
+Fixpoint eval_aux {A} (s: nat) (x: Co effect A) : Lwt.t A :=
+  match s with
+    | O => error tt
+      | S s =>
+    match x with
+      | Bind _ _ x f => Lwt.bind   (eval_aux s x) (fun v_x => eval_aux s (f v_x))
+      | Split _ x y  => Lwt.choose (eval_aux s x) (eval_aux s y)
+      | Join _ _ x y => Lwt.join   (eval_aux s x) (eval_aux s y)
+      | Ret _ v => Lwt.ret v
+      | Call c => eval_command c
+    end
+  end.
+\end{lstlisting}
+
+\begin{lstlisting}
+CoFixpoint handle_commands : Co effect unit :=
+    ilet! name := read_line in
+    match name with
+      | None => ret tt
+      | Some command =>
+        ilet! result := log (LString.s "Input: "
+                     ++ command ++ LString.s ".")
+     in handle_commands
+    end.
+
+Definition launch (m: list LString.t -> Co effect unit): unit :=
+    let argv := List.map String.to_lstring Sys.argv in
+    Lwt.launch (eval (m argv)).
+
+Definition corun (argv: list LString.t): Co effect unit :=
+    handle_commands.
+
+Definition main := launch corun.
+\end{lstlisting}
+
+\newpage
+\section{Формалізація вводу-виводу для PTS/BEAM}
+
+This work is expected to compile to a limited number of target platforms.
+For now, Erlang, Haskell, and LLVM are awaiting.
+Erlang version is expected to be used both on LING and BEAM Erlang virtual machines.
+This language allows you to define trusted operations in System F and extract this routine to Erlang/OTP platform and plug as trusted resources.
+As the example, we also provide infinite coinductive process creation and inductive shell that linked to Erlang/OTP IO functions directly.
+
+{\bf IO} protocol.
+We can construct in pure type system the state machine based on (co)free monads driven by {\bf IO/IOI} protocols.
+Assume that {\bf String} is a {\bf List\ Nat} (as it is in Erlang natively), and three external constructors: getLine, putLine and pure.
+We need to put correspondent implementations on host platform as parameters to perform the actual IO.
+
+\begin{lstlisting}
+String: Type = List Nat
+data IO: Type =
+     (getLine: (String -> IO) -> IO)
+     (putLine: String -> IO)
+     (pure: () -> IO)
+\end{lstlisting}
+
+%\newpage
+\subsubsection{Infinity I/O Type}
+
+Infinity I/O Type Spec.
+
+\begin{lstlisting}
+-- IOI/@: (r: U) [x: U] [[s: U] -> s -> [s -> #IOI/F r s] -> x] x
+   \ (r : *)
+-> \/ (x : *)
+-> (\/ (s : *)
+   -> s
+   -> (s -> #IOI/F r s)
+   -> x)
+-> x
+\end{lstlisting}
+
+\begin{lstlisting}
+-- IOI/F
+   \ (a : *)
+-> \ (State : *)
+-> \/ (IOF : *)
+-> \/ (PutLine_ : #IOI/data -> State -> IOF)
+-> \/ (GetLine_ : (#IOI/data -> State) -> IOF)
+-> \/ (Pure_ : a -> IOF)
+-> IOF
+\end{lstlisting}
+
+\begin{lstlisting}
+-- IOI/MkIO
+   \ (r : *)
+-> \ (s : *)
+-> \ (seed : s)
+-> \ (step : s -> #IOI/F r s)
+-> \ (x : *)
+-> \ (k : forall (s : *) -> s -> (s -> #IOI/F r s) -> x)
+-> k s seed step
+\end{lstlisting}
+
+Infinite I/O Sample Program.
+
+\begin{lstlisting}[mathescape=true]
+-- Morte/corecursive
+( \ (r: *1)
+ -> ( (((#IOI/MkIO r) (#Maybe/@ #IOI/data)) (#Maybe/Nothing #IOI/data))
+    ( \ (m: (#Maybe/@ #IOI/data))
+     -> (((((#Maybe/maybe #IOI/data) m) ((#IOI/F r) (#Maybe/@ #IOI/data)))
+           ( \ (str: #IOI/data)
+            -> ((((#IOI/putLine r) (#Maybe/@ #IOI/data)) str)
+                (#Maybe/Nothing #IOI/data))))
+         (((#IOI/getLine r) (#Maybe/@ #IOI/data))
+          (#Maybe/Just #IOI/data))))))
+\end{lstlisting}
+
+Erlang Coinductive Bindings.
+
+\begin{lstlisting}[mathescape=true]
+copure() ->
+    fun (_) -> fun (IO) -> IO end end.
+
+cogetLine() ->
+    fun(IO) -> fun(_) ->
+        L = ch:list(io:get_line("> ")),
+        ch:ap(IO,[L]) end end.
+
+coputLine() ->
+    fun (S) -> fun(IO) ->
+        X = ch:unlist(S),
+        io:put_chars(": "++X),
+        case X of "0\n" -> list([]);
+                      _ -> corec() end end end.
+
+corec() ->
+    ap('Morte':corecursive(),
+        [copure(),cogetLine(),coputLine(),copure(),list([])]).
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape=true]
+
+> om_extract:extract("priv/normal/IOI").
+ok
+> Active: module loaded: {reloaded,'IOI'}
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape=true]
+> om:corec().
+> 1
+: 1
+> 0
+: 0
+#Fun<List.3.113171260>
+\end{lstlisting}
+
+\subsubsection{I/O Type}
+
+I/O Type Spec.
+
+\begin{lstlisting}[mathescape=true]
+-- IO/@
+   \ (a : *)
+-> \/ (IO : *)
+-> \/ (GetLine_ : (#IO/data -> IO) -> IO)
+-> \/ (PutLine_ : #IO/data -> IO -> IO)
+-> \/ (Pure_ : a -> IO)
+-> IO
+\end{lstlisting}
+
+\begin{lstlisting}[mathescape=true]
+-- IO/replicateM
+   \ (n: #Nat/@)
+-> \ (io: #IO/@ #Unit/@)
+-> #Nat/fold n (#IO/@ #Unit/@)
+               (#IO/[>>] io)
+               (#IO/pure #Unit/@ #Unit/Make)
+\end{lstlisting}
+
+Guarded Recursion I/O Sample Program.
+
+\begin{lstlisting}[mathescape=true]
+-- Morte/recursive
+((#IO/replicateM #Nat/Five)
+ ((((#IO/[>>=] #IO/data) #Unit/@) #IO/getLine) #IO/putLine))
+\end{lstlisting}
+
+Erlang Inductive Bindings.
+
+\begin{lstlisting}[mathescape=true]
+pure() ->
+    fun(IO) -> IO end.
+
+getLine() ->
+    fun(IO) -> fun(_) ->
+        L = ch:list(io:get_line("> ")),
+        ch:ap(IO,[L]) end end.
+
+putLine() ->
+    fun (S) -> fun(IO) ->
+        io:put_chars(": "++ch:unlist(S)),
+        ch:ap(IO,[S]) end end.
+
+rec() ->
+    ap('Morte':recursive(),
+        [getLine(),putLine(),pure(),list([])]).
+\end{lstlisting}
+
+
+Here is example of Erlang/OTP shell running recursive example.
+
+\begin{lstlisting}[mathescape=true]
+> om:rec().
+> 1
+: 1
+> 2
+: 2
+> 3
+: 3
+> 4
+: 4
+> 5
+: 5
+#Fun<List.28.113171260>
+\end{lstlisting}
+

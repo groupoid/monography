@@ -1,0 +1,337 @@
+\chapter{Бібліотека середовища виконання}
+\epigraph{Присвячується автору формальної системи F}{Жану-Іву Жирару}
+
+Після побудови в розділі 3 формального середовища виконання,
+яке складається з операційної системи у якій виконуються
+CPS-інтерпретатори з формальною системою вводу-виводу IO, можна зразу
+переходити до базової бібліотеки середовища виконання.
+
+Даний розділ формалізує інтерфейс прикладного програмування та систему
+бібліотек часу виконання для забезпечення потреб побудови гетерогенних систем та сервісів.
+
+\section*{Вступне слово}
+Так чи інакше для дослідження будь-якої базової бібліотеки середовища
+виконання доведеться зустрітися з теорією яка стоїть за System F.
+Навіть базова бібліотека фундаментальної вищої мови PTS в сутності
+потребує для свого кодування лише системи Ф, так як є безпосереднім
+портом з мови Haskell. Тому доречно використовувати у якості проміжної
+типової системи систему Ф Жирара як цільову систему для
+екстрактів з вищих мов, таких як HTS (якщо такі екстракти існують для окремих програм).
+
+\section{Загальні принципи}
+N2O.TECH — це формальна філософія та інженерна вправа водночас.
+Вона обмежує автора бути ефективним та точним не втрачаючи
+при цьому повноти та функціональності. Це накшталт внутрішньої
+дисципліні при проектуванні програмного забезпечення. Ця філософія
+багато років застосовується на практиці для побудови систем SYNRC,
+та визначає стандартний мінімальний набір для демонстрації однієї
+з сучасних моделей реактивного веб-програмування, яка включає: веб-сокет
+веб-фреймвок з бінарною серілізацією, пушами та контролем DOM елементів
+зі сторони сервера. N2O.TECH вчить будувати прості та надійні системи
+на будь-якій мові програмування.
+
+\section{Формальна специфікація}
+Формальне середовище виконання визначає структуру операційних середовищ (runtimes) як
+операційну систему лямбда-інтерпретаторів які працюють на паралельному
+обчислювальному середовищі (ядрах процесорів). Кожне з ядер процесорів
+виконує в нескінченному циклі команди лямбда-інтерпретаторів, переключаючи
+через певний проміжок часу на потік команд іншого інтерпретатора. Таке
+визначення дає змогу вбудувати цю структуру у віртуальну машину Erlang:
+1) Головний процес додатку; 2) Супервізор додатку; 3) Проміжні
+супервізори; 4) Кінцеві пул процесорів повідомлень.
+
+Тут визначена специфікація програмного забезпечення усіх рівнів прикладної моделі
+для підприємств на функціональних мовах програмування.
+Ця специфікація визначає правила побудови WebSocket сервера,
+бінарного серіалізатора та веб-фреймворку визначеному
+формальними протоколами. Промислові версії також підтримують
+систему управління бізнес-процесами та ефективне сховище
+з глобальним простором ключів.
+
+\subsection*{Серверні та клієнтські мови}
+Мови програмування розділені на чотири рівня як для клієнтської
+(мобільної та веб розробки) так і для серверної розробки (бекенд
+системи). Нульовий рівень — тотальні формальні алгебраїчні мови
+програмування, що забезбечують повноту, функціональність та доведення
+властивостей прогрм згідно сучасних уявлень про математичне моделювання
+та системи залежних типів побудованих на розшаруваннях. Перший
+рівень — формальні функціональні мови програмування, як правило
+System F, System Fω які успішно використовуються в промисловості
+та забезпечують достатньо формальний запис який піддається
+масштабуванню у великих командах завдяки потужному ядру компіляторів.
+Другий рівень — неформальні (без формальної операційної чи денотаційної
+семантики) чи формальних верифікаторів, які проте успішно
+використовуються в промисловості, можуть бути як з розвиненими
+системами типів з узагальненими шаблонами та типами сумами,
+так і однотипними мовами програмування з динамічною типізацією.
+Третій рівень — мови які погано піддаються масштабуванню у
+промисловому виробництві (на основі спостережень за власним досвідом).
+
+\begin{table}[h]
+\begin{center}
+\caption{Перелік кваліфікаційних рівніх верифікації}
+\tabcolsep7pt\begin{tabular}{lcccc}
+\hline
+\textbf{Сторона/Рівень} & \textbf{Приклади мов} \\
+\hline
+    клієнт/3 & JavaScript, Lua \\
+    клієнт/2 & Swift, Kotlin, TypeScript \\
+\rowcolor{LightGray}
+    клієнт/1 & UrWeb, OCaml, PureScript \\
+\rowcolor{LightGray}
+    клієнт/0 & Kind, PTS \\
+    \hline
+    сервер/3 & PHP, Python, Perl, Ruby \\
+    сервер/2 & Erlang, Elixir \\
+\rowcolor{LightGray}
+    сервер/1 & SML, Scala, Haskell, F\#, Rust, Hamler \\
+\rowcolor{LightGray}
+    сервер/0 & Coq, Agda, Lean, MLTT/HTS \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+\end{lstlisting}
+
+\subsection*{Обрані мови реалізації}
+
+Тут перелічені мови, на яких реалізовано та апробовано N2O.TECH.
+
+\textbf{Standard ML}\footnote{\url{https://github.com/o1}}. В академічних цілях Марат Хафізов створив
+за специфікаєю N2O/NITRO порт на мови Standard ML (SML/NJ та MLton).
+Ця робота представлена Github організацією O1 в структурі N2O.
+
+\textbf{Haskell}\footnote{\url{https://github.com/o3}}. Перший експеримент з формалілазції N2O в систему F
+була робота Андрія Мельникова. Пізніше, більш повну версію з NITRO протокол
+запропонував Марат Хафізов, ця версія представлена на Github як організація O3.
+
+\textbf{F\#}\footnote{\url{https://ws.erp.uno}}. Також у якості вправи Siegmentation Fault зробив порт NITRO
+на мову F\# разом з ETF кодуванням. Ці напрацювання представлені в Github
+організації O61.
+
+\textbf{Lean}\footnote{\url{https://github.com/o89}}. У якості більшо формальної платформи з залежними типами,
+мова Lean 4 від Леонардо де Мура з Microsoft. Siegmentation Fault автор порта,
+який представлений Github організацією O89 та сайтом lean4.dev.
+
+\textbf{Erlang}\footnote{\url{https://github.com/synrc}}. Основна промислова платформа, яка в повній мірі реалізує
+специфікацію N2O.TECH.
+
+\textbf{Elixir}\footnote{\url{https://github.com/synrc}}. Адаптація N2O.TECH для мови Elixir.
+Основна імплементація не змінена, постійно підтримується публікація пакетів на HEX.PM.
+
+\textbf{Hamler}. Нова формальна платоформа на базі PureScript для віртуальної машини Erlang.
+В подальшому цей розділ буде присвячений імплементації та специфікації
+на мові Hamler (варіація PureScript з бекендом в Erlang Core).
+
+\begin{table}[h]
+\begin{center}
+\caption{Перелік мов для яких існує версія базової бібліотеки}
+\begin{tabular}{lcc}
+\hline
+\textbf{Мова/Платформа} & \textbf{Набір реалізованих компонент} \\
+\hline
+Erlang/OTP & N2O, BPE, KVS, NITRO, MAD, FORM \\
+Elixir/OTP & N2O, BPE, KVS, NITRO, FORM \\
+\hline
+\rowcolor{LightGray}
+Hamler/OTP & RT, BASE, N2O, BPE, KVS, NITRO \\
+\hline
+Standard ML & N2O, NITRO, ETF \\
+Haskell & N2O, NITRO, ETF \\
+F\# & N2O, NITRO, ETF \\
+Lean 4 & N2O, NITRO, MAD, ETF \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Авторськими вважаються імплементації на мовах Erlang (Elixir) та Hamler (PureScript).
+Інші представлені імплементації вважаються сертифікаваними формальними референсними моделями.
+
+Протягом 8 років автор практикувався аби адаптувати бібліотеку середовища виконання
+до основних формальних або напівформальних мов System F, які принаймі написані
+на мовах які теж є мовами System F (SML, F\#, Haskell). Сторонніми дослідниками
+була навіть зроблена адаптація для Lean 4\footnote{\url{https://lean4.dev}}.
+В процесі цьої багаторічної вправи стало зрозумілим, що досягти на виробництві
+тієї якості, яка досягається в середовищі виконання Erlang/OTP майже неможливо.
+Тому модель базової бібліотеки, спочатку адаптувалася з оригінальної мови Erlang (2013)
+для мови Elixir (2018), і потім для мови Hamler (2021), що є варіацією PureScript (System $F_\omega$).
+Всього існує 7 моделей для 7 мов програмування базової бібліотеки представленої в цій роботі.
+
+\section{Пакети формального середовища}
+Тут представлена модель бібліотеки формального середовища виконання, яке
+скаладається з JIT-інтерпретатора, потужної SMP-системе акторів з неблокуючими
+курсорами черг повідомлень для системи процесів 1:1 (процес-черга, кожен процес
+має свою чергу). Така спрощена модель дещо відрізняється від моделі CSP, CCS
+та класичного числення процесів (Pi Calculus) проте протягом цих 8 років на практиці
+стало зрозумілим, що модель Erlang/OTP більш гнучка до масштабування та стійка до помилок.
+
+Іншими словами модель в System F базової бібліотеки
+середовища виконання формально визначає цей прошарок уніфікованого мовного середовища.
+А модель процесів хоча формально не відображає семантику коіндукції (стерта інформація),
+проте досі синтаксис мовного середовища представленого в розділі 2 є сумісним з моделлю
+Erlang/OTP яка є основною платформою, що підтримується у виробництві.
+
+\subsection{Структури даних BASE}
+Структури даних представлені додатком BASE. Основні модулі додатку:
+List, Array, Atomics, Binary, Bool, Char, Counters, DateTime, Digraph,
+Enum, Eq, Float, Int, Map, Maybe, Ord, OrdDict, OrdSet, Pid, Queue,
+Read, Record, Regex, Set, Time, Tuple.
+
+Сигнатури додатка BASE максимально сумісні з базовою бібліотекою Hamler.
+
+\subsection{Сервіси середовища виконання RT}
+Сервіси середовища виконання представлені додатком RT, іменні простори якого
+дещо відрізняються від відповідних сигнатур базової бібліотеки мови Hamler.
+
+\subsubsection{Database}
+Модулі простору Database: Mnesia, ETS.
+
+\begin{lstlisting}
+module RT.ETS where
+import RT.ETS.Types
+
+all    : IO [TableId]
+browse : IO String
+delete : (k: U) -> TableId -> k -> IO ()
+first  : TableId -> (k: U) -> IO (Maybe k)
+last   : (k: U) -> TableId -> IO (Maybe k)
+foldl  : (v acc: U) -> (v -> acc -> acc) -> acc -> TableId -> IO acc
+foldr  : (v acc: U) -> (v -> acc -> acc) -> acc -> TableId -> IO acc
+insert : (v: U) -> TableId -> v -> IO Boolean
+lookup : (k v: U) -> TableId -> k -> IO (List v)
+member : (k: U) -> TableId -> k -> IO Boolean
+new    : Atom -> TableOptions -> IO TableId
+next   : (k: U) -> TableId -> k -> IO (Maybe k)
+prev   : (k: U) -> TableId -> k -> IO (Maybe k)
+rename : TableId -> Atom -> IO Atom
+take   : (k v: U) -> TableId -> k -> IO (List v)
+match  : (a v: U) -> TableId -> a -> IO (List v)
+slot   : (v: U) -> TableId -> Integer -> IO (Maybe (List v))
+\end{lstlisting}
+
+\subsubsection{Filesystem}
+Модулі простору Filesystem: Dir, File, FilePath, IO, Active.
+
+\subsubsection{OS}
+Модулі простору OS: Env, Init, Shell.
+
+\subsubsection{Process}
+Модулі простору Process: Application, Supervisor, Dict, GenServer, Spawn, Process, Timer.
+
+\subsubsection{Network}
+Модулі простору Network: TCP, UDP, TLS, Inet, WebSocket.
+
+\newpage
+\subsection{Прикладні протоколи N2O}
+Сервіси веб-сокет сервера, представлені додатком N2O: N2O, PI, Proto,
+Ring, MQTT, WS, TCP, Heart, Syn, FTP, NITRO, ETF, GCM, Session, Cache.
+
+Модуль N2O пропонує ряд сервісів зручних та вивірених в промисловій роботі для побудови
+сервісних протоколів що вбудовуються в цикли сучасних TCP, QUIC, UDP, MQTT, WebSocket серверів,
+та в процесі своєї роботи можуть стартувати додаткові процеси для обробки інформації під
+супервізією середовища виконання.
+
+\begin{lstlisting}
+module N2O where
+
+pickle : Binary -> Binary
+depickle : Binary -> Binary
+encode : (k: U) -> k -> Binary
+decode : (k: U) -> Binary -> IO k
+reg: (k: U) -> k -> IO k
+unreg : (k: U) -> k -> IO k
+send : (k v z: U) -> k -> v -> IO z
+getSession : (k v: U) -> k -> IO v
+putSession : (k v: U) -> k -> v -> IO v
+getCache : (k v: U) -> Atom -> k -> IO v
+putCache : (k v: U) -> Atom -> k -> v -> IO v
+\end{lstlisting}
+
+Тут залишено лише саме необхідне, але не настільки тривіальне аби бути іграшковим.
+Всі функції всії сервісів можуть підмінятися в ході виконання.
+В сутності тут зібрані сервіси:
+1) бінарної серіалізації Erlang Term Format (ETF), функції encode/decode;
+2) функції симетричного шифрування AES-GCM/128 pickle/depickle;
+3) функції Pub/Sub внутрішнього Erlang реєстра (syn/gproc/global, тощо);
+4) функції роботи з персональними сесіями, які захищені зашифрованими токенами;
+5) функції роботи з глобльним кеш-сервісом для бізнес-об'єктів.
+
+Модуль N2O.PI абстрагує користувача від надмірного
+фольклору Supervisor та пропонує простіший протокол запуску
+асинхронних процесів.
+
+\begin{lstlisting}
+module N2O.PI where
+
+data PI  = PI String Atom Atom Atom Integer RestartType
+data Sup = Ok Pid String | Error String
+
+start : PI -> IO Sup
+\end{lstlisting}
+
+\newpage
+\subsection{Сховище даних KVS}
+Сервіси сховища даних представлені додатком KVS: KVS,
+Stream, ST, Rocks, Mnesia, FS.
+
+\begin{lstlisting}
+module KVS where
+import KVS.Types
+
+get    : (f k v: U) -> f -> k -> IO (Maybe v)
+put    : (r: U) -> r -> IO StoreResult
+delete : (f k: U) -> f -> k -> StoreResult
+index  : (f p v r: U) -> f -> Atom -> v -> List r
+\end{lstlisting}
+
+\begin{lstlisting}
+module KVS.Stream where
+import ETF.Types
+
+data Reader = Reader Integer Binary ETF String Integer
+data Writer = Writer Integer Binary ETF String Integer
+data StoreResult = Ok Integer String Binary
+                 | Error Integer String Binary
+
+next : Reader -> IO Reader
+prev : Reader -> IO Reader
+take : Reader -> IO Reader
+drop : Reader -> IO Reader
+save : Reader -> IO Reader
+append : (f r: U) -> f -> r -> IO StoreResult
+remove : (f r: U) -> f -> r -> IO StoreResult
+\end{lstlisting}
+
+\subsection{Бізнес-процеси BPE}
+Сервіси системи управління бізнес-процесами
+представлені додатком BPE: BPE, Event, Action, Process, Hist, Flow.
+
+\begin{lstlisting}
+module BPE where
+import BPE.Types
+
+data ProcId = String
+data Proc = Proc ProcId String
+data ProcRes = Ok Integer String Binary
+             | Error Integer String Binary
+
+start   : Proc   -> IO Sup
+stop    : String -> IO Sup
+next    : ProcId -> IO ProcRes
+amend   : (k: U) -> ProcId -> k -> IO ProcRes
+discard : (k: U) -> ProcId -> k -> IO ProcRes
+modify  : (k: U) -> ProcId -> k -> Atom -> IO ProcRes
+event   : ProcId -> String -> IO ProcRes
+head    : ProcId -> IO Hist
+hist    : ProcId -> IO (List Hist)
+\end{lstlisting}
+
+\subsection{Контрольні елементи протоколу NITRO}
+Сервіси веб-фреймворка, представлені додатком NITRO: NITRO, Combo,
+Edit, Form, Input, Table, Actions, Render.
+
+\begin{lstlisting}
+\end{lstlisting}
+
+\section{Висновки}

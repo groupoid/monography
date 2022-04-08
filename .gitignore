@@ -1,0 +1,10 @@
+node_modules/*
+package-lock.json
+header.html
+footer.html
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc

@@ -1,0 +1,1635 @@
+\chapter{Бібліотека вищих мов}
+\epigraph{Присвячується вчителям американської школи формальної філософії та авторам HoTT}{}
+
+В третьому розділі дається опис гомотопічної мови програмування,
+реалізація якої вперше була представлена CCHM в 2017 році, та для якої написана
+гомотопічна базова бібліотека представлена у цьому та наступному розділах.
+
+\section*{Вступне слово}
+
+\section{Інтерналізація теорії типів}
+Each language implementation needs to be checked. The one of possible test cases
+for type checkers is the direct embedding of type theory model into the language of type checker.
+As types in Martin-Löf Type Theory (MLTT) are formulated using 5 types of rules (formation,
+introduction, elimination, computation, uniqueness), we construct aliases
+for host language primitives and use type checker to prove that it is MLTT.
+This could be seen as ultimate test sample for type checker as
+intro-elimination fusion resides in beta-eta rules, so by proving them
+we prove properties of the host type checker.
+
+Also this issue opens a series of articles dedicated to formalization in
+cubical type theory the foundations of mathematics. This issue is dedicated
+to MLTT modeling and its verification. Also as many may not be familiar with
+$\Pi$ and $\Sigma$ types, this issue presents different interpretation of MLTT types.
+
+\subsubsection{Теорія типів}
+MLTT could be reduced to $\Pi$, $\Sigma$, Path types, as W-types could be
+modeled through $\Sigma$ and Fin/Nat/List/Maybe types could be modeled on W.
+In this issue $\Pi$, $\Sigma$, Path are given as a core MLTT and W-types
+are given as exercise. List, Nat, Fin types are defined in
+next section.
+
+Any new type in MLTT presented with set of 5 rules: i) formation rules, the signature of type;
+ii) the set of constructors which produce the elements of formation rule signature;
+iii) the dependent eliminator or induction principle for this type;
+iv) the beta-equality or computational rule;
+v) the eta-equality or uniquness principle. $\Pi$, $\Sigma$, and Path
+types will be given shortly. This interpretation or rather way of modeling is MLTT specific.
+
+\begin{table}
+\centering
+  \caption{Interpretations correspond to mathematical theories}
+ \begin{tabular}{lcccc}
+    \hline
+       \textbf{Теорія типів} & \textbf{Logic} & \textbf{Category Theory} & \textbf{Homotopy Theory} \\
+    \hline
+       A type & class & object & space \\
+       isProp A & proposition & (-1)-truncated object & space \\
+       a:A program & proof & generalized element & point \\
+       $B(x)$ & predicate & indexed object & fibration \\
+       $b(x) : B(x)$ & conditional proof & indexed elements & section\\
+       $\emptyset$ & $\bot$ false & terminal object & empty space \\
+       $\mathbf{1}$ & $\top$ true & initial object & singleton \\
+       $A + B$ & $A\vee B$ disjunction & coproduct & coproduct space \\
+       $A\times B$ & $A\wedge B$ conjunction & product & product space \\
+       $A\to B$ & $A\Rightarrow B$ & internal hom & function space \\
+       $\sum{x:A},B(x)$ & $\exists_{x:A}B(x)$ & dependent sum & total space \\
+       $\prod{x:A},B(x)$ & $\forall_{x:A}B(x)$ & dependent product & space of sections\\
+       $\mathbf{Path}_{A}$ & equivalence $=_A$ & path space object & path space $A^I$ \\
+       quotient & equivalence class & quotient & quotient \\
+       W-type & induction & colimit & complex\\
+       type of types & universe & object classifier & universe \\
+       quantum circuit & proof net & string diagram & \\
+      \hline
+  \end{tabular}
+\end{table}
+
+The most interesting are Id types. Id types were added in \footnote{P. Martin-Löf, G. Sambin. Intuitionistic type theory. 1984.}{1984} while original MLTT was introduced in \footnote{P. Martin-Löf, G. Sambin. The Theory of Types. 1972.}{1972}.
+Predicative Universe Hierarchy was added in \footnote{P. Martin-Löf. An intuitionistic theory of types: predicative part. 1975.}{1975}.
+While original MLTT contains Id types that preserve uniquness of identity
+proofs (UIP) or eta-rule of Id type, HoTT refutes UIP (eta rule desn't hold)
+and introduces univalent heterogeneous Path equality (\footnote{M. Hofmann, T. Streicher. The groupoid interpretation of type theory. 1996.}{$\infty$-Groupoid interpretation}).
+Path types are essential to prove computation and uniquness rules for all types
+(needed for building signature and terms), so we will be able to prove all
+the MLTT rules as a whole.
+
+\subsubsection{Інтерпретації}
+In contexts you can bind to variables (through de Brujin indexes or string names):
+i) indexed universes; ii) built-in types; iii) user constructed types, and ask
+questions about type derivability, type checking and code extraction. This system
+defines the core type checker within its language.
+
+
+By using this languages it is possible to encode different interpretations of
+type theory itself and its syntax by construction. Usually the issues will refer to
+following interpretations: i) type-theoretical; ii) categorical;
+iii) set-theoretical; iv) homotopical; v) fibrational or geometrical.
+
+\subsubsection*{Логічна або теоретико-типова інтерпретація}
+According to type theoretical interpretation for any type should be provided 5 formal
+inference rules: i) formation; ii) introduction; iii) dependent elimination principle;
+iv) beta rule or computational rule; v) eta rule or uniqueness rule. The last one could
+be exceptional for Path types. The formal representation of all rules of MLTT
+are given according to type-theoretical interpretation as a final result in this Issue I.
+It was proven that classical Logic could be embedded into
+intuitionistic propositional logic (IPL) which is directly embedded into MLTT.
+
+Logical and type-theoretical interpretations could be distincted. Also
+set-theoretical interpretation is not presented in Table 1.
+
+\subsubsection*{Категоріальна або топосо-теоритична інтерпретація}
+Categorical interpretation is a modeling through categories and functors.
+First category is defined as objects, morphisms and their properties, then
+we define functors, etc. In particular, as an example, according to categorical
+interpretation $\Pi$ and $\Sigma$ types of MLTT are presented as adjoint
+functors, and forms itself a locally closed cartesian category, which will be given a
+intermediate result in \textbf{Issue VII: Topos Theory}. In some sense we include here
+topos-theoretical interpretations, with presheaf model of type theory as
+example (in this case fibrations are constructes as functors, categorically).
+
+\subsubsection*{Теоретико-типова інтерпертація}
+
+Set-theoretical interpretations could replace first-order logic, but could not allow
+higher equalities, as long as inductive types to be embedded directly. Set is modelled
+in type theory according to homotopical interpretation as n-type.
+
+\subsubsection*{Гомотопічна інтерпретація}
+In classical MLTT uniquness rule of Id type do holds strictly. In Homotopical
+interpretation of MLTT we need to allow a path space as Path type where uniqueness
+rule doesn't hold. Groupoid interpretation of Path equality that doesn't hold UIP generally
+was given in 1996 by Martin Hofmann and Thomas Streicher.
+
+When objects are defined as fibrations, or dependent products, or indexed-objects
+this leds to fibrational semantics and geometric sheaf interpretation. Several definition
+of fiber bundles and trivial fiber bindle as direct isomorphisms of $\Pi$ types is
+given here as theorem. As fibrations study in homotopical interpretation, geometric
+interpretation could be treated as homotopical.
+
+\subsection{Типи $\Pi$, $\Sigma$, Path}
+
+\subsubsection{$\Pi$-тип}
+$\Pi$ is a dependent product type, the generalization of functions.
+As a function it can serve the wide range of mathematical constructions
+as its domain and codomain, which are in general: objects, types, or spaces;
+and could have as its instance: sets, functions, polynomial functors,
+infinitesimals, $\infty$-groupoids, topological $\infty$-groupoid, CW-complexes,
+categories, languages, etc.
+
+At this light there could be many interpretation of $\Pi$ types from different
+areas of mathematics. We give here three: i) logical interpretation of $\Pi$ as
+$\forall$ quantifier from higher order logic
+that forms a ground of type theory; ii) geomeric intepretation of $\Pi$ as fiber bundle;
+iii) categorical interpretation of functions as functors.
+
+\subsubsection*{Теоретико-типова інтерпретація}
+As a logical system dependent type theory could correspond to higher order logic.
+However here only type-theoretical model is given completely.
+
+\begin{definition} ($\Pi$-Formation).
+$$(x: A) \rightarrow B(x) =_{def} \prod_{x:A}B(x) : U.$$
+\begin{lstlisting}
+Pi (A: U) (B: A -> U): U = (x: A) -> B x
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} ($\Pi$-Introduction).
+$$\backslash (x: A) \rightarrow b(x) =_{def} \prod_{A:U}\prod_{B:A \rightarrow U}\prod_{b:\prod_{a:A}B(a)}\lambda x.b(x) : \prod_{y:A}B(y).$$
+\begin{lstlisting}
+lambda (A B: U) (b: B): A -> B = \(x: A) -> b
+lam (A: U) (B: A -> U) (b: (a: A) -> B a): Pi A B = \(x: A) -> b x
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} ($\Pi$-Elimination).
+$$f\ a =_{def} \prod_{A:U}\prod_{B: A \rightarrow U}\prod_{a:A}\prod_{f: \prod_{x:A}B(a)}f(a) : B(a).$$
+\begin{lstlisting}
+apply (A B: U) (f: A -> B) (a: A) : B = f a
+app (A: U) (B: A -> U) (a: A) (f: Pi A B): B a = f a
+\end{lstlisting}
+\end{definition}
+
+\begin{theorem} ($\Pi$-Computation).
+$$f(a) =_{B(a)} (\lambda (x:A) \rightarrow f(a))(a).$$
+\begin{lstlisting}
+Beta (A:U) (B:A->U) (a: A) (f: Pi A B)
+   : Path (B a) (app A B a (lam A B f)) (f a)
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} ($\Pi$-Uniqueness).
+$$f =_{(x:A)\rightarrow B(a)} (\lambda (y:A) \rightarrow f(y)).$$
+\begin{lstlisting}
+Eta (A:U) (B:A->U) (a:A) (f: Pi A B)
+   : Path (Pi A B) f (\(x:A) -> f x)
+\end{lstlisting}
+\end{theorem}
+
+\subsubsection*{Категоріальна інтерпретація}
+The adjoints $\Pi$ and $\Sigma$ is not the only adjoints could be presented in type system.
+Axiomatic cohesions could contain a set of adjoint pairs as a core type checker operations.
+
+\begin{definition} (Dependent Product).
+The dependent product along morphism $g: B \rightarrow A$ in category $C$ is the right
+adjoint $\Pi_g : C_{/B} \rightarrow C_{/A}$ of the base change functor.
+\end{definition}
+
+\begin{definition} (Space of Sections).
+Let $\mathbf{H}$ be a $(\infty,1)$-topos, and let $E \rightarrow B : \mathbf{H}_{/B}$ a bundle in
+$\mathbf{H}$, object in the slice topos. Then the space of sections $\Gamma_\Sigma(E)$
+of this bundle is the Dependent Product:
+$$ \Gamma_\Sigma(E) = \Pi_\Sigma (E) \in \mathbf{H}. $$
+\end{definition}
+
+\begin{theorem} (HomSet).
+If codomain is set then space of sections is a set.
+\begin{lstlisting}
+setFun (A B : U) (_: isSet B) : isSet (A -> B)
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} (Contractability).
+If domain and codomain is contractible then the space of sections is contractible.
+\begin{lstlisting}
+piIsContr (A: U) (B: A -> U) (u: isContr A)
+          (q: (x: A) -> isContr (B x)) : isContr (Pi A B)
+\end{lstlisting}
+\end{theorem}
+
+\begin{definition} (Section).
+A section of morphism $f: A \rightarrow B$ in some category is the morphism $g: B \rightarrow A$
+such that $f \circ g: B \mapright{g} A \mapright{f} B$ equals the identity morphism on B.
+\end{definition}
+
+\subsubsection*{Гомотопічна інтерпретація}
+Geometrically, $\Pi$ type is a space of sections, while the dependent codomain is a space of fibrations.
+Lambda functions are sections or points in these spaces, while the function result is a fibration.
+$\Pi$ type also represents the cartesian family of sets, generalizing the cartesian product of sets.
+
+\begin{definition} (Fiber).
+The fiber of the map $p: E \rightarrow B$ in a point $y: B$ is all points $x: E$ such that $p(x)=y$.
+\end{definition}
+
+\begin{definition} (Fiber Bundle).
+The fiber bundle $ F \rightarrow E \mapright{p} B$ on a total space $E$ with fiber layer $F$ and base $B$ is a
+structure $(F,E,p,B)$ where $p: E \rightarrow B$ is a surjective map with following property:
+for any point $y: B$ exists a neighborhood $U_b$ for which a homeomorphism $f: p^{-1}(U_b) \rightarrow U_b \times F$
+making the following diagram commute.
+\begin{center}
+\begin{tikzpicture}
+  \matrix (m) [matrix of math nodes,row sep=3em,column sep=3em,minimum width=2em]
+  {
+     {p^{-1}(U_b)} & {U_b \times F} \\
+     U_b & \\};
+  \path[-stealth]
+    (m-1-1) edge node [above] {$f$}    (m-1-2)
+            edge node [left]  {$p$}    (m-2-1)
+    (m-1-2) edge node [right] {$pr_1$} (m-2-1);
+\end{tikzpicture}
+\end{center}
+\end{definition}
+
+\begin{definition} (Cartesian Product of Family over B).
+Is a set $F$ of sections of the bundle with elimination map $app : F \times B \rightarrow E$ such that
+\begin{equation}
+F \times B \mapright{app} E \mapright{pr_1} B
+\end{equation}
+$pr_1$ is a product projection, so $pr_1$, $app$ are morphisms
+of slice category $Set_{/B}$. The universal mapping property of $F$:
+for all $A$ and morphism $A \times B \rightarrow E$ in $Set_{/B}$ exists
+unique map $A \rightarrow F$ such that everything commute. So a category
+with all dependent products is necessarily a category with all pullbacks.
+\end{definition}
+
+\begin{definition} (Trivial Fiber Bundle).
+When total space $E$ is cartesian product $\Sigma(B,F)$ and $p = pr_1$
+then such bundle is called trivial $(F,\Sigma(B,F),pr_1,B)$.
+\end{definition}
+
+\begin{theorem} (Functions Preserve Paths).
+For a function $f: (x:A) \rightarrow B(x)$
+there is an $ap_f : x =_A y \rightarrow f(x) =_{B(x)} f(y)$. This is called
+application of $f$ to path or congruence property (for non-dependent case ---
+$cong$ function). This property behaves functoriality
+as if paths are groupoid morphisms and types are objects.
+\end{theorem}
+
+\begin{theorem} (Trivial Fiber equals Family of Sets).
+Inverse image (fiber) of fiber bundle $(F,B*F,pr_1,B)$ in point $y:B$ equals $F(y)$.
+\begin{lstlisting}
+FiberPi (B: U) (F: B -> U) (y: B)
+      : Path U (fiber (Sigma B F) B (pi1 B F) y) (F y)
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} (Homotopy Equivalence).
+If fiber space is set for all base, and
+there are two functions $f,g : (x:A) \rightarrow B(x)$ and two
+homotopies between them, then these homotopies are equal.
+\begin{lstlisting}
+setPi (A: U) (B: A -> U) (h: (x: A) -> isSet (B x)) (f g: Pi A B)
+      (p q: Path (Pi A B) f g) : Path (Path (Pi A B) f g) p q
+\end{lstlisting}
+\end{theorem}
+
+Note that we will not be able to prove this theorem
+until \textbf{Issue III: Homotopy Type Theory} because
+bi-invertible iso type will be announced there.
+
+\subsubsection{$\Sigma$-тип}
+$\Sigma$ is a dependent sum type, the generalization of products.
+$\Sigma$ type is a total space of fibration. Element of total
+space is formed as a pair of basepoint and fibration.
+
+\subsubsection{Теоретико-типов інтерпретація}
+
+\begin{definition} ($\Sigma$-Formation).
+\begin{lstlisting}
+Sigma (A : U) (B : A -> U) : U = (x : A) * B x
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} ($\Sigma$-Introduction).
+\begin{lstlisting}
+dpair (A: U) (B: A -> U) (a: A) (b: B a) : Sigma A B = (a,b)
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} ($\Sigma$-Elimination).
+\begin{lstlisting}
+pr1 (A: U) (B: A -> U)
+    (x: Sigma A B): A = x.1
+
+pr2 (A: U) (B: A -> U)
+    (x: Sigma A B): B (pr1 A B x) = x.2
+
+sigInd (A: U) (B: A -> U) (C: Sigma A B -> U)
+       (g: (a: A) (b: B a) -> C (a, b))
+       (p: Sigma A B) : C p = g p.1 p.2
+\end{lstlisting}
+\end{definition}
+
+\begin{theorem} ($\Sigma$-Computation).
+\begin{lstlisting}
+Beta1 (A: U) (B: A -> U)
+      (a:A) (b: B a)
+    : Equ A a (pr1 A B (a,b))
+
+Beta2 (A: U) (B: A -> U)
+      (a: A) (b: B a)
+    : Equ (B a) b (pr2 A B (a,b))
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} ($\Sigma$-Uniqueness).
+\begin{lstlisting}
+Eta2 (A: U) (B: A -> U) (p: Sigma A B)
+   : Equ (Sigma A B) p (pr1 A B p,pr2 A B p)
+\end{lstlisting}
+\end{theorem}
+
+\subsubsection{Категоріальна інтерпретація}
+
+\begin{definition} (Dependent Sum).
+The dependent sum along the morphism $f: A \rightarrow B$ in category $C$ is the left
+adjoint $\Sigma_f : C_{/A} \rightarrow C_{/B}$ of the base change functor.
+\end{definition}
+
+\subsubsection{Теоретико-множинна інтерпретація}
+
+\begin{theorem} (Axiom of Choice).
+If for all $x : A$ there is $y : B$ such that $R(x,y)$,
+then there is a function $f : A \rightarrow B$
+such that for all $x : A$ there is a witness of $R(x,f(x))$.
+\begin{lstlisting}
+ac (A B: U) (R: A -> B -> U)
+ : (p: (x:A) -> (y:B)*(R x y)) -> (f:A->B) * ((x:A)->R(x)(f x))
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} (Total).
+If fiber over base implies another fiber
+over the same base then we can construct total space of section
+over that base with another fiber.
+\begin{lstlisting}
+total (A:U) (B C: A -> U)
+      (f: (x:A) -> B x -> C x) (w: Sigma A B)
+    : Sigma A C = (w.1,f (w.1) (w.2))
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} ($\Sigma$-Contractability). If the fiber is set then the $\Sigma$ is set.
+\begin{lstlisting}
+setSig (A:U) (B: A -> U) (sA: isSet A)
+       (sB : (x:A) -> isSet (B x)) : isSet (Sigma A B)
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} (Path Between Sigmas).
+Path between two sigmas $t,u: \Sigma(A,B)$ could be decomposed to
+sigma of two paths $p:t_1=_{A}u_1)$ and $(t_2=_{B(p@i)}u_2)$.
+\begin{lstlisting}
+pathSig (A:U) (B : A -> U) (t u : Sigma A B)
+      : Path U (Path (Sigma A B) t u)
+               ((p: Path A t.1 u.1) * PathP (<i>B(p@i)) t.2 u.2)
+\end{lstlisting}
+\end{theorem}
+
+\subsubsection{Path-тип}
+
+The Path identity type defines a Path space with elements and values.
+Elements of that space are functions from interval $[0,1]$ to a values of that path space.
+This ctt file reflects \footnote{Cyril Cohen, Thierry Coquand, Simon Huber, Anders M{\"{o}}rtberg. Cubical Type Theory: a constructive interpretation of the univalence axiom. 2015. \url{https://5ht.co/cubicaltt.pdf}}{CCHM} cubicaltt model with connections.
+For \footnote{Carlo Angiuli, Brunerie, Coquand, Kuen-Bang Hou (Favonia), Robert Harper, Dan Licata. Cartesian Cubical Type Theory. 2017. \url{https://5ht.co/cctt.pdf}}{ABCFHL} yacctt model with
+variables please refer to ytt file. You may also want to
+read \footnote{Marc Bezem, Thierry Coquand, Simon Huber. A model of type theory in cubical sets. 2014. \url{http://www.cse.chalmers.se/~coquand/mod1.pdf}}{BCH},
+\footnote{Carlo Angiuli, Kuen-Bang Hou (Favonia), Robert Harper. Cartesian Cubical Computational Type Theory: Constructive Reasoning with Paths and Equalities. 2018. \\ \url{https://www.cs.cmu.edu/~cangiuli/papers/ccctt.pdf}}{AFH}.
+There is a \footnote{Andrew Pitts, Ian Orton. Axioms for Modelling Cubical Type Theory in a Topos. 2016. \url{https://arxiv.org/pdf/1712.04864.pdf}}{PO} paper about CCHM axiomatic in a topos.
+
+\subsubsection{Кубічна інтерпретація}
+
+\begin{definition} (Path Formation).
+\begin{lstlisting}
+Hetero (A B: U) (a: A) (b: B) (P: Path U A B) : U = PathP P a b
+Path (A: U) (a b: A) : U = PathP (<i> A) a b
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Path Reflexivity).
+Returns an element of reflexivity path space for a given value of the type.
+The inhabitant of that path space is the lambda on the homotopy
+interval $[0,1]$ that returns a constant value a. Written in
+syntax as \lstinline{<i>a} which equals to $\lambda\ (i: I) \rightarrow a$.
+\begin{lstlisting}
+refl (A: U) (a: A) : Path A a a
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Path Application).
+You can apply face to path.
+\begin{lstlisting}
+app1 (A: U) (a b: A) (p: Path A a b): A = p @ 0
+app2 (A: U) (a b: A) (p: Path A a b): A = p @ 1
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Path Composition).
+Composition operation allows to build a new path by given to paths
+in a connected point.
+\begin{center}
+\begin{tikzpicture}
+  \matrix (m) [matrix of math nodes,row sep=3em,column sep=3em,minimum width=3em]
+  {
+     a & c \\ % (1,1) (1,2)
+     a & b \\ % (2,1) (2,2)
+  };
+  \path[-stealth]
+    (m-1-1) edge node [above] {$comp$} (m-1-2)
+    (m-2-1) edge node [left]  {$\lambda(i:I)\rightarrow a$} (m-1-1)
+    (m-2-2) edge node [right] {$q$} (m-1-2)
+    (m-2-1) edge node [above] {$p @ i$} (m-2-2);
+\end{tikzpicture}
+\end{center}
+\begin{lstlisting}
+composition (A: U) (a b c: A) (p: Path A a b) (q: Path A b c)
+          : Path A a c = comp (<i>Path A a (q@i)) p []
+\end{lstlisting}
+\end{definition}
+
+\begin{theorem} (Path Inversion).
+\begin{lstlisting}
+inv (A: U) (a b: A) (p: Path A a b): Path A b a = <i> p @ -i
+\end{lstlisting}
+\end{theorem}
+
+\begin{definition} (Connections).
+Connections allows you to build square
+with given only one element of path: i) $\lambda\ (i,j: I) \rightarrow p\ @\ min(i,j)$;
+ii) $\lambda\ (i,j:I) \rightarrow p\ @\ max(i,j)$.
+\begin{center}
+  \begin{tikzpicture}
+  \matrix (m) [matrix of math nodes,row sep=3em,column sep=3em,minimum width=3em]
+  {
+     a & b \\ % (1,1) (1,2)
+     a & a                    \\ % (2,1) (2,2)
+  };
+  \path[-stealth]
+    (m-1-1) edge node [above] {$p$}    (m-1-2)
+    (m-2-1) edge node [left]  {$\lambda\ (i:I)\rightarrow a$}    (m-1-1)
+    (m-2-2) edge node [right] {$p$} (m-1-2)
+    (m-2-1) edge node [above] {$\lambda\ (i:I)\rightarrow a$} (m-2-2);
+  \end{tikzpicture}
+  \begin{tikzpicture}
+  \matrix (m) [matrix of math nodes,row sep=3em,column sep=3em,minimum width=3em]
+  {
+     b & b \\ % (1,1) (1,2)
+     a & b                    \\ % (2,1) (2,2)
+  };
+  \path[-stealth]
+    (m-1-1) edge node [above] {$\lambda\ (i:I) \rightarrow b$}    (m-1-2)
+    (m-2-1) edge node [left]  {$p$}    (m-1-1)
+    (m-2-2) edge node [right] {$\lambda\ (i:I) \rightarrow b$} (m-1-2)
+    (m-2-1) edge node [above] {$p$} (m-2-2);
+  \end{tikzpicture}
+\end{center}
+\begin{lstlisting}
+connection1 (A: U) (a b: A) (p: Path A a b)
+          : PathP (<x> Path A (p@x) b) p (<i>b)
+          = <y x> p @ (x \/ y)
+
+connection2 (A: U) (a b: A) (p: Path A a b)
+          : PathP (<x> Path A a (p@x)) (<i>a) p
+          = <x y> p @ (x /\ y)
+\end{lstlisting}
+\end{definition}
+
+\begin{theorem} (Congruence).
+Is a map between values of one type
+to path space of another type by an encode function between types.
+Implemented as lambda defined on $[0,1]$ that returns
+application of encode function to path application of
+the given path to lamda argument |$\lambda$ (i:I) $\rightarrow$ f (p @ i)|
+for both cases.
+\begin{lstlisting}
+ap  (A B: U) (f: A -> B)
+    (a b: A) (p: Path A a b)
+  : Path B (f a) (f b)
+
+apd (A: U) (a x:A) (B: A -> U) (f: A -> B a)
+    (b: B a) (p: Path A a x)
+  : Path (B a) (f a) (f x)
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} (Transport).
+Transports a value of the domain type to the value of the codomain type
+by a given path element of the path space between domain and codomain types.
+Defined as path composition with |[]| of a over a path $p$ --- |comp p a []|.
+\begin{lstlisting}
+trans (A B: U) (p: Path U A B) (a: A) : B
+\end{lstlisting}
+\end{theorem}
+
+\subsubsection{Теоретико-типова інтерпретація}
+
+\begin{definition} (Singleton).
+\begin{lstlisting}
+singl (A: U) (a: A): U = (x: A) * Path A a x
+\end{lstlisting}
+\end{definition}
+
+\begin{theorem} (Singleton Instance).
+\begin{lstlisting}
+eta (A: U) (a: A): singl A a = (a,refl A a)
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} (Singleton Contractability).
+\begin{lstlisting}
+contr (A: U) (a b: A) (p: Path A a b)
+  : Path (singl A a) (eta A a) (b,p)
+  = <i> (p @ i,<j> p @ i/\j)
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} (Path Elimination, Diagonal).
+\begin{lstlisting}
+D (A: U) : U = (x y: A) -> Path A x y -> U
+J (A: U) (x y: A) (C: D A)
+  (d: C x x (refl A x))
+  (p: Path A x y) : C x y p
+= subst (singl A x) T (eta A x) (y, p) (contr A x y p) d where
+  T (z: singl A x) : U = C x (z.1) (z.2)
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} (Path Elimination, Paulin-Mohring).
+J is formulated in a form of Paulin-Mohring and implemented using
+two facts that singleton are contractible and dependent function
+transport.
+\begin{lstlisting}
+J (A: U) (a b: A)
+  (P: singl A a -> U)
+  (u: P (a,refl A a))
+  (p: Path A a b) : P (b,p)
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} (Path Elimination, HoTT).
+J from HoTT book.
+\begin{lstlisting}
+J (A: U) (a b: A)
+  (C: (x: A) -> Path A a x -> U)
+  (d: C a (refl A a))
+  (p: Path A a b) : C b p
+\end{lstlisting}
+\end{theorem}
+
+\begin{theorem} (Path Computation).
+\begin{lstlisting}
+trans_comp (A: U) (a: A)
+  : Path A a (trans A A (<_> A) a)
+  = fill (<i> A) a []
+subst_comp (A: U) (P: A -> U) (a: A) (e: P a)
+  : Path (P a) e (subst A P a a (refl A a) e)
+  = trans_comp (P a) e
+J_comp (A: U) (a: A) (C: (x: A) -> Path A a x -> U) (d: C a (refl A a))
+  : Path (C a (refl A a)) d (J A a C d a (refl A a))
+  = subst_comp (singl A a) T (eta A a) d where T (z: singl A a)
+  : U = C a (z.1) (z.2)
+\end{lstlisting}
+\end{theorem}
+
+Note that  Path type has no Eta rule due to groupoid interpretation.
+
+\subsubsection{Групоїдна інтерпретація}
+
+The groupoid interpretation of type theory is well known article by Martin Hoffman and Thomas Streicher,
+more specific interpretation of identity type as infinity groupoid.
+The groupoid interpretation of Path equality will be given along with category theory library
+in \textbf{Issue VII: Category Theory}.
+
+\subsection{Всесвіти}
+
+This introduction is a bit wild strives to be simple yet precise.
+As we defined a language BNF we could define a language AST by
+using inductive types which is yet to be defined
+in \textbf{Issue II: Inductive Types and Models}. This SAR notation is due Barendregt.
+
+\begin{definition} (Terms). Point in initial object of language AST
+inductive definition is called a term. If type theory or language is defined as
+an inductive type (AST) then the term is defined as its instance.
+\end{definition}
+
+\begin{definition} (Sorts). N-indexed set of universes $\mathrm{U}_{n \in \mathrm{N}}$.
+Could have any number of elements which defines different type systems. All built-in
+types as long as user defined types are landed usually by default in $U_0$ universe.
+Sorts represented in type checker as a separate constructor.
+\end{definition}
+
+\begin{definition} (Axioms). The inclusion rules \textbf{$\mathrm{U_i : U_j}, i,j \in \mathrm{N}$},
+that define which universe is element of another given universe. You may attach
+any rules that joins $i,j$ in some way. Axioms with sorts define universe hierarchy.
+\end{definition}
+
+\begin{definition} (Rules). The set of landings
+$\mathrm{U_i} \rightarrow \mathrm{U_j} : \mathrm{U_{\lambda(i,j), i,j \in \mathrm{N}}}$,
+where $\mathrm{\lambda : N \times N \rightarrow N}$. These rules define term dependence or
+how we land (in which universe) formation rules in definitions.
+\end{definition}
+
+\begin{definition} (Predicative hierarchy). If $\mathrm{\lambda}$ in Rules
+is an uncurried function $\mathrm{max : N \times N \rightarrow N}$
+then such universe hierarchy is called predicative.
+\end{definition}
+
+\begin{definition} (Impredicative hierarchy). If $\lambda$ in Rules
+is a second projection of a tuple $\mathrm{snd : N \times N \rightarrow N}$
+then such universe hierarchy is called impredicative.
+\end{definition}
+
+\begin{definition} (Definitional Equality). For any $\mathrm{U}_i, i \in \mathrm{N}$ there is
+defined an equality between its members and between its instances.
+For all x,y $\in$ A, there is defined a x=y. Definitional equality
+compares normalized term instances.
+\end{definition}
+
+\begin{definition} (SAR). The universum space is configured with a triple of:
+i) sorts, a set of universes  $\mathrm{U}_{n \in \mathrm{N}}$ indexed over set N;
+ii) axioms, a set of inclusions \textbf{$\mathrm{U_i : U_j}, i,j \in \mathrm{N}$};
+iii) rules of term dependence universe landing, a set of landings
+$\mathrm{U_i} \rightarrow \mathrm{U_j} : \mathrm{U_{\lambda(i,j), i,j \in \mathrm{N}}}$, where $\lambda$ could be function $max$ (predicative) or $snd$ (impredicative).
+\end{definition}
+
+\begin{example} (CoC). SAR = $\{ \{\star , \Box \},\{ \star : \Box \},
+        \{ i \rightarrow j : j; i, j \in \{ \star, \Box \}
+        \}$. Terms live in universe $\star$, and types live in universe $\Box$. In CoC $\mathrm{\lambda=snd}$.
+\end{example}
+
+\begin{example} ($\mathrm{PTS}^\infty$). SAR = $\{ \mathrm{U}_{i \in \mathrm{N}},
+    \mathrm{U_i : U_{j; i < j; i,j \in N}},
+    \mathrm{U_i} \rightarrow \mathrm{U_j} : \mathrm{U_{\lambda(i,j); i,j \in \mathrm{N}}}
+    \}$. Where $U_i$ is a universe of $i$-level or $i$-category in categorical interpretation.
+    The working prototype of $\mathrm{PTS}^\infty$ is given in
+    \textbf{Addendum I: Pure Type System for Erlang}\footnote{M.Sokhatsky,P.Maslianko. The Systems Engineering of Consistent Pure Language with Effect Type System for Certified Applications and Higher Languages. AIP Conference Proceedings. 2018.
+    doi:10.1063/1.5045439}.
+\end{example}
+
+\subsection{Контексти}
+
+Speaking of type checker execution, we introduce context or dictionary with types and terms,
+from which we can derive typed variables. This chain could be implemented as
+nested sigma types (due to R.A.G.Seely) or list types (due to Voevodsky). Categorically
+dependent type theory is built upon categories of contexts.
+
+\begin{definition} (Empty Context).
+$$
+    \gamma_0 : \Gamma =_{def} \star.
+$$
+\end{definition}
+
+\begin{definition} (Context Comprehension).
+$$
+\Gamma\ ; A =_{def} \sum_{\gamma:\Gamma}A(\gamma).
+$$
+\end{definition}
+
+\begin{definition} (Context Derivability).
+$$
+\Gamma \vdash A =_{def} \prod_{\gamma:\Gamma}A(\gamma).
+$$
+\end{definition}
+
+\newpage
+\subsection{Інтерналізація}
+
+Here is given formal model of type-theoretical interpretation of Martin-Löf Type Theory.
+It combines 4 Path rules (no eta), 5 $\Pi$ rules, and 6 $\Sigma$ rules (two elims).
+The proof is provided by direct embedding (internalizing) the model intro the model
+of type checker which is even more powerful.
+
+\begin{definition} (MLTT $≔$).
+The MLTT as a Type is defined by taking all rules
+for $\Pi$, $\Sigma$ and Path types into one $\Sigma$ telescope or context.
+\end{definition}
+
+\begin{lstlisting}
+def MLTT (A: U) : U ≔ Σ
+    (Π-form  : Π (B: A → U), U)
+    (Π-ctor₁ : Π (B: A → U), Pi A B → Pi A B)
+    (Π-elim₁ : Π (B: A → U), Pi A B → Pi A B)
+    (Π-comp₁ : Π (B: A → U) (a: A) (f: Pi A B),
+               Equ (B a) (Π-elim₁ B (Π-ctor₁ B f) a) (f a))
+    (Π-comp₂ : Π (B: A → U) (a:  A) (f: Pi A B),
+               Equ (Pi A B) f (λ (x : A), f x))
+    (Σ-form  : Π (B: A → U), U)
+    (Σ-ctor₁ : Π (B: A → U) (a : A) (b : B a), Sigma A B)
+    (Σ-elim₁ : Π (B: A → U) (p : Sigma A B), A)
+    (Σ-elim₂ : Π (B: A → U) (p : Sigma A B), B (pr₁ A B p))
+    (Σ-comp₁ : Π (B: A → U) (a : A) (b: B a),
+               Equ A a (Σ-elim₁ B (Σ-ctor₁ B a b)))
+    (Σ-comp₂ : Π (B: A → U) (a : A) (b: B a),
+               Equ (B a) b (Σ-elim₂ B (a, b)))
+    (Σ-comp₃ : Π (B: A → U) (p : Sigma A B),
+               Equ (Sigma A B) p (pr₁ A B p, pr₂ A B p))
+    (=-form  : Π (a: A), A → U)
+    (=-ctor₁ : Π (a: A), Equ A a a)
+    (=-elim₁ : Π (a: A) (C: D A) (d: C a a (=-ctor₁ a))
+                 (y: A) (p: Equ A a y), C a y p)
+    (=-comp₁ : Π (a: A) (C: D A) (d: C a a (=-ctor₁ a)),
+               Equ (C a a (=-ctor₁ a)) d (=-elim₁ a C d a (=-ctor₁ a))), U
+\end{lstlisting}
+
+\begin{theorem} (Model Check).
+There is an instance of MLTT.
+\begin{lstlisting}
+theorem instance (A : U) : MLTT A ≔
+    (Pi A, lambda A, app A, comp₁ A, comp₂ A,
+     Sigma A, pair A, pr₁ A, pr₂ A, comp₃ A, comp₄ A, comp₅ A,
+     Equ A, refl A, J A, comp₆ A, A)
+\end{lstlisting}
+\end{theorem}
+
+\newpage
+\subsection*{Перевірка в кубічній теорії}
+
+The result of the work is a \lstinline{mltt.ctt} file which can be runned using \lstinline{cubicaltt}.
+Note that computation rules take a seconds to type check.
+
+\begin{lstlisting}
+$\$$ rlwrap ./anders.native check ./experiments/mltt.anders
+File loaded.
+> :n instance
+TYPE: Π (A : U), Σ (Π-form : Π (B : (A → U)), U), Σ (Π-ctor₁ : Π (B : (A → U)), (Π (x : A), (B x) → Π (x : A), (B x))), Σ (Π-elim₁ : Π (B : (A → U)), (Π (x : A), (B x) → Π (x : A), (B x))), Σ (Π-comp₁ : Π (B : (A → U)), Π (a : A), Π (f : Π (x : A), (B x)), Π (P : ((B a) → U)), ((P (((Π-elim₁ B) ((Π-ctor₁ B) f)) a)) → (P (f a)))), Σ (Π-comp₂ : Π (B : (A → U)), Π (a : A), Π (f : Π (x : A), (B x)), Π (P : (Π (x : A), (B x) → U)), ((P f) → (P λ (x : A), (f x)))), Σ (Σ-form : Π (B : (A → U)), U), Σ (Σ-ctor₁ : Π (B : (A → U)), Π (a : A), Π (b : (B a)), Σ (x : A), (B x)), Σ (Σ-elim₁ : Π (B : (A → U)), Π (p : Σ (x : A), (B x)), A), Σ (Σ-elim₂ : Π (B : (A → U)), Π (p : Σ (x : A), (B x)), (B p.1)), Σ (Σ-comp₁ : Π (B : (A → U)), Π (a : A), Π (b : (B a)), Π (P : (A → U)), ((P a) → (P ((Σ-elim₁ B) (((Σ-ctor₁ B) a) b))))), Σ (Σ-comp₂ : Π (B : (A → U)), Π (a : A), Π (b : (B a)), Π (P : ((B a) → U)), ((P b) → (P ((Σ-elim₂ B) (a, b))))), Σ (Σ-comp₃ : Π (B : (A → U)), Π (p : Σ (x : A), (B x)), Π (P : (Σ (x : A), (B x) → U)), ((P p) → (P (p.1, p.2)))), Σ (=-form : Π (a : A), (A → U)), Σ (=-ctor₁ : Π (a : A), Π (P : (A → U)), ((P a) → (P a))), Σ (=-elim₁ : Π (a : A), Π (C : Π (x : A), Π (y : A), (Π (P : (A → U)), ((P x) → (P y)) → U)), Π (d : (((C a) a) (=-ctor₁ a))), Π (y : A), Π (p : Π (P : (A → U)), ((P a) → (P y))), (((C a) y) p)), Σ (=-comp₁ : Π (a : A), Π (C : Π (x : A), Π (y : A), (Π (P : (A → U)), ((P x) → (P y)) → U)), Π (d : (((C a) a) (=-ctor₁ a))), Π (P : ((((C a) a) (=-ctor₁ a)) → U)), ((P d) → (P (((((=-elim₁ a) C) d) a) (=-ctor₁ a))))), U
+NORMEVAL: λ (A : U), (λ (B : (A → U)), Π (x : A), (B x), (λ (B : (A → U)), λ (b : Π (x : A), (B x)), λ (x : A), (b x), (λ (B : (A → U)), λ (f : Π (x : A), (B x)), λ (a : A), (f a), (λ (B : (A → U)), λ (a : A), λ (f : Π (x : A), (B x)), λ (P : ((B a) → U)), λ (u : (P (f a))), u, (λ (B : (A → U)), λ (a : A), λ (f : Π (x : A), (B x)), λ (P : (Π (x : A), (B x) → U)), λ (u : (P f)), u, (λ (B : (A → U)), Σ (x : A), (B x), (λ (B : (A → U)), λ (a : A), λ (b : (B a)), (a, b), (λ (B : (A → U)), λ (x : Σ (x : A), (B x)), x.1, (λ (B : (A → U)), λ (x : Σ (x : A), (B x)), x.2, (λ (B : (A → U)), λ (a : A), λ (b : (B a)), λ (P : (A → U)), λ (u : (P a)), u, (λ (B : (A → U)), λ (a : A), λ (b : (B a)), λ (P : ((B a) → U)), λ (u : (P b)), u, (λ (B : (A → U)), λ (p : Σ (x : A), (B x)), λ (P : (Σ (x : A), (B x) → U)), λ (u : (P p)), u, (λ (x : A), λ (y : A), Π (P : (A → U)), ((P x) → (P y)), (λ (x : A), λ (P : (A → U)), λ (u : (P x)), u, ((J A), ((comp₆ A), A))))))))))))))))
+\end{lstlisting}
+
+\section{Індуктивні типи}
+
+\subsection{Empty, Unit}
+
+empty type lacks both introduction rules and eliminators. However, it has recursor and induction.
+
+\begin{lstlisting}
+data empty =
+emptyRec (C: U): empty -> C = split {}
+emptyInd (C: empty -> U): (z: empty) -> C z = split {}
+\end{lstlisting}
+
+\begin{lstlisting}
+data unit = star
+unitRec (C: U) (x: C): unit -> C = split tt -> x
+unitInd (C: unit -> U) (x: C tt): (z: unit) -> C z = split tt -> x
+\end{lstlisting}
+
+\subsection{Bool, Maybe, Either, Tuple}
+
+\begin{definition} (Bool).
+bool is a run-time version of the boolean logic you may use
+in your general purpose applications. bool is isomorphic
+to 1+1: either unit unit.
+\begin{lstlisting}
+data bool = false | true
+b1: U = bool -> bool
+b2: U = bool -> bool -> bool
+negation: b1 = split { false -> true; true -> false }
+or: b2 = split { false -> idfun bool; true -> lambda bool bool true }
+and: b2 = split { false -> lambda bool bool false; true -> idfun boo }
+boolEq: b2 = lamb bool (bool -> bool) negation
+boolRec (C: U) (f t: C): bool -> C = split { false -> f ; true -> t }
+boolInd (C: bool -> U) (f: A false) (t: A true): (n:bool) -> A n
+  = split { false -> f ; true -> t }
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Maybe).
+Maybe has representing functor $M_A(X) = 1 + A$.
+It is used for wrapping values with optional nothing constructor.
+In ML-family languages this type is called Option (Miranda, ML).
+There is an isomorphims between (fix maybe) and nat.
+\begin{lstlisting}
+data maybe (A: U) = nothing | just (x: A)
+maybeRec (A P: U) (n: P) (j: A -> P): maybe A -> P
+       = split { nothing -> n; just a -> j a }
+
+maybeInd (A: U) (P: maybe A -> U) (n: P nothing)
+         (j: (a: A) -> P (just a)): (a: maybe A) -> P a
+       = split { nothing -> n ; just x -> j x }
+\end{lstlisting}
+\end{definition}
+
+either is a representation for sum types or disjunction.
+\begin{lstlisting}
+data either (A B: U) = left (x: A) | right (y: B)
+eitherRec (A B C: U) (b: A -> C) (c: B -> C): either A B -> C
+        = split { inl x -> b(x) ; inr y -> c(y) }
+
+eitherInd (A B: U) (C: either A B -> U)
+          (x: (a: A) -> C (inl a))
+          (y: (b: B) -> C (inr b))
+        : (x: either A B) -> C x
+        = split { inl i -> x i ; inr j -> y j }
+\end{lstlisting}
+
+tuple is a representation for non-dependent product types or conjunction.
+\begin{lstlisting}
+data tuple (A B: U) = pair (x: A) (y: B)
+prod (A B: U) (x: A) (y: B): (_: A) * B = (x,y)
+tupleRec  (A B C: U) (c: (x:A) (y:B) -> C): (x: tuple A B) -> C
+        = split pair a b -> c a b
+tupleInd  (A B: U) (C: tuple A B -> U)
+          (c: (x:A)(y:B) -> C (pair x y))
+        : (x: tuple A B) -> C x
+        = split pair a b -> c a b
+\end{lstlisting}
+
+\subsection{Nat, List, Stream}
+Pointed Unary System is a category nat with the terminal
+object and a carrier nat having morphism [zero: 1nat → nat, succ: nat → nat].
+The initial object of nat is called Natural Number Object and models Peano axiom set.
+
+\begin{lstlisting}
+data nat = zero | succ (n: nat)
+natEq: nat -> nat -> bool
+natCase (C:U) (a b: C): nat -> C
+natRec  (C:U) (z: C) (s: nat->C->C) : (n:nat) -> C
+\end{lstlisting}
+
+\begin{lstlisting}
+natElim (C:nat->U) (z: C zero)
+        (s: (n:nat)->C(succ n)): (n:nat) -> C(n)
+natInd  (C:nat->U) (z: C zero)
+        (s: (n:nat)->C(n)->C(succ n)): (n:nat) -> C(n)
+\end{lstlisting}
+
+\begin{definition} (List).
+The data type of list L over a given set A can be represented
+as the initial algebra $(\mu L_A, in)$ of the functor $L_A(X) = 1 + (A × X)$.
+Denote $\mu L_A = List(A)$. The constructor functions
+$nil: 1 \rightarrow List(A)$ and $cons: A \times List(A) \rightarrow
+List(A)$ are defined by $nil = in \circ inl$ and $cons = in \circ inr$,
+so $in = [nil,cons]$.
+\begin{lstlisting}
+data list (A: U) = nil | cons (x:A) (xs: list A)
+listCase (A C:U) (a b: C): list A -> C
+listRec (A C:U) (z: C) (s: A->list A->C->C): (n:list A) -> C
+listElim (A: U) (C:list A->U) (z: C nil)
+   (s: (x:A)(xs:list A)->C(cons x xs)): (n:list A) -> C(n)
+listInd (A: U) (C:list A->U) (z: C nil)
+   (s: (x:A)(xs:list A)->C(xs)->C(cons x xs)): (n:list A) -> C(n)
+\end{lstlisting}
+\begin{lstlisting}
+null (A:U): list A −> bool
+head (A:U): list A −> maybe A
+tail (A:U): list A −> maybe (list A)
+nth (A:U): nat −> list A −> maybeA
+append (A: U): list A −> list A −> list A
+reverse (A: U): list A −> list A
+map (A B: U): (A −> B) −> list A −> list B
+zip (AB: U): list A −> list B −> list (tuple A B)
+foldr (AB: U): (A −> B −> B) −> B −> list A −> B
+foldl (AB: U): (B −> A −> B) −> B −> list A −> B
+switch (A: U): (Unit −> list A) −> bool −> list A
+filter (A: U): (A −> bool) −> list A −> list A
+length (A: U): list A −> nat
+listEq (A: eq): list A.1 −> list A.1 −> bool
+\end{lstlisting}
+\end{definition}
+
+stream is a record form of the list's cons constructor. It models the infinity list that has no terminal element.
+\begin{lstlisting}
+data stream (A: U) = cons (x: A) (xs: stream A)
+\end{lstlisting}
+
+\subsection{Fin, Vector, Seq}
+
+fin is the inductive defintion of set with finite elements.
+\begin{lstlisting}
+data fin (n: nat)
+   = fzero | fsucc (_: fin (pred n))
+
+fz (n: nat): fin (succ n)          = fzero
+fs (n: nat): fin n -> fin (succ n) = \(x: fin n) -> fsucc x
+\end{lstlisting}
+
+vector is the inductive defintion of limited length list.
+\begin{lstlisting}
+data vector (A: U) (n: nat)
+   = nil | cons (_: A) (_: vector A (pred n))
+\end{lstlisting}
+
+seq — abstract compositional sequences.
+\begin{lstlisting}
+data seq (A: U) (B: A -> A -> U) (X Y: A)
+   = seqNil (_: A)
+   | seqCons (X Y Z: A) (_: B X Y) (_: Seq A B Y Z)
+\end{lstlisting}
+
+\subsection{Імпредикативне кодування}
+
+You know Church encoding which also has its dependent alanolgue in CoC, however
+in Coq it is imposible to detive Inductive Principle as type system lacks fixpoint
+and functional extensionality. The example of working compiler of PTS languages are Om and Morte.
+Assume we have Church encoded NAT:
+
+\begin{lstlisting}[mathescape=true]
+nat = (X:U) -> (X -> X) -> X -> X
+\end{lstlisting}
+
+where first parameter $(X -> X)$ is a $succ$, the second parameter $X$ is $zero$,
+and the result of encoding is landed in X. Even if we encode the parameter
+
+\begin{lstlisting}[mathescape=true]
+list (A: U) = (X:U) -> X -> (A -> X) -> X
+\end{lstlisting}
+
+and paremeter A let's say live in 42 universe and X live in 2 universe, then by
+the signature of encoding the term will be landed in X, thus 2 universe. In other words
+such dependency is called impredicative displaying that landed term is not a predicate over parameters.
+This means that Church encoding is incompatible with predicative type checkers with predicative
+of predicative-cumulative hierarchies.
+
+In HoTT n-types is encoded as n-groupoids, thus we need to add a predicate in which n-type
+we would like to land the encoding:
+
+\begin{lstlisting}[mathescape=true]
+NAT (A: U) = (X:U) -> isSet X -> X -> (A -> X) -> X
+\end{lstlisting}
+
+Here we added isSet predicate. With this motto we can implement propositional
+truncation by landing term in isProp or even HIT by langing in isGroupoid:
+
+\begin{lstlisting}[mathescape=true]
+TRUN (A:U) type = (X: U) -> isProp X -> (A -> X) -> X
+S1 = (X:U) -> isGroupoid X -> ((x:X) -> Path X x x) -> X
+MONOPLE (A:U) = (X:U) -> isSet X -> (A -> X) -> X
+NAT = (X:U) -> isSet X -> X -> (A -> X) -> X
+\end{lstlisting}
+
+The main publication on this topic could be found at \cite{Awodey17} and \cite{Speight17}.
+Here we have the implementation of Unit impredicative encoding in HoTT.
+
+\begin{lstlisting}[mathescape=true]
+upPath     (X Y:U)(f:X->Y)(a:X->X): X -> Y = o X X Y f a
+downPath   (X Y:U)(f:X->Y)(b:Y->Y): X -> Y = o X Y Y b f
+naturality (X Y:U)(f:X->Y)(a:X->X)(b:Y->Y): U
+  = Path (X->Y)(upPath X Y f a)(downPath X Y f b)
+
+unitEnc': U = (X: U) -> isSet X -> X -> X
+isUnitEnc (one: unitEnc'): U
+  = (X Y:U)(x:isSet X)(y:isSet Y)(f:X->Y) ->
+    naturality X Y f (one X x)(one Y y)
+
+unitEnc: U = (x: unitEnc') * isUnitEnc x
+unitEncStar: unitEnc = (\(X:U)(_:isSet X) ->
+  idfun X,\(X Y: U)(_:isSet X)(_:isSet Y)->refl(X->Y))
+unitEncRec  (C: U) (s: isSet C) (c: C): unitEnc -> C
+  = \(z: unitEnc) -> z.1 C s c
+unitEncBeta (C: U) (s: isSet C) (c: C)
+  : Path C (unitEncRec C s c unitEncStar) c = refl C c
+unitEncEta (z: unitEnc): Path unitEnc unitEncStar z = undefined
+unitEncInd (P: unitEnc -> U) (a: unitEnc): P unitEncStar -> P a
+  = subst unitEnc P unitEncStar a (unitEncEta a)
+unitEncCondition (n: unitEnc'): isProp (isUnitEnc n)
+  =  \(f g: isUnitEnc n) ->
+     <h> \(x y: U) -> \(X: isSet x) -> \(Y: isSet y)
+  -> \(F: x -> y) -> <i> \(R: x) -> Y (F (n x X R)) (n y Y (F R))
+       (<j> f x y X Y F @ j R) (<j> g x y X Y F @ j R) @ h @ i
+\end{lstlisting}
+
+\section{Гомотопічна теорія типів}
+
+Homotypy Type Theory takes its origins in 1996 from groupoid interpretation by
+Hofmann and Streicher's, and later (in 10 years) was formalized by Awodey,
+Warren and Voevodsky. Voevodsky constrtucted Kan simplicial sets interpretation
+of type theory and discovered the property of this model, that was named univalence.
+This property allows to identify isomorphic structures in terms of type theory.
+
+Homotopy type theory to classical homotopy theory is like Euclidian
+syntethic geometry (points, lines, axioms and deduction rules) to
+analytical geometry with cartesian coordinates on $\mathbb{R}^n$ (geometric and algebraic)
+\footnote{We will denote geometric, type theoretical and homotopy constants bold font $\textbf{R}$ while
+analitical will be denoted with double lined letters $\mathbb{R}$.}
+
+In the same way as inductive types extends MLTT for inductive programming,
+the higher inductive types (HIT) extend homotopy type theory for geometry programming.
+You can directly encode CW-complexes by using HIT. The definition of HIT syntax will
+be given in the next \textbf{Issue IV: Higher Inductive Types}.
+
+\subsection{Гомотопії}
+The first higher equality we meet in homotopy theory is a notion of homotopy,
+where we compare two functions or two path spaces (which is sort of dependent families).
+The homotopy interval $\mathrm{I}=[0,1]$ is the perfect foundation for definition of homotopy.
+
+\begin{definition} (Interval). Compact interval.
+\begin{lstlisting}
+data I = i0
+       | i1
+       | seg <i> [(i=0) -> i0,
+                  (i=1) -> i1]
+\end{lstlisting}
+\end{definition}
+
+You can think of $\textbf{I}$ as isomorphism of equality type,
+disregarding carriers on the edges. By mapping $i0,i1:\textbf{I}$ to $x,y:A$ one can
+obtain identity or equality type from classic type theory.
+
+\begin{definition} (Interval Split).
+The convertion function from $\mathrm{I}$ to a type of comparison
+is a direct eliminator of interval. The interval is also known as one of
+primitive higher inductive types which will be given in the next
+\textbf{Issue IV: Higher Inductive Types}.
+\begin{lstlisting}
+pathToHtpy (A: U) (x y: A) (p: Path A x y): I -> A
+   = split { i0 -> x; i1 -> y; seg @ i -> p @ i }
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Homotopy). The homotopy between two function $f,g: X \rightarrow Y$
+is a continuous map of cylinder $H : X \times \textbf{I} \rightarrow Y$ such that
+$$
+\begin{cases}
+H(x,0)=f(x), \\
+H(x,1)=g(x).
+\end{cases}
+$$
+\begin{lstlisting}
+homotopy (X Y: U) (f g: X -> Y)
+         (p: (x: X) -> Path Y (f x) (g x))
+         (x: X): I -> Y = pathToHtpy Y (f x) (g x) (p x)
+\end{lstlisting}
+\end{definition}
+
+\subsection{Групоїдна інтерпретація}
+The first text about groupoid interpretation of type theory can be found in Francois Lamarche:
+A proposal about Foundations\footnote{\url{http://www.cse.chalmers.se/~coquand/Proposal.pdf}}.
+Then Martin Hofmann and Thomas Streicher wrote the initial
+document on groupoid interpretation of type
+theory\footnote{Martin Hofmann and Thomas Streicher. The Groupoid Interpretation of Type Theory. 1996.}.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{lccc}
+\hline
+\textbf{Equality} & {\bf Homotopy} & \textbf{$\infty$-Groupoid} \\
+\hline
+reflexivity  & constant path & identity morphism \\
+symmetry     & inversion of path & inverse morphism \\
+transitivity & concatenation of paths & composition of mopphisms \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+There is a deep connection between higher-dimentinal groupoids in category theory and
+spaces in homotopy theory, equipped with some topology. The category or groupoid could
+be built where the objects are particular spaces or types, and morphisms are path types
+between these types, composition operation is a path concatenation. We can write this
+groupoid here recalling that it should be category with inverted morphisms.
+
+\begin{lstlisting}
+cat: U = (A: U) * (A -> A -> U)
+groupoid: U = (X: cat) * isCatGroupoid X
+PathCat (X: U): cat = (X,\(x y:X)->Path X x y)
+\end{lstlisting}
+
+\begin{lstlisting}
+isCatGroupoid (C: cat): U
+  = (id: (x: C.1) -> C.2 x x)
+  * (c: (x y z:C.1) -> C.2 x y -> C.2 y z -> C.2 x z)
+  * (inv: (x y: C.1) -> C.2 x y -> C.2 y x)
+  * (inv_left:  (x y: C.1) (p: C.2 x y) ->
+    Path (C.2 x x) (c x y x p (inv x y p)) (id x))
+  * (inv_right: (x y: C.1) (p: C.2 x y) ->
+    Path (C.2 y y) (c y x y (inv x y p) p) (id y))
+  * (left: (x y: C.1) (f: C.2 x y) ->
+    Path (C.2 x y) (c x x y (id x) f) f)
+  * (right: (x y: C.1) (f: C.2 x y) ->
+    Path (C.2 x y) (c x y y f (id y)) f)
+  * ((x y z w:C.1)(f:C.2 x y)(g:C.2 y z)(h:C.2 z w)->
+    Path (C.2 x w) (c x z w (c x y z f g) h)
+                   (c x y w f (c y z w g h)))
+\end{lstlisting}
+
+\begin{lstlisting}
+PathGrpd (X: U)
+  : groupoid
+  = ((Ob,Hom),id,c,sym X,compPathInv X,compInvPath X,L,R,Q) where
+    Ob: U = X
+    Hom (A B: Ob): U = Path X A B
+    id (A: Ob): Path X A A = refl X A
+    c (A B C: Ob) (f: Hom A B) (g: Hom B C): Hom A C
+      = comp (<i> Path X A (g@i)) f []
+\end{lstlisting}
+From here should be clear what it meant to be groupoid interpretation
+of path type in type theory. In the same way we can construct categories of $\prod$ and $\sum$ types.
+In {\bf Issue VIII: Topos Theory} such categories will be given.
+
+\subsection{Функціональна екстенсіональність}
+
+\begin{definition} (funExt-Formation)
+\begin{lstlisting}
+funext_form (A B: U) (f g: A -> B): U
+  = Path (A -> B) f g
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (funExt-Introduction)
+\begin{lstlisting}
+funext (A B: U) (f g: A -> B) (p: (x:A) -> Path B (f x) (g x))
+  : funext_form A B f g
+  = <i> \(a: A) -> p a @ i
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (funExt-Elimination)
+\begin{lstlisting}
+happly (A B: U) (f g: A -> B) (p: funext_form A B f g) (x: A)
+  : Path B (f x) (g x)
+  = cong (A -> B) B (\(h: A -> B) -> apply A B h x) f g p
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (funExt-Computation)
+\begin{lstlisting}
+funext_Beta (A B: U) (f g: A -> B) (p: (x:A) -> Path B (f x) (g x))
+  : (x:A) -> Path B (f x) (g x)
+  = \(x:A) -> happly A B f g (funext A B f g p) x
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (funExt-Uniqueness)
+\begin{lstlisting}
+funext_Eta (A B: U) (f g: A -> B) (p: Path (A -> B) f g)
+  : Path (Path (A -> B) f g) (funext A B f g (happly A B f g p)) p
+  = refl (Path (A -> B) f g) p
+\end{lstlisting}
+\end{definition}
+
+\subsection{Пулбеки}
+
+\begin{definition} (Пулбек).
+\begin{lstlisting}
+pullback (A B C:U) (f: A -> C) (g: B -> C): U
+  = (a: A)
+  * (b: B)
+  * Path C (f a) (g b)
+
+pb1 (A B C: U) (f: A -> C) (g: B -> C)
+  : pullback A B C f g -> A
+  = \(x: pullback A B C f g) -> x.1
+
+pb2 (A B C: U) (f: A -> C) (g: B -> C)
+  : pullback A B C f g -> B
+  = \(x: pullback A B C f g) -> x.2.1
+
+pb3 (A B C: U) (f: A -> C) (g: B -> C)
+  : (x: pullback A B C f g) -> Path C (f x.1) (g x.2.1)
+  = \(x: pullback A B C f g) -> x.2.2
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Ядро).
+\begin{lstlisting}
+kernel  (A B: U) (f: A -> B): U
+  = pullback A A B f f
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Гомотопічне розшарування).
+\begin{lstlisting}
+hofiber (A B: U) (f: A -> B) (y: B): U
+  = pullback A unit B f (\(x: unit) -> y)
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Пулбек Квадрат).
+\begin{lstlisting}
+pullbackSq (Z A B C: U) (f: A -> C) (g: B -> C) (z1: Z -> A) (z2: Z -> B): U
+         = (h: (z:Z) -> Path C ((o Z A C f z1) z) (((o Z B C g z2)) z))
+         * isEquiv Z (pullback A B C f g) (induced Z A B C f g z1 z2 h)
+\end{lstlisting}
+\end{definition}
+
+\begin{theorem} (Існування пулбеку).
+\begin{lstlisting}
+completePullback (A B C: U) (f: A -> C) (g: B -> C)
+    : pullbackSq (pullback A B C f g) A B C f g (pb1 A B C f g) (pb2 A B C f g)
+\end{lstlisting}
+\end{theorem}
+
+\subsection{Пушаути та фібрації}
+
+\begin{definition} (Pushout). One of the notable examples is pushout as it's used
+to define the cell attachment formally, as others cofibrant objects.
+\begin{lstlisting}
+data pushout (A B C: U) (f: C -> A) (g: C -> B)
+   = po1 (_: A)
+   | po2 (_: B)
+   | po3 (c: C) <i> [ (i = 0) -> po1 (f c) ,
+                      (i = 1) -> po2 (g c) ]
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Fibration-1) Dependent fiber bundle derived from Path contractability.
+\begin{lstlisting}
+isFBundle1 (B: U) (p: B -> U) (F: U): U
+  = (_: (b: B) -> isContr (Path U (p b) F))
+  * ((x: Sigma B p) -> B)
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Fibration-2). Dependent fiber bundle derived from surjective function.
+\begin{lstlisting}
+isFBundle2 (B: U) (p: B -> U) (F: U): U
+  = (V: U)
+  * (v: surjective V B)
+  * ((x: V) -> Path U (p (v.1 x)) F)
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Fibration-3). Non-dependent fiber bundle derived from fiber truncation.
+\begin{lstlisting}
+im1 (A B: U) (f: A -> B): U = (b: B) * pTrunc ((a:A) * Path B (f a) b)
+BAut (F: U): U = im1 unit U (\(x: unit) -> F)
+unitIm1 (A B: U) (f: A -> B): im1 A B f -> B = \(x: im1 A B f) -> x.1
+unitBAut (F: U): BAut F -> U = unitIm1 unit U (\(x: unit) -> F)
+
+isFBundle3 (E B: U) (p: E -> B) (F: U): U
+  = (X: B -> BAut F)
+  * (classify B (BAut F) (\(b: B) -> fiber E B p b) (unitBAut F) X) where
+  classify (A' A: U) (E': A' -> U) (E: A -> U) (f: A' -> A): U
+    = (x: A') -> Path U (E'(x)) (E(f(x)))
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Fibration-4). Non-dependen fiber bundle derived as pullback square.
+\begin{lstlisting}
+isFBundle4 (E B: U) (p: E -> B) (F: U): U
+  = (V: U)
+  * (v: surjective V B)
+  * (v': prod V F -> E)
+  * pullbackSq (prod V F) E V B p v.1 v' (\(x: prod V F) -> x.1)
+\end{lstlisting}
+\end{definition}
+
+\subsection{Еквівалентність, Ізоморфізм, Унівалентність}
+
+\begin{definition} (Equivalence).
+\begin{lstlisting}
+fiber (A B: U) (f: A -> B) (y: B): U = (x: A) * Path B y (f x)
+isSingleton (X:U): U = (c:X) * ((x:X) -> Path X c x)
+isEquiv (A B: U) (f: A -> B): U = (y: B) -> isContr (fiber A B f y)
+equiv (A B: U): U = (f: A -> B) * isEquiv A B f
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Surjective).
+\begin{lstlisting}
+isSurjective (A B: U) (f: A -> B): U
+  = (b: B) * pTrunc (fiber A B f b)
+
+surjective (A B: U): U
+  = (f: A -> B)
+  * isSurjective A B f
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Injective).
+\begin{lstlisting}
+isInjective' (A B: U) (f: A -> B): U
+  = (b: B) -> isProp (fiber A B f b)
+
+injective (A B: U): U
+  = (f: A -> B)
+  * isInjective A B f
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Embedding).
+\begin{lstlisting}
+isEmbedding (A B: U) (f: A -> B) : U
+  = (x y: A) -> isEquiv (Path A x y) (Path B (f x) (f y)) (cong A B f x y)
+
+embedding (A B: U): U
+  = (f: A -> B)
+  * isEmbedding A B f
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Half-adjoint Equivalence).
+\begin{lstlisting}
+isHae (A B: U) (f: A -> B): U
+  = (g: B -> A)
+  * (eta_: Path (id A) (o A B A g f) (idfun A))
+  * (eps_: Path (id B) (o B A B f g) (idfun B))
+  * ((x: A) -> Path B (f ((eta_ @ 0) x)) ((eps_ @ 0) (f x)))
+
+hae (A B: U): U
+  = (f: A -> B)
+  * isHae A B f
+\end{lstlisting}
+\end{definition}
+
+Ізоморфізм.
+
+\begin{definition} (iso-Formation)
+\begin{lstlisting}
+iso_Form (A B: U): U = isIso A B -> Path U A B
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (iso-Introduction)
+\begin{lstlisting}
+iso_Intro (A B: U): iso_Form A B
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (iso-Elimination)
+\begin{lstlisting}
+iso_Elim (A B: U): Path U A B -> isIso A B
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (iso-Computation)
+\begin{lstlisting}
+iso_Comp (A B : U) (p : Path U A B)
+  : Path (Path U A B) (iso_Intro A B (iso_Elim A B p)) p
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (iso-Uniqueness)
+\begin{lstlisting}
+iso_Uniq (A B : U) (p: isIso A B)
+  : Path (isIso A B) (iso_Elim A B (iso_Intro A B p)) p
+\end{lstlisting}
+\end{definition}
+
+Унівалентність.
+
+\begin{definition} (uni-Formation)
+\begin{lstlisting}
+univ_Formation (A B: U): U = equiv A B -> Path U A B
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (uni-Introduction)
+\begin{lstlisting}
+equivToPath (A B: U): univ_Formation A B
+  = \(p: equiv A B) -> <i> Glue B [(i=0) -> (A,p),
+    (i=1) -> (B, subst U (equiv B) B B (<_>B) (idEquiv B)) ]
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (uni-Elimination)
+\begin{lstlisting}
+pathToEquiv (A B: U) (p: Path U A B) : equiv A B
+  = subst U (equiv A) A B p (idEquiv A)
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (uni-Computation)
+\begin{lstlisting}
+eqToEq (A B : U) (p : Path U A B)
+  : Path (Path U A B) (equivToPath A B (pathToEquiv A B p)) p
+  = <j i> let Ai: U = p@i in Glue B
+    [ (i=0) -> (A,pathToEquiv A B p),
+      (i=1) -> (B,pathToEquiv B B (<k> B)),
+      (j=1) -> (p@i,pathToEquiv Ai B (<k> p @ (i \/ k))) ]
+
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (uni-Uniqueness)
+\begin{lstlisting}
+transPathFun (A B : U) (w: equiv A B)
+  : Path (A -> B) w.1 (pathToEquiv A B (equivToPath A B w)).1
+\end{lstlisting}
+\end{definition}
+
+\section{Вищі індуктивні типи}
+CW-complexes are fundamental objects in homotopy type theory and even
+included inside cubical type checker in a form of higher (co)-inductive
+types (HITs). Just like regular (co)-inductive types could be described
+as recur- sive terminating (well-founded) or non-terminating trees,
+higher inductive types could be described as CW-complexes.
+Defining HIT means to define some CW- complex directly using
+cubical homogeneous composition structure as an element
+of initial algebra inside cubical model.
+
+\subsection{Інтервал}
+
+\begin{definition} (Interval). Compact interval.
+\begin{lstlisting}
+data I = i0
+       | i1
+       | seg <i> [(i=0) -> i0,
+                  (i=1) -> i1]
+\end{lstlisting}
+\end{definition}
+
+You can think of ${\bf I}$ as isomorphism of equality type,
+disregarding carriers on the edges. By mapping $i0,i1:{\bf I}$ to $x,y:A$ one can
+obtain identity or equality type from classic type theory.
+
+\subsection{n-Сфера}
+
+\begin{definition} (Shperes and Disks).
+Here are some example of using dimensions to construct spherical shapes.
+\begin{lstlisting}
+data S1
+   = base
+   | loop <i> [ (i = 0) -> base,
+                (i = 1) -> base ]
+\end{lstlisting}
+\begin{lstlisting}
+data S2
+   = point
+   | surf <i j> [ (i = 0) -> point, (i = 1) -> point,
+                  (j = 0) -> point, (j = 1) -> point ]
+                  (j = 0) -> point, (j = 1) -> point ]
+\end{lstlisting}
+\end{definition}
+
+\subsection{Суспензія та цикли}
+
+\begin{definition} (Suspension).
+\begin{lstlisting}
+data susp (A: U)
+  = north
+  | south
+  | merid (a: A) <i> [ (i = 0) -> north ,
+                       (i = 1) -> south ]
+\end{lstlisting}
+\end{definition}
+
+
+\subsection{Транкейшин та факторизація}
+
+\begin{definition} (Truncation).
+\end{definition}
+
+\begin{lstlisting}
+data pTrunc (A: U) -- (-1)-trunc, mere proposition truncation
+  = pinc (a: A)
+  | pline (x y: pTrunc A) <i>
+        [ (i = 0) -> x,
+          (i = 1) -> y ]
+\end{lstlisting}
+
+\begin{lstlisting}
+data sTrunc (A: U) -- (0)-trunc, set truncation
+  = sinc (a: A)
+  | sline (a b: sTrunc A)
+          (p q: Path (sTrunc A) a b) &lt;i j&gt;
+        [ (i = 0) -> p @ j,
+          (i = 1) -> q @ j,
+          (j = 0) -> a,
+          (j = 1) -> b ]
+\end{lstlisting}
+
+\begin{lstlisting}
+data gTrunc (A: U) -- (1)-trunc, groupoid truncation
+  = ginc   (a: A)
+  | gline  (a b: gTrunc A)
+           (p q: Path (gTrunc A) a b)
+           (r s: Path (Path (gTrunc A) a b) p q) &lt;i j k&gt;
+         [ (i = 0) -> r @ j @ k,
+           (i = 1) -> s @ j @ k,
+           (j = 0) -> p @ k,
+           (j = 1) -> q @ k,
+           (k = 0) -> a,
+           (k = 1) -> b ]
+\end{lstlisting}
+
+Факторизація.
+
+\begin{definition} (Quotient).
+\begin{lstlisting}
+data quot (A: U) (R: A -> A -> U)
+  = inj (a: A)
+  | quoteq (a b: A) (r: R a b) &lt;i&gt;
+         [ (i = 0) -> inj a,
+           (i = 1) -> inj b ]
+\end{lstlisting}
+\begin{lstlisting}
+data setquot (A: U) (R: A -> A -> U)
+  = quotient (a: A)
+  | identification (a b: A) (r: R a b) &lt;i&gt;
+                 [ (i = 0) -> quotient a,
+                   (i = 1) -> quotient b ]
+  | setTruncation  (a b: setquot A R)
+                   (p q: Path (setquot A R) a b) &lt;i j&gt;
+                 [ (i = 0) -> p @ j,
+                   (i = 1) -> q @ j,
+                   (j = 0) -> a,
+                   (j = 1) -> b ]
+\end{lstlisting}
+\end{definition}
+
+
+\section{Модальності}
+
+\subsection{Процеси}
+
+Process Calculus defines formal business process engine that could be mapped onto Synrc/BPE Erlang/OTP application or OCaml Lwt library with Coq.io front-end. Here we will describe an Erlang approach for modeling processes.
+We will describe process calculus as a formal model of two types: 1) the general abstract MLTT interface of process modality that can be used as a formal binding to low-level programming or as a top-level interface; 2) the low-level formal model of Erlang/OTP generic server.
+
+\begin{definition} (Storage).
+The secure storage based on verified cryptography.
+NOTE: For simplicity let it be a compatible list.
+\begin{lstlisting}
+storage: U -> U = list
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Process).
+The type formation rule of the process
+is a $\Sigma$ telescope that contains: i) protocol type; ii) state type;
+iii) in-memory current state of process in the form of cartesian product
+of protocol and state which is called signature of the process; iv) monoidal
+action on signature; v) persistent storage for process trace.
+\begin{lstlisting}
+process : U
+  = (protocol state: U)
+  * (current: prod protocol state)
+  * (act: id (prod protocol state))
+  * (storage (prod protocol state))
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Spawn).
+The sole introduction rule, process constructor
+is a tuple with filled process type information. Spawn is a modal arrow
+representing the fact that process instance is created at some
+scheduler of CPU core.
+\begin{lstlisting}
+spawn (protocol state: U) (init: prod protocol state)
+      (action: id (prod protocol state)) : process
+    = (protocol,state,init,action,nil)
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Accessors). Process type defines following
+accessors (projections, this eliminators) to its structure:
+i) protocol type; ii) state type; iii) signature of the
+process; iv) current state of the process; v) action
+projection; vi) trace projection.
+\begin{lstlisting}
+protocol  (p: process): U = p.1
+state     (p: process): U = p.2.1
+signature (p: process): U = prod p.1 p.2.1
+current   (p: process):          signature p  = p.2.2.1
+action    (p: process):      id (signature p) = p.2.2.2.1
+trace     (p: process): storage (signature p) = p.2.2.2.2
+\end{lstlisting}
+\end{definition}
+
+NOTE: there are two kinds of approaches to process design:
+1) Semigroup: $P \times S \rightarrow S$;
+and 2) Monoidal: $P \times S \rightarrow P \times S$,
+where P is protocol and S is state of the process.
+
+\begin{definition} (Receive).
+The modal arrow that represents
+sleep of the process until protocol message arrived.
+\begin{lstlisting}
+receive (p: process) : protocol p = axiom
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Send).
+The response free function that represents
+sending a message to a particular process in the run-time. The Send
+nature is async and invisible but is a part of process modality as
+it's effectfull.
+\begin{lstlisting}
+send (p: process) (message: protocol p) : unit = axiom
+\end{lstlisting}
+\end{definition}
+
+\begin{definition} (Execute).
+The Execute function is an
+eliminator of process stream performing addition of a single entry
+to the secured storage of the process. Execute is a transactional
+or synchronized version of asynchronous Send.
+\begin{lstlisting}
+execute (p: process) (message: protocol p) : process
+  = let step: signature p = (action p) (message, (current p).2)
+     in (protocol p, state p, step, action p, cons step (trace p))
+\end{lstlisting}
+\end{definition}
+
+1) Run-time formal model
+of Erlang/OTP compatible generic server with extraction to Erlang.
+This is an example of low-level process modality usage.
+The run-time formal model can be seen
+here\footnote{\url{https://n2o.space/articles/streams.htm}}.
+
+2) Formal model of Business Process Engine application that runs on top of Erlang/OTP
+extracted model. The Synrc/BPE model can be seen
+here\footnote{\url{https://n2o.space/articles/bpe.htm}}.
+
+3) Formal model of Synrc/N2O application
+and n2o\_async\footnote{\url{https://mqtt.n2o.space/man/n2o_async.htm}} in particular.
+
+\section{Висновки}

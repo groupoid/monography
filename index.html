@@ -1,0 +1,75 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="x-ua-compatible" content="ie=edge"><meta property="fb:app_id" content="118554188236439"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="author" content="Maxim Sokhatsky"><meta name="twitter:site" content="@5HT"><meta name="twitter:creator" content="@5HT"><meta property="og:type" content="website"><meta property="og:image" content="https://avatars.githubusercontent.com/u/17128096?s=400&amp;u=66a63d4cdd9625b2b4b37d724cc00fe6401e5bd8&amp;v=4"><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="https://anders.groupoid.space/images/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="stylesheet" href="https://formal.uno/main.css"><link rel="apple-touch-icon" sizes="57x57" href="https://anders.groupoid.space/images/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="https://anders.groupoid.space/images/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="https://anders.groupoid.space/images/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="https://anders.groupoid.space/images/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="https://anders.groupoid.space/images/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="https://anders.groupoid.space/images/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="https://anders.groupoid.space/images/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="https://anders.groupoid.space/images/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="https://anders.groupoid.space/images//apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="https://anders.groupoid.space/images/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="https://anders.groupoid.space/images/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="https://anders.groupoid.space/images/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="https://anders.groupoid.space/images/favicon-16x16.png"><link rel="manifest" href="https://anders.groupoid.space/images/manifest.json"><style>svg a{fill:blue;stroke:blue}
+[data-mml-node="merror"]>g{fill:red;stroke:red}
+[data-mml-node="merror"]>rect[data-background]{fill:yellow;stroke:none}
+[data-frame],[data-line]{stroke-width:70px;fill:none}
+.mjx-dashed{stroke-dasharray:140}
+.mjx-dotted{stroke-linecap:round;stroke-dasharray:0,140}
+use[data-c]{stroke-width:3px}
+</style></head><body class="content"></body></html><html><head><meta property="og:title" content="FORMAL.UNO"><meta property="og:description" content="Formal System One"><meta property="og:url" content="https://formal.uno/"></head></html><title>FORMAL.UNO</title><header class="header"><div class="header__titles"><h1 class="header__title">ПЕРША ФОРМАЛЬНА СИСТЕМА</h1><h4 class="header__subtitle">Формальне середовище виконання, система вищих мов та базові бібліотеки для програмування, доведення теорем і формальної філософії</h4></div></header><article class="main"><div class="om"><section><h1>Анотація</h1></section><aside><a href="https://tonpa.guru">Максим Сохацький</a><time>9 SEP 2021</time></aside><p>Перша формальна система визначає формальний підхід до математичної
+верифікації та описує спробу автора у цій парадигмі побудувати
+замкнену уніфіковану систему формальних мов для програмування,
+математики та філософії. В процесі розробки моделі такої
+системи автору довелося апробувати частини її імплементації
+для головних SML-подібних формальних академічних мов, мови
+Erlang та інших (загалом 7 мов). За 10 років автором було
+проаналізовані синтаксис та семантика основних мов програмування
+(більше 50 мов) з різних промислових та академічних доменів,
+8 мов з яких були особисто реалізовані автором. В роботі описані
+8 мов уніфікованої мовної системи (концептуальна модель)
+та представлені 2 їх імплементації.</p><p>Головним чином, натхнення було почерпнуте з LISP-машин
+минулого, APL-систем, перших систем доведення теорем таких
+як AUTOMATH, віртуальних маших паралельної та узгодженої
+обробки нескінченних процесів, таких як BEAM, та кубічних MLTT-пруверів.
+</p><section><h1>СТРУКТУРА</h1></section><p>Суть роботи полягає в побудові унікальної замкненої си-
+стеми яка складається з:
+1) системного програмного забезпечення – модального середовища
+   виконання разом з інтерпретатором написаним на формальній мові;
+2) бібліотека та архітектура прикладного програмування N2O.TECH для середовищ виконання;
+3) прикладного програмного забезпечення — системи вищих формальних мов,
+   для яких надано моделі, імплементації;
+4) базова бібліотека разом з математичними компонентами (програми на вищих мовах).
+</p></div><h2>Середовище виконання</h2><div class="index"><div class="index__col"><h2>Ядро</h2><ul><li><a href="https://groupoid.space/runtime/cps/">Інтерпретатор</a></li><li><a href="https://groupoid.space/runtime/apl/">Тензори</a></li><li><a href="https://groupoid.space/runtime/intercore/">Планувальник</a></li><li><a href="https://anders.groupoid.space/foundations/modal/process/">Процеси</a></li></ul></div><div class="index__col"><h2>Бібліотека</h2><ul><li><a href="https://groupoid.space/runtime/effects/">IO Протоколи</a></li><li><a href="https://anders.groupoid.space/foundations/mltt/io/">IO</a></li><li><a href="https://anders.groupoid.space/foundations/mltt/ioi/">IOI</a></li></ul></div></div><h2>Вищі мови програмування</h2><div class="index"><div class="index__col"><h2>PTS/MLTT</h2><ul><li><a href="https://henk.groupoid.space">Чисте-ядро</a></li><li><a href="https://groupoid.space/misc/sematics/">Фібраційне-ядро</a></li></ul></div><div class="index__col"><h2>HTS/CCHM</h2><ul><li><a href="https://anders.groupoid.space/">Гомотопічне ядро</a></li><li><a href="https://groupoid.space/misc/library/">Математичні компоненти</a></li><li><a href="https://groupoid.space/misc/course/">Курс по теорії типів</a></li><li><a href="https://anders.groupoid.space/mathematics/homotopy/hopf/">Розшарування хопфа</a></li></ul></div></div><div class="om"><section><h1>Середовище виконання</h1></section><p>Синтансичне дерево мови інтерпретатора містить модуль лінивих
+відкладених обчислень (CPS), та розширення синтаксичного
+дерева спеціальними командами пов’язаними з середовищем
+виконання (управління процесами виконання).
+Програми таких інтерпретаторів виконуються у певній пам’яті,
+яка використовується як контекст виконання. Кожна така програма
+виконується як атомарний поток інструкцій на одному ядрі фізичного процесора.
+Ситема віртуальних процесів містить SMP/AMP планувальник, який
+управлє CPS-програмами які виконують інтерпретатори на кожному з фізичних ядер процесора.</p><p>Мотивація для побудови інтерпретатору, який повністю розміщується
+разом з программою в L1 кеші (який лімітований 64КБ-256КБ) базується
+на успіху таких віртуальних машин як LuaJIT, V8, HotSpot,
+а також векторних мов програмування типу К та J. Якби ми могли
+побудувати дійсно швидкий інтерпретатор який би виконував програми цілком в L1 кеші, байткод та
+стріми якого були би вирівняні по словам архітектури, а для векторних
+обчислень застосовувалися би AVX інструкції, які, як відомо
+перемагають по ціні-якості GPU обчислення, то такий інтерпретатор міг би,
+навіть без спеціалізованої JIT компіляції, скласти конкуренцію
+сучасним промисловим інтерпретаторам, таким як Erlang, Python, K, LuaJIT.
+Для дослідження цієї гіпотези мною було побудовано експериментальний
+інтерпретатор без байт-коду, але з вирівняним по словам архітерктури
+стрімом команд, які є безпосередньою машинною презентацією конструкторів індуктивних типів (enum)
+мови Rust.</p><p>Ключовим викликом тут стали лінійні типи мови Rust, які не
+дозволяють звертатися до посилань, які вже були оброблені, а це
+впливає на всю архітектуру тензорного преставлення змінних в
+мові інтерпретатор CPS, яка наслідує певним чином мову К.</p><p>Середовище виконання мість базову бібліотеку формалізовану в PureScript,
+а також серію експериментів <a href="https://n2o.dev">N2O.DEV</a>,
+повні версіх яких доступні для мови Erlang, Elixir та Hamler.
+</p><section><h1>Вищі мови програмування</h1></section><p>Тут йдеться про мови програмування придатні для доведення
+теорем, та їх таксономію від найелементарніших (чистої системи
+з одним типом Π) до найпотужніших гомотопічних систем. Одна
+така гомотопічна система є кінцевим завданням цього розділу
+— побудова моделі гомотопічного верифікатора. В процесі його
+побудови в цьому розділі ми розглянемо під мікроскопом складові частини його нижчих мовних рівнів.
+Застосуємо категорну семантику для мов програмування і будемо розглядати мови програмування як моноїдальні
+мовні категорі, об’єкти яких є просторами усіх програм цих мов програмування,
+а морфізми — правила верифікації та компіляції цих програм.
+Мови розкладаються у спектральну (індексовану натуральними числами N → U)
+послідовність мов, кожен елемент якої є мовою програмування,
+яка не містить синтаксичне дерево вищої мови програмування.</p><p>Система вищих мов мість базові бібліотеки PURE для системи PTS
+та HOMOTOPY для системи MLTT/CCHM/HTS. Для побудови вищих мов
+використовувалися мови OCaml та Erlang.
+</p></div><div class="index"><center><table cellspacing=5><tr><td width=5><img src="https://n2o.space/img/pdf.jpg" width=35></td><td width=400>
+<a href="https://formal.uno/monography.pdf">
+<h3>МОНОГРАФІЯ.PDF</h3>
+</a></td></tr></table></center></div></article><footer class="footer"><a href="https://5ht.co/license/"><img class="footer__logo" src="https://longchenpa.guru/seal.png" width="50"></a><span class="footer__copy">2021&mdash;2022 &copy; <a href="//groupoid.space/" style="color:Lavender;">Groupoïd Infinity</a></span><script src="https://groupoid.space/highlight.js"></script><script src="https://groupoid.space/bundle.js"></script></footer>

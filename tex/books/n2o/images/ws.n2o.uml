@@ -1,0 +1,6 @@
+title N2O/WebSocket
+
+Browser->+GH Pages: HTTP GET
+GH Pages->-Browser: Static HTML
+Browser->+N2O WebSocket: BERT Request
+N2O WebSocket->-Browser: BERT Response

@@ -623,9 +623,13 @@ foldl = \lambda\ f\ v\ xs = foldr\ (\lambda\ xg\rightarrow\ (\lambda \rightarrow
 $$
 
 \subsection{Операційна семантика}
-Традиційно індуктивні типи входять в операційну семантику систем побудованих та основі MLTT (таких як кубічні системи).
-Оригінально Мартін-Льоф виразив індуктивні типи через $\Sigma$-тип, як W-типи, проте для ця система потребує Fixpoint
-в мовному ядрі або пониження до системи F.
+Традиційно індуктивні типи входять в операційну семантику систем побудованих
+та основі MLTT-80 (таких як кубічні системи, або система HTS).
+Оригінально Мартін-Льоф виразив індуктивні дерева через $W$-типи, для яких
+також потрібно $0$-тип, $1$-тип, та $2$-тип. Така система є менш потужною ніж система типів Полін-Морін,
+оскільки не дозволяє виразити загальні схеми індукції та взаємну рекурсію. Хоча з іншого
+боку не потребує термінейшин чекера, стріктлі позітів чекера, та взаємної рекурсивності,
+що дозволяє доводити семантику такого мовного ядра значно простіше.
 
 \begin{equation}
 \tag{$W$-formation}
@@ -642,17 +646,39 @@ $$
 \end{equation}
 
 \begin{equation}
-\tag{$W$-elimination}
-\dfrac
-{\splitfrac{w: W \vdash C(w) : Type,\\ x:A,\ u:B(x) \rightarrow W}{v:\Pi (y:B(x)) \rightarrow C(u(y)) \vdash c(x,u,v):C(sup(x,u))}}
-{w:W \vdash wrec(w,c):C(w)}
+  \begin{equation}
+  \tag{W-elim}
+  \dfrac
+    {\begin{split}
+     & w: W \vdash C(w) : Type \\
+     & x:A,\ u:B(x) \rightarrow W, \\
+         & { \begin{split}
+              & v:\Pi (y:B(x)) \rightarrow C(u(y)) \vdash c(x,u,v):C(sup(x,u))
+           \end{split}
+         }
+     \end{split}
+    }
+    {w:W \vdash wrec(w,c):C(w)}
 \end{equation}
 
+
 \begin{equation}
-\tag{$W$-computation}
-\dfrac
-{\splitfrac{w: W \vdash C(w) : Type,\ x:A,\ u:B(x) \rightarrow W}{v:\Pi (y:B(x)) \rightarrow C(u(y)) \vdash c(x,u,v):C(sup(x,u))}}
-{\splitfrac{x:A,\ u:B(x) \rightarrow W \vdash wrec(sup(x,u),c)\ =}{c(x,u,\lambda (y:B(x)) \rightarrow wrec(u(y),c)):C(sup(x,u))}}
+   \begin{equation}
+   \tag{W-$\beta$}
+      \dfrac{
+         \begin{split}
+           & w: W \vdash C(w) : Type \\
+           & x: A,\ u:B(x) \rightarrow W \\
+           & { \begin{split}
+               & v: \Pi (y:B(x)) \rightarrow C(u(y)) \vdash c(x,u,v):C(sup(x,u))
+               \end{split}
+          }
+     \end{split}}
+    {\begin{split}
+    & x:A,\ u:B(x) \rightarrow W \vdash wrec(sup(x,u),c) \\
+    & =\ c(x,u,\lambda (y:B(x)), wrec(u(y),c)) : C(sup(x,u))
+    \end{split}
+  }
 \end{equation}
 
 \newpage
@@ -708,11 +734,11 @@ data hts (lang: U)
    | path (A x y: lang)
    | plam (name: name) (a: lang)
    | papp (f a: lang)
-   | I
-   | 0
-   | 1
-   | \\/ (a b: lang)
-   | /\\ (a b: lang)
+   | interval
+   | zero
+   | one
+   | meet (a b: lang)
+   | join (a b: lang)
    | neg (e: lang)
    | comp (a b: lang)
    | fill (a b c: lang)
@@ -731,8 +757,8 @@ data hts (lang: U)
 
 Базова бібліотека мови Ерланг у яку проводиться основний
 естракт, поставляється з дистрибутивом Erlang/OTP. Базова бібліотека
-$O_{PTS}$ наведена в репозиторії Github\footnote{\url{https://github.com/groupoid/om}}.
+$O_{PTS}$ наведена в репозиторії Github\footnote{\url{https://github.com/groupoid/henk}}.
 Гомотопічна базова бібліотека відповідає термінальній мові $O_{CCHM}$, та теж відкрита
-на Github\footnote{\url{https://github.com/groupoid/cubical}}.
+на Github\footnote{\url{https://github.com/groupoid/anders}}.
 Останні два розділи присвячені математичному моделюванню математики на цій мові.
 

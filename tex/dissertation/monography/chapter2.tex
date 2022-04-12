@@ -137,7 +137,6 @@ MLTT на Agda.
 Для того аби показати сучасну досніпову категорну модель теорії типів,
 дамо которкий опис теорії які лягли в основу категорного моделювання теорії типів.
 
-
 \newpage
 \subsection{Обширні категорії Гротендіка}
 
@@ -221,7 +220,7 @@ $$
 \newpage
 \subsection{Локальні декартово-замкнені категорії Сілі}
 Локальні декартово-замкнені категорії (ДЗК) та їх зв'язок з теорією типів були представлені Сілі\cite{Seely84}.
-Внутрішньою мовою локальниз ДЗК є мова програмування з залежними типами $\Pi$ та $\Sigma$, що становить основу сучасних фібраційних пруверів.
+Внутрішньою мовою локальних ДЗК є мова програмування з залежними типами $\Pi$ та $\Sigma$, що становить основу сучасних фібраційних пруверів.
 Доведення, що декартово замкнена категорія містить STLC надано в розділі 7 математичних компонент
 в рамках топосо-теоретичної моделі конструктивної теорії множин.
 
@@ -261,8 +260,8 @@ def CwF : U := Σ (C: precategory) (T: catfunctor C Fam)
 
 \begin{lstlisting}
 def naturalModel : U := Σ (C  : precategory) (_  : isCategory C)
-    (t  : terminal C) (Tm : carrier C) (Ty : carrier C)
-    (p  : hom C VT V), Π (f : homTo C V), hasPullback C (Tm, f, Ty, p)
+    (t : terminal C) (Tm : carrier C) (Ty : carrier C)
+    (p : hom C VT V), Π (f : homTo C V), hasPullback C (Tm, f, Ty, p)
 \end{lstlisting}
 
 Володимир Воєводський запропонував свою категорну модель, яку назвав $C-$системами.
@@ -359,7 +358,7 @@ def naturalModel : U := Σ (C  : precategory) (_  : isCategory C)
 об’єкти якої --- це maybe-типи сум синтаксичних дерев мов програмування,
   а морфізми --- це стрілки (які містять правила виводу, типизації, нормалізації, екстакції тощо).
 Приклади синтаксичних дерев: $O_\Pi$, $O_\Sigma$, $O_=$.
-Приклади мовних категорій: $O_{PTS}$, $O_{MLTT}$, $O_{HTS}$.
+Приклади мовних категорій: $O_{PTS}$ (Henk), $O_{MLTT-80}$ (Per), $O_{HTS}$ (Anders).
 \end{definition}
 
 \begin{definition} (Модель).
@@ -372,13 +371,13 @@ def naturalModel : U := Σ (C  : precategory) (_  : isCategory C)
 \begin{definition} (Послідовність синтаксичних дерев). Кожна послідовність
 синтаксичних дерев
 \begin{equation}
-O_\Pi \rightarrow O_\Sigma \rightarrow O_= \rightarrow O_W \rightarrow O_I.
+O_{\Pi} \rightarrow O_{\Sigma} \rightarrow O_{=} \rightarrow O_{W} \rightarrow O_{I}.
 \end{equation}
 генерує відповідну послідовність мов програмування
 \begin{equation}
 \begin{split}
-O_{PTS}(O_\Pi) \rightarrow O_{CTX}(O_\Pi,O_\Sigma) \rightarrow O_{EQU}(..,O_\Sigma,O_=) \rightarrow \\
- \quad \rightarrow O_{ITS}(...,O_=,O_W) \rightarrow O_{HTS}(...,O_W,O_I).
+O_{PTS}(O_\Pi) \rightarrow O_{MLTT-72}(O_\Pi,O_\Sigma) \rightarrow O_{MLTT-73}(..,O_\Sigma,O_=) \rightarrow \\
+ \quad \rightarrow O_{MLTT-80}(...,O_=,O_W) \rightarrow O_{HTS}(...,O_{W},O_I).
 \end{split}
 \end{equation}
 наступним чином. Кожна мова програмування залежить
@@ -386,10 +385,10 @@ O_{PTS}(O_\Pi) \rightarrow O_{CTX}(O_\Pi,O_\Sigma) \rightarrow O_{EQU}(..,O_\Sig
 та всіх попредніх синтаксисів мов програмування з послідовності.
 Перша мова програмування містить тільки перший синтаксис.
 Розкриті сигнатури мають вигляд:
-$O_{PTS}: O_\Pi \rightarrow U$,
-$O_{CTX}: O_\Pi \rightarrow O_\Sigma \rightarrow U$,
-$O_{EQU}: O_\Pi \rightarrow O_\Sigma \rightarrow O_= \rightarrow U$,
-$O_{ITS}: O_\Pi \rightarrow O_\Sigma \rightarrow O_= \rightarrow O_W \rightarrow U$,
+$O_{PTS}: O_\Pi \rightarrow U$, \\
+$O_{MLTT-72}: O_\Pi \rightarrow O_\Sigma \rightarrow U$, \\
+$O_{MLTT-73}: O_\Pi \rightarrow O_\Sigma \rightarrow O_= \rightarrow U$, \\
+$O_{MLTT-80}: O_\Pi \rightarrow O_\Sigma \rightarrow O_= \rightarrow O_W \rightarrow U$, \\
 $O_{HTS}: O_\Pi \rightarrow O_\Sigma \rightarrow O_= \rightarrow O_W \rightarrow O_I \rightarrow U$.
 \end{definition}
 
@@ -407,7 +406,7 @@ O_{HTS} = O_{\Pi\Sigma=WI} : O_\Pi \rightarrow O_\Sigma \rightarrow O_= \rightar
 \end{definition}
 
 Кожне синтаксичне дерево, як правило, містить конструктори
-та елімінатори певного одного типу. Але починаючи з $O_{ITS}$
+та елімінатори певного одиничного типу. Але починаючи з $O_{MLTT-80}$
 складність типів, які додаються до ядра значно зростає.
 Таким чином мовні категорії конструються гранулярно з
 точністю до включення певного типу в ядро верифікатора.
@@ -435,17 +434,17 @@ O_{HTS} = O_{\Pi\Sigma=WI} : O_\Pi \rightarrow O_\Sigma \rightarrow O_= \rightar
        $O_\mu$                         & Тензорне числення (векторизація) \\
     \hline
     \rowcolor{LightGray}
-       $O_\Pi$                         & Числення конструкцій (функціональна повнота) \\
+       $O_\Pi$                         & Числення конструкцій PTS (функціональна повнота) \\
     \rowcolor{LightGray}
-       $O_\Sigma$                      & Числення контекстів (контекстуальна повнота) \\
+       $O_\Sigma$                      & Числення контекстів MLTT-72 (контекстуальна повнота) \\
     \rowcolor{LightGray}
-       $O_=$                           & Теорія типів Мартіна-Льофа (логіка) \\
+       $O_=$                           & Теорія типів Мартіна-Льофа MLTT-73 (логіка) \\
     \rowcolor{LightGray}
-       $O_W$                           & Числення (ко-)індуктивних конструкцій (матіндукція) \\
+       $O_W$                           & Числення (ко-)індуктивних конструкцій W та M дерев MLTT-80 (матіндукція) \\
     \rowcolor{LightGray}
-       $O_{I}$                         & Гомотопічна система типів (формальна математика) \\
+       $O_{I}$                         & Гомотопічна система типів CCHM (формальна математика) \\
     \rowcolor{LightGray}
-       $O_{\triangleright}$            & Кубічна система с обмежувальною рекурсією \\
+       $O_{\triangleright}$            & Кубічна система с обмежувальною рекурсією (теореми про \pi-числення)\\
       \hline
        $O_{/}$                         & Система фактор-типів (Lean) \\
        $O_{H}$                         & Мова з оператором Адамара (квантова фізика)\\
@@ -461,7 +460,7 @@ O_{HTS} = O_{\Pi\Sigma=WI} : O_\Pi \rightarrow O_\Sigma \rightarrow O_= \rightar
 де кожна мова-кодомен є складнішою та біль потужною за мову-домен.
 Система мов є категорією мовних категорій або категорією мов програмування.
 \begin{equation}
-O_\infty : O_{CPS} \rightarrow O_{PTS} \rightarrow O_{MLTT} \rightarrow O_{ITS} \rightarrow O_{HTS} \rightarrow ...
+O_\infty : O_{CPS} \rightarrow O_{PTS} \rightarrow O_{MLTT-80} \rightarrow O_{HTS} \rightarrow ...
 \end{equation}
 \end{definition}
 
@@ -471,20 +470,20 @@ O_\infty : O_{CPS} \rightarrow O_{PTS} \rightarrow O_{MLTT} \rightarrow O_{ITS} 
 де об'єкти --- це усі можливі мовні категорії побудовані за допомогою усіх перестановок суми мовних синтаксисів,
 а морфізми це функтори перетворення однієї мовної категорії в іншу мовну категорію.
 Приклади: $O_{I*} \rightarrow O_{\Pi=}$, $O_\Pi \rightarrow O_{\Pi\Sigma}$,
-$O_\Pi \rightarrow O_{\Pi\Sigma}$, $O_{\Pi*} \rightarrow O_\Pi$.
+          $O_\Pi \rightarrow O_{\Pi\Sigma}$, $O_{\Pi*} \rightarrow O_\Pi$.
 \end{definition}
 
 \section{Структурне представлення моделі}
 Виходячи з визначення моделі, вони можуть мати різний
 набір об'єктів в системі мов програмування.
-Покажемо приклади ексземплярів які можно породити в рамках цієї моделі.
+Покажемо приклади екземплярів які можно породити в рамках цієї моделі.
 
 \newpage
 \subsection{Мінімальна система}
 Приклад мінімальної системи, яка містить лише одну мову для доведення теорем
 та одну мову для виконання програм.
 \begin{equation}
-PTS_{CPS} = 
+PTS_{CPS} =
 \begin{cases}
 Ob: \{ O_{CPS}, O_{PTS} \} \\
 Hom: \{ 1,2: \mathbb{1} \rightarrow O_{PTS}, 3: O_{PTS} \rightarrow O_{CPS} \}
@@ -508,12 +507,12 @@ Hom: \{ 1,2: \mathbb{1} \rightarrow O_{PTS}, 3: O_{PTS} \rightarrow O_{CPS} \}
 як параметрів при конструюванні мовної категорії може змінюватися, тут
 генеалогія HTS не ведеться від MLTT, яке є розгалуженням).
 \begin{equation}
-Total = 
+Total =
 \begin{cases}
-Ob: \{ O_{CPS}, O_{PTS}, O_{MLTT}, O_{ITS}, O_{HTS} \} \\
+Ob: \{ O_{CPS}, O_{PTS}, O_{MLTT-73}, O_{MLTT-80}, O_{HTS} \} \\
 Hom: \begin{cases}
-1,2: \mathbb{1} \rightarrow O_{HTS}, 3: O_{MLTT} \rightarrow O_{ITS} \\
-4: O_{HTS} \rightarrow O_{ITS}, 5: O_{ITS} \rightarrow O_{PTS}, 6: O_{PTS} \rightarrow O_{CPS}
+1,2: \mathbb{1} \rightarrow O_{HTS}, 3: O_{MLTT-73} \rightarrow O_{MLTT-80} \\
+4: O_{HTS} \rightarrow O_{MLTT-80}, 5: O_{MLTT-80} \rightarrow O_{PTS}, 6: O_{PTS} \rightarrow O_{CPS}
 \end{cases}
 \end{cases}
 \end{equation}
@@ -564,7 +563,6 @@ $$
 верифікації (в порівнянні з моделями System F).
 Таким чином будемо розглядати формальне середовище виконання, як
 сукупність інтерпретатора та операційної системи.
-
 
 \begin{definition} (Синтаксичне дерево $O_\lambda$). Інтерпретатор визначається
 своїм трьома конструкторами: номер змінної (індекс де Брейна),
@@ -675,18 +673,18 @@ data pts (lang: U)
 \end{definition}
 
 \newpage
-\subsection{Теорія типів Мартіна-Льофа MLTT$}
+\subsection{Теорія типів Мартіна-Льофа MLTT-73$}
 Мова теорії типів є сучасною основою всіх пруверів з залежними типами,
 такими, наприклад, як NuPRL та Agda. Багато так званих $\Pi\Sigma$ пруверів
-імплементують $MLTT$ серед таких як:
+імплементують $MLTT-73$ серед таких як:
 $\Pi\Sigma$\footnote{\url{https://github.com/zlizta/pisigma-0-2-2}},
 $\Pi\forall$\footnote{\url{https://github.com/sweirich/pi-forall}}.
 
-\begin{definition} (Мовна категорія $O_{MLTT}$).
+\begin{definition} (Мовна категорія $O_{MLTT-73}$).
 \begin{equation}
-O_{MLTT} =
+O_{MLTT-73} =
 \begin{cases}
-Ob: \{\ maybe\ MLTT\ \} \\
+Ob: \{\ maybe\ MLTT-73\ \} \\
 Hom: \begin{cases}
 type,norm: Ob \rightarrow Ob \\
 certify: Ob \rightarrow Ob = type \circ norm
@@ -695,8 +693,8 @@ certify: Ob \rightarrow Ob = type \circ norm
 \end{equation}
 \end{definition}
 
-\begin{definition} (Синтаксис мовної категорії $O_{MLTT}$).
-Мова $O_{MLTT}$ включає в себе синтаксиси трьох типів
+\begin{definition} (Синтаксис мовної категорії $O_{MLTT-73}$).
+Мова $O_{MLTT-73}$ включає в себе синтаксиси трьох типів
 теорії Мартіна-Льофа: $O_\Pi$, $O_\Sigma$, $O_=$.
 \begin{lstlisting}
 data MLTT = mpure (_: pts MLTT)
@@ -719,7 +717,7 @@ data exists (lang: U)
 
 \begin{definition} (Синтаксичне дерево $O_=$).
 Додавши тип рівності можно підняти систему ще на одну сходинку,
-до $O_{MLTT-84}$ або $O_{\Pi\Sigma=}$:
+до $O_{MLTT-73}$ або $O_{\Pi\Sigma=}$:
 \begin{lstlisting}[mathescape=true]
 data identity (lang: U)
    = id (t a b: lang)
@@ -729,11 +727,11 @@ data identity (lang: U)
 \end{definition}
 
 \newpage
-\subsection{Система індуктивних типів ITS}
+\subsection{Система індуктивних типів MLTT-80}
 
-\begin{definition} (Мовна категорія $O_{ITS}$).
+\begin{definition} (Мовна категорія $O_{MLTT-80}$).
 \begin{equation}
-O_{ITS} =
+O_{MLTT-80} =
 \begin{cases}
 Ob: \{\ X: maybe\ ITS, target: maybe\ CPS\ \} \\
 Hom: \begin{cases}
@@ -747,14 +745,47 @@ cerfity = type \circ norm \circ induction \circ extract \\
 
 Мова індуктивних типів дозволяє безпосередньо кодувати індуктивні типи,
 не використовуючи схеми кодування Бома, містить усі попередні мовні синтаксиси:
+$O_=$, $O_\Sigma$, $O_\Pi$ та синтаксиси $O_0$, $O_1$, $O_2$, $O_W$.
+
+\begin{definition} (Синтаксичне дерево мовної категорії $O_{MLTT-80}$).
+\begin{lstlisting}
+data MLTT-80 = ipure (_: pts MLTT-80)
+             | isigma (_: exists MLTT-80)
+             | iid (_: identity MLTT-80)
+             | i0 (_: empty MLTT-80)
+             | i1 (_: unit MLTT-80)
+             | i2 (_: bool MLTT-80)
+             | iW (_: ind MLTT-80)
+\end{lstlisting}
+\end{definition}
+
+\newpage
+\subsection{Система індуктивних типів Paulin-Mohring}
+
+\begin{definition} (Мовна категорія $O_{PM}$).
+\begin{equation}
+O_{PM} =
+\begin{cases}
+Ob: \{\ X: maybe\ PM, target: maybe\ CPS\ \} \\
+Hom: \begin{cases}
+type,norm,induction: X \rightarrow X, extract: X \rightarrow target \\
+certify : X \rightarrow target \\
+cerfity = type \circ norm \circ induction \circ extract \\
+\end{cases}
+\end{cases}
+\end{equation}
+\end{definition}
+
+Мова індуктивних типів дозволяє безпосередньо кодувати індуктивні типи,
+не використовуючи схеми кодування Бома, містить усі попередні мовні синтаксиси:
 $O_=$, $O_\Sigma$, $O_\Pi$.
 
-\begin{definition} (Синтаксичне дерево мовної категорії $O_{ITS}$).
+\begin{definition} (Синтаксичне дерево мовної категорії $O_{PM}$).
 \begin{lstlisting}
-data ITS = ipure (_: pts ITS)
-         | isigma (_: exists ITS)
-         | iid (_: identity ITS)
-         | iITS (_: ind ITS)
+data PM = ipure (_: pts PM)
+        | isigma (_: exists PM)
+        | iid (_: identity PM)
+        | iITS (_: ind PM)
 \end{lstlisting}
 \end{definition}
 
@@ -770,8 +801,8 @@ data label  (A: U) =       lab (n: name) (t: tele A)
                                (s: list  (prod (prod name bool) A))
 \end{lstlisting}
 
-\begin{definition} (Синтаксичне дерево $O_*$).
-Правило формації, конструктора та елімінатора визначається синтаксичним деревом $O_*$:
+\begin{definition} (Синтаксичне дерево $O_{*}$).
+Правило формації, конструктора та елімінатора визначається синтаксичним деревом $O_{*}$:
 \begin{lstlisting}
 data ind (lang: U)
    = datum  (n: name) (t: tele lang) (labels:   list (label lang))
@@ -803,12 +834,11 @@ $$
 data HTS = hpure (_: pts HTS)
          | hsigma (_: exists HTS)
          | hid (_: identity HTS)
-         | hind (_: ind HTS)
          | homotopy (_: hts HTS)
 \end{lstlisting}
 \end{definition}
 
-Гомотопічна типа наслідує $O_{ITS}$ але модифіковану з
+Гомотопічна типа наслідує $O_{MLTT-80}$ але модифіковану з
 Path-типом в індуктивних визначеннях, структурою композиції,
 анонсує Path-тип (формація, конструктор, та елімінатор)
 як лямбда функцію на відрізку, а також склейку типів у всесвіті
@@ -817,27 +847,30 @@ Path-типом в індуктивних визначеннях, структу
 \begin{definition} (Синтаксичне дерево $O_I$).
 \begin{lstlisting}
 data hts (lang: U)
-   = pre (n: nat)
+   = pretype (n: nat)
    | path (A x y: lang)
    | plam (name: name) (a: lang)
    | papp (f a: lang)
-   | I
-   | 0
-   | 1
-   | \\/ (a b: lang)
-   | /\\ (a b: lang)
+   | interval
+   | zero
+   | one
+   | meet (a b: lang)
+   | join (a b: lang)
    | neg (e: lang)
-   | comp (a b: lang)
-   | fill (a b c: lang)
+   | transp (a b c: lang)
+   | hcomp (a b: lang)
    | glue (a b c: lang)
-   | glue-1 (a b: lang)
-   | unglue-1 (a b: lang)
+   | Glue (a b: lang)
+   | unglue (a b: lang)
 \end{lstlisting}
 \end{definition}
 
 Таким чином,
-$O_{HTS}$ містить два Id-типа, один унаслідований від $O_=$,
-а інший який міститься в синтаксичному дереві $O_I$.
+$O_{HTS}$ містить два Id-типа, один унаслідований від $O_=$ (з модифікованою
+обчислювальною семантикою), а інший який міститься в синтаксичному дереві $O_I$.
 
 \newpage
 \section{Висновки}
+
+Таким чином ми здійснили спектралізацію або іншими словами розклали усі
+існуючі немодальні формальні системи типів у спектральну категорію.

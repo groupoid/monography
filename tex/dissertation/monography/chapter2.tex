@@ -654,21 +654,21 @@ certify: X \rightarrow target = type \circ norm \circ extract
 Чиста мова $O_{PTS}$ містить лише синтаксис одного типу, $\Pi$-типу.
 Така теорія називається теорією з одним типом, або з однією аксіомою.
 \begin{lstlisting}
-data PTS = ppure (_: pts PTS)
+data PTS = forall (_: Forall PTS)
 \end{lstlisting}
 \end{definition}
 
 Вона описана в літературі як Calculus of Construction (Кокан),
-Pure Type System (Стемп, Фу).
+Pure Type System (Барендрехт, Меєр, Гонзалез, Стемп, Фу).
 
 \begin{definition} (Синтаксичне дерево $O_\Pi$).
 \begin{lstlisting}[mathescape=true]
-data pts (lang: U)
-   = star (n: nat)
-   | var (x: name) (l: nat)
+data Forall (lang: U)
+   = fibrant (n: nat)
+   | variable (x: name) (l: nat)
    | pi (x: name) (l: nat) (f: lang)
    | lambda  (x: name) (l: nat) (f: lang)
-   | app (f a: lang)
+   | application (f a: lang)
 \end{lstlisting}
 \end{definition}
 
@@ -697,9 +697,10 @@ certify: Ob \rightarrow Ob = type \circ norm
 Мова $O_{MLTT-73}$ включає в себе синтаксиси трьох типів
 теорії Мартіна-Льофа: $O_\Pi$, $O_\Sigma$, $O_=$.
 \begin{lstlisting}
-data MLTT = mpure (_: pts MLTT)
-          | msigma (_: exists MLTT)
-          | mid (_: identity MLTT)
+data MLTT
+   = forall (_: Forall MLTT)
+   | sigma (_: Sigma MLTT)
+   | id (_: Id MLTT)
 \end{lstlisting}
 \end{definition}
 
@@ -707,7 +708,7 @@ data MLTT = mpure (_: pts MLTT)
 Також можна до чистої системи додати $\Sigma$-тип,
 піднявши типову систему до мови $O_{MLTT-72}$ або $O_{\Pi\Sigma}$ :
 \begin{lstlisting}[mathescape=true]
-data exists (lang: U)
+data Sigma (lang: U)
    = sigma (n: name) (a b: lang)
    | pair (a b: lang)
    | fst (p: lang)
@@ -719,15 +720,20 @@ data exists (lang: U)
 Додавши тип рівності можно підняти систему ще на одну сходинку,
 до $O_{MLTT-73}$ або $O_{\Pi\Sigma=}$:
 \begin{lstlisting}[mathescape=true]
-data identity (lang: U)
-   = id (t a b: lang)
+data Id (lang: U)
+   = identity (t a b: lang)
    | id_intro (a b: lang)
    | id_elim (a b c d e: lang)
+   | id_compute (a b c d e: lang)
 \end{lstlisting}
 \end{definition}
 
+$O_=$ не містить $\eta$-правила.
+
 \newpage
 \subsection{Система індуктивних типів MLTT-80}
+
+MLTT-80 покладена в основу CCHM верифікатора.
 
 \begin{definition} (Мовна категорія $O_{MLTT-80}$).
 \begin{equation}
@@ -749,13 +755,14 @@ $O_=$, $O_\Sigma$, $O_\Pi$ та синтаксиси $O_0$, $O_1$, $O_2$, $O_W$.
 
 \begin{definition} (Синтаксичне дерево мовної категорії $O_{MLTT-80}$).
 \begin{lstlisting}
-data MLTT-80 = ipure (_: pts MLTT-80)
-             | isigma (_: exists MLTT-80)
-             | iid (_: identity MLTT-80)
-             | i0 (_: empty MLTT-80)
-             | i1 (_: unit MLTT-80)
-             | i2 (_: bool MLTT-80)
-             | iW (_: ind MLTT-80)
+data MLTT-80
+   = forall (_: Forall MLTT-80)
+   | sigma (_: Sigma MLTT-80)
+   | id (_: Id MLTT-80)
+   | 0 (_: Empty MLTT-80)
+   | 1 (_: Unit MLTT-80)
+   | 2 (_: Bool MLTT-80)
+   | W (_: W MLTT-80)
 \end{lstlisting}
 \end{definition}
 
@@ -781,11 +788,17 @@ cerfity = type \circ norm \circ induction \circ extract \\
 $O_=$, $O_\Sigma$, $O_\Pi$.
 
 \begin{definition} (Синтаксичне дерево мовної категорії $O_{PM}$).
+
+Головним чином, система загальних індуктивних схем предбачає три основних компоненти:
+1) верифікатор строго позитивних схем;
+2) верифікатор завершуваності рекурсивної перевірки рекурсивних схем;
+3) верифікатор взаємної рекурсії.
+
 \begin{lstlisting}
-data PM = ipure (_: pts PM)
-        | sigma (_: exists PM)
-        | id (_: identity PM)
-        | induction_schemes (_: ind PM)
+data PM = forall (_: Forall PM)
+   | sigma (_: Sigma PM)
+   | id (_: Id PM)
+   | inductive (_: InductiveSchemes PM)
 \end{lstlisting}
 \end{definition}
 
@@ -794,25 +807,30 @@ data PM = ipure (_: pts PM)
 як конструкцій case оператора; iii) імен конструкторів індуктивного типу.
 
 \begin{lstlisting}
-data tele   (A: U) = emp | tel (n: name) (b: A) (t: tele A)
-data branch (A: U) =        br (n: name) (args: list name) (term: A)
-data label  (A: U) =       lab (n: name) (t: tele A)
-                         | com (n: name) (t: tele A) (dim: list name)
-                               (s: list  (prod (prod name bool) A))
+data tele (A: U) = emp | tel (n: name) (b: A) (t: tele A)
+data branch (A: U) = br (n: name) (args: list name) (term: A)
+data label (A: U) = lab (n: name) (t: tele A)
+   | com (n: name) (t: tele A) (dim: list name)
+         (s: list (prod (prod name bool) A))
 \end{lstlisting}
 
 \begin{definition} (Синтаксичне дерево $O_{*}$).
 Правило формації, конструктора та елімінатора визначається синтаксичним деревом $O_{*}$:
 \begin{lstlisting}
-data ind (lang: U)
-   = datum  (n: name) (t: tele lang) (labels:   list (label lang))
-   | case   (n: name) (t: lang)      (branches: list (branch lang))
-   | ctor   (n: name)                (args:     list lang)
+data InductiveSchemes (lang: U)
+   = data (n: name) (t: tele lang) (labels: list (label lang))
+   | case (n: name) (t: lang) (branches: list (branch lang))
+   | constructor (n: name) (args: list lang)
 \end{lstlisting}
 \end{definition}
 
 \newpage
 \subsection{Гомотопічна система типів HTS}
+
+Головним чином, гомотопічна система складається з наступних частин:
+1) два всесвіти fibrant та pretype;
+2) MLTT-73;
+3) CCHM розширення.
 
 \begin{definition} (Мовна категорія $O_{HTS}$).
 $$
@@ -831,10 +849,10 @@ $$
 Синтаксис гомотопічної мовної категорії містить усі
 попередні мовні синтаксиси: $O_I$, $O_W$, $O_=$, $O_\Sigma$, $O_\Pi$:
 \begin{lstlisting}
-data HTS = hpure (_: pts HTS)
-         | hsigma (_: exists HTS)
-         | hid (_: identity HTS)
-         | homotopy (_: hts HTS)
+data HTS = forall (_: Forall HTS)
+         | sigma (_: Sigma HTS)
+         | id (_: Id HTS)
+         | homotopy (_: Homotopy HTS)
 \end{lstlisting}
 \end{definition}
 
@@ -846,28 +864,21 @@ Path-типом в індуктивних визначеннях, структу
 
 \begin{definition} (Синтаксичне дерево $O_I$).
 \begin{lstlisting}
-data hts (lang: U)
+data Homotopy (lang: U)
    = pretype (n: nat)
    | path (A x y: lang)
-   | plam (name: name) (a: lang)
-   | papp (f a: lang)
-   | interval
-   | zero
-   | one
-   | meet (a b: lang)
-   | join (a b: lang)
-   | neg (e: lang)
-   | transp (a b c: lang)
-   | hcomp (a b: lang)
-   | glue (a b c: lang)
-   | Glue (a b: lang)
-   | unglue (a b: lang)
+   | path_lambda (name: name) (a: lang)
+   | path_app (f a: lang)
+   | interval | zero | one
+   | meet (a b: lang) | join (a b: lang) | neg (e: lang)
+   | transp (a b c: lang) | hcomp (a b: lang)
+   | glue (a b c: lang) | Glue (a b: lang) | unglue (a b: lang)
 \end{lstlisting}
 \end{definition}
 
 Таким чином,
 $O_{HTS}$ містить два Id-типа, один унаслідований від $O_=$ (з модифікованою
-обчислювальною семантикою), а інший який міститься в синтаксичному дереві $O_I$.
+обчислювальною семантикою), а інший Interval який міститься в синтаксичному дереві $O_I$.
 
 \newpage
 \section{Висновки}

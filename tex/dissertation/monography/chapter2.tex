@@ -733,7 +733,7 @@ data identity (lang: U)
 \begin{equation}
 O_{MLTT-80} =
 \begin{cases}
-Ob: \{\ X: maybe\ ITS, target: maybe\ CPS\ \} \\
+Ob: \{\ X: maybe\ PM, target: maybe\ CPS\ \} \\
 Hom: \begin{cases}
 type,norm,induction: X \rightarrow X, extract: X \rightarrow target \\
 certify : X \rightarrow target \\
@@ -783,9 +783,9 @@ $O_=$, $O_\Sigma$, $O_\Pi$.
 \begin{definition} (Синтаксичне дерево мовної категорії $O_{PM}$).
 \begin{lstlisting}
 data PM = ipure (_: pts PM)
-        | isigma (_: exists PM)
-        | iid (_: identity PM)
-        | iITS (_: ind PM)
+        | sigma (_: exists PM)
+        | id (_: identity PM)
+        | induction_schemes (_: ind PM)
 \end{lstlisting}
 \end{definition}
 

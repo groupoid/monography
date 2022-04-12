@@ -19,7 +19,7 @@ CPS-інтерпретатори з формальною системою вво
 екстрактів з вищих мов, таких як HTS (якщо такі екстракти існують для окремих програм).
 
 \section{Загальні принципи}
-N2O.TECH — це формальна філософія та інженерна вправа водночас.
+N2O.SPACE — це формальна філософія та інженерна вправа водночас.
 Вона обмежує автора бути ефективним та точним не втрачаючи
 при цьому повноти та функціональності. Це накшталт внутрішньої
 дисципліні при проектуванні програмного забезпечення. Ця філософія
@@ -27,7 +27,7 @@ N2O.TECH — це формальна філософія та інженерна 
 та визначає стандартний мінімальний набір для демонстрації однієї
 з сучасних моделей реактивного веб-програмування, яка включає: веб-сокет
 веб-фреймвок з бінарною серілізацією, пушами та контролем DOM елементів
-зі сторони сервера. N2O.TECH вчить будувати прості та надійні системи
+зі сторони сервера. N2O.SPACE вчить будувати прості та надійні системи
 на будь-якій мові програмування.
 
 \section{Формальна специфікація}
@@ -95,7 +95,7 @@ System F, System Fω які успішно використовуються в �
 
 \subsection*{Обрані мови реалізації}
 
-Тут перелічені мови, на яких реалізовано та апробовано N2O.TECH.
+Тут перелічені мови, на яких реалізовано та апробовано N2O.SPACE.
 
 \textbf{Standard ML}\footnote{\url{https://github.com/o1}}. В академічних цілях Марат Хафізов створив
 за специфікаєю N2O/NITRO порт на мови Standard ML (SML/NJ та MLton).
@@ -114,9 +114,9 @@ System F, System Fω які успішно використовуються в �
 який представлений Github організацією O89 та сайтом lean4.dev.
 
 \textbf{Erlang}\footnote{\url{https://github.com/synrc}}. Основна промислова платформа, яка в повній мірі реалізує
-специфікацію N2O.TECH.
+специфікацію N2O.SPACE.
 
-\textbf{Elixir}\footnote{\url{https://github.com/synrc}}. Адаптація N2O.TECH для мови Elixir.
+\textbf{Elixir}\footnote{\url{https://github.com/synrc}}. Адаптація N2O.SPACE для мови Elixir.
 Основна імплементація не змінена, постійно підтримується публікація пакетів на HEX.PM.
 
 \textbf{Hamler}. Нова формальна платоформа на базі PureScript для віртуальної машини Erlang.
@@ -188,26 +188,23 @@ Read, Record, Regex, Set, Time, Tuple.
 Модулі простору Database: Mnesia, ETS.
 
 \begin{lstlisting}
-module RT.ETS where
-import RT.ETS.Types
-
-all    : IO [TableId]
-browse : IO String
-delete : (k: U) -> TableId -> k -> IO ()
-first  : TableId -> (k: U) -> IO (Maybe k)
-last   : (k: U) -> TableId -> IO (Maybe k)
-foldl  : (v acc: U) -> (v -> acc -> acc) -> acc -> TableId -> IO acc
-foldr  : (v acc: U) -> (v -> acc -> acc) -> acc -> TableId -> IO acc
-insert : (v: U) -> TableId -> v -> IO Boolean
-lookup : (k v: U) -> TableId -> k -> IO (List v)
-member : (k: U) -> TableId -> k -> IO Boolean
-new    : Atom -> TableOptions -> IO TableId
-next   : (k: U) -> TableId -> k -> IO (Maybe k)
-prev   : (k: U) -> TableId -> k -> IO (Maybe k)
-rename : TableId -> Atom -> IO Atom
-take   : (k v: U) -> TableId -> k -> IO (List v)
-match  : (a v: U) -> TableId -> a -> IO (List v)
-slot   : (v: U) -> TableId -> Integer -> IO (Maybe (List v))
+axiom all : IO (List TableId)
+axiom browse : IO String
+axiom delete : Π (k: U), TableId -> k -> IO Unit
+axiom first : Π (t: TableId) (k: U), IO (Maybe k)
+axiom last : Π (k: U), TableId -> IO (Maybe k)
+axiom foldl : Π (v acc: U), (v -> acc -> acc) -> acc -> TableId -> IO acc
+axiom foldr : Π (v acc: U), (v -> acc -> acc) -> acc -> TableId -> IO acc
+axiom insert : Π (v: U), TableId -> v -> IO Boolean
+axiom lookup : Π (k v: U), TableId -> k -> IO (List v)
+axiom member : Π (k: U), TableId -> k -> IO Boolean
+axiom new : Atom -> TableOptions -> IO TableId
+axiom next : Π (k: U), TableId -> k -> IO (Maybe k)
+axiom prev : Π (k: U), TableId -> k -> IO (Maybe k)
+axiom rename : TableId -> Atom -> IO Atom
+axiom take : Π (k v: U), TableId -> k -> IO (List v)
+axiom match : Π (a v: U), TableId -> a -> IO (List v)
+axiom slot : Π (v: U), TableId -> Integer -> IO (Maybe (List v))
 \end{lstlisting}
 
 \subsubsection{Filesystem}
@@ -233,19 +230,17 @@ Ring, MQTT, WS, TCP, Heart, Syn, FTP, NITRO, ETF, GCM, Session, Cache.
 супервізією середовища виконання.
 
 \begin{lstlisting}
-module N2O where
-
-pickle : Binary -> Binary
-depickle : Binary -> Binary
-encode : (k: U) -> k -> Binary
-decode : (k: U) -> Binary -> IO k
-reg: (k: U) -> k -> IO k
-unreg : (k: U) -> k -> IO k
-send : (k v z: U) -> k -> v -> IO z
-getSession : (k v: U) -> k -> IO v
-putSession : (k v: U) -> k -> v -> IO v
-getCache : (k v: U) -> Atom -> k -> IO v
-putCache : (k v: U) -> Atom -> k -> v -> IO v
+axiom pickle : Binary -> Binary
+axiom depickle : Binary -> Binary
+axiom encode : Π (k: U), k -> Binary
+axiom decode : Π (k: U), Binary -> IO k
+axiom reg: Π (k: U), k -> IO k
+axiom unreg : Π (k: U), k -> IO k
+axiom send : Π (k v z: U), k -> v -> IO z
+axiom getSession : Π (k v: U), k -> IO v
+axiom putSession : Π (k v: U), k -> v -> IO v
+axiom getCache : Π (k v: U), Atom -> k -> IO v
+axiom putCache : Π (k v: U), Atom -> k -> v -> IO v
 \end{lstlisting}
 
 Тут залишено лише саме необхідне, але не настільки тривіальне аби бути іграшковим.
@@ -262,12 +257,10 @@ putCache : (k v: U) -> Atom -> k -> v -> IO v
 асинхронних процесів.
 
 \begin{lstlisting}
-module N2O.PI where
-
 data PI  = PI String Atom Atom Atom Integer RestartType
 data Sup = Ok Pid String | Error String
 
-start : PI -> IO Sup
+axiom start : PI -> IO Sup
 \end{lstlisting}
 
 \newpage
@@ -276,31 +269,25 @@ start : PI -> IO Sup
 Stream, ST, Rocks, Mnesia, FS.
 
 \begin{lstlisting}
-module KVS where
-import KVS.Types
-
-get    : (f k v: U) -> f -> k -> IO (Maybe v)
-put    : (r: U) -> r -> IO StoreResult
-delete : (f k: U) -> f -> k -> StoreResult
-index  : (f p v r: U) -> f -> Atom -> v -> List r
+axiom get : Π (f k v: U), f -> k -> IO (Maybe v)
+axiom put : Π (r: U), r -> IO StoreResult
+axiom delete : Π (f k: U), f -> k -> StoreResult
+axiom index : Π (f p v r: U), f -> Atom -> v -> List r
 \end{lstlisting}
 
 \begin{lstlisting}
-module KVS.Stream where
-import ETF.Types
-
 data Reader = Reader Integer Binary ETF String Integer
 data Writer = Writer Integer Binary ETF String Integer
 data StoreResult = Ok Integer String Binary
                  | Error Integer String Binary
 
-next : Reader -> IO Reader
-prev : Reader -> IO Reader
-take : Reader -> IO Reader
-drop : Reader -> IO Reader
-save : Reader -> IO Reader
-append : (f r: U) -> f -> r -> IO StoreResult
-remove : (f r: U) -> f -> r -> IO StoreResult
+axiom next : Reader -> IO Reader
+axiom prev : Reader -> IO Reader
+axiom take : Reader -> IO Reader
+axiom drop : Reader -> IO Reader
+axiom save : Reader -> IO Reader
+axiom append : Π (f r: U), f -> r -> IO StoreResult
+axiom remove : Π (f r: U), f -> r -> IO StoreResult
 \end{lstlisting}
 
 \subsection{Бізнес-процеси BPE}
@@ -308,23 +295,30 @@ remove : (f r: U) -> f -> r -> IO StoreResult
 представлені додатком BPE: BPE, Event, Action, Process, Hist, Flow.
 
 \begin{lstlisting}
-module BPE where
-import BPE.Types
+axiom start : Proc -> IO Sup
+axiom stop : String -> IO Sup
+axiom next : ProcId -> IO ProcRes
+axiom load : ProcId -> IO ProcRes
+axiom proc : ProcId -> IO ProcRes
+axiom assign : ProcId -> IO ProcRes
+axiom persist : ProcId -> Proc -> IO ProcRes
+axiom amend : Π (k: U), ProcId -> k -> IO ProcRes
+axiom discard : Π (k: U), ProcId -> k -> IO ProcRes
+axiom modify : Π (k: U), ProcId -> k -> Atom -> IO ProcRes
+axiom event : ProcId -> String -> IO ProcRes
+axiom head : ProcId -> IO Hist
+axiom hist : ProcId -> IO (List Hist)
+axiom step : ProcId -> Atom -> IO (List Hist)
+axiom docs : ProcId -> IO (List Tuple)
+axiom events : ProcId -> IO (List Tuple)
+axiom tasks : ProcId -> IO (List Tuple)
+axiom doc : Tuple -> ProcId -> IO (List Tuple)
 
 data ProcId = String
 data Proc = Proc ProcId String
 data ProcRes = Ok Integer String Binary
              | Error Integer String Binary
 
-start   : Proc   -> IO Sup
-stop    : String -> IO Sup
-next    : ProcId -> IO ProcRes
-amend   : (k: U) -> ProcId -> k -> IO ProcRes
-discard : (k: U) -> ProcId -> k -> IO ProcRes
-modify  : (k: U) -> ProcId -> k -> Atom -> IO ProcRes
-event   : ProcId -> String -> IO ProcRes
-head    : ProcId -> IO Hist
-hist    : ProcId -> IO (List Hist)
 \end{lstlisting}
 
 \subsection{Контрольні елементи протоколу NITRO}
@@ -332,6 +326,96 @@ hist    : ProcId -> IO (List Hist)
 Edit, Form, Input, Table, Actions, Render.
 
 \begin{lstlisting}
+axiom q : Π (k: U), Atom -> k
+axiom qc : Π (k: U), Atom -> k
+axiom jse : Maybe Binary -> Binary
+axiom hte : Maybe Binary -> Binary
+axiom wire (actions: List Action) : IO (List Action)
+axiom render (content: Either Action Element) : Binary
+axiom insert_top (dom: Atom) (content: List Element) : IO (List Action)
+axiom insert_bottom (dom: Atom) (content: List Element) : IO (List Action)
+axiom update (dom: Atom) (content: List Element) : IO (List Action)
+axiom clear (dom: Atom) : IO Unit
+axiom remove (dom: Atom) : IO Unit
 \end{lstlisting}
 
+NITRO – це Nitrogen-подібний веб фреймворк для Erlang/OTP.
+Він може бути використаний не лише у веб-додатках, а ще
+і в консольних програмах, у яких потрібно зробити рендеринг HTML5.
+
+Nitrogen Elements – це трансформатор шаблонів HTML для
+мови Erlang, у якому всі HTML теги рендеряться з Erlang рекордів.
+
+Працюючи з N2O вам взагалі не потрібно користуватись HTML.
+Натомість ви визначаєте вашу сторінку у вигляді
+Erlang рекордів, відповідно сторінка генерується
+з перевіркою типів, під час компіляції. Це класичний
+підхід CGI для компільованих сторінок, який надає всі
+переваги перевірки помилок під час компіляції,
+та визначає DSL для клієнт- та серверного рендерингу.
+
+Nitrogen Elements, за своєю природою, є примітивними UI
+елементами управління, які можуть бути використані для
+побудови Nitrogen сторінок з внутрішнім DSL Erlang-а.
+Вони компілюються в HTML та JavaScript. Поведінка всіх
+елементів контролюється на стороні сервера, а весь
+зв'язок між веб-переглядачем та сервером здійснюється
+за допомогою WebSocket каналів. Отже, вам не потрібно
+використовувати POST запити чи HTML форми. Тобто:
+
+\begin{lstlisting}
+ #textbox { id=userName, body= <<"Anonymous">> },
+ #panel { id=chatHistory, class=chat_history }
+\end{lstlisting}
+
+згенерує наступний html:
+
+\begin{lstlisting}
+ <input value="Anonymous" id="userName" type="text"/>
+ <div id="chatHistory" class="chat_history"></div>
+\end{lstlisting}
+
+А
+
+\begin{lstlisting}
+  nitro:update(loginButton,
+      #button{id = loginButton,
+          body = "Login",
+          postback = login,
+          source = [user, pass]});
+\end{lstlisting}
+
+згенетурє наступне:
+
+\begin{lstlisting}
+  qi('loginButton').outerHTML='<button id=\"loginButton\"
+    type=\"button\">Login</button>'; { var x=qi('loginButton');
+    x && x.addEventListener('click',function (event){
+      event.preventDefault(); { if (validateSources(['user','pass'])) {
+      ws.send(enc(tuple(atom('pickle'),bin('loginButton'),
+        bin('b840bca20b3295619d1157105e355880f850bf0223f2f081549dc
+        8934ecbcd3653f617bd96cc9b36b2e7a19d2d47fb8f9fbe32d3c768866
+        cb9d6d85700416edf47b9b90742b0632c750a4240a62dfc56789e0f5d8
+        590f9afdfb31f35fbab1563ec54fcb17a8e3bad463218d6402f1304'),
+        [tuple(tuple(string('loginButton'),bin('detail')),[]),
+        tuple(atom('user'),querySource('user')),
+        tuple(atom('pass'),querySource('pass'))]))); }
+    else console.log('Validation Error'); }});};
+\end{lstlisting}
+
+Для подальної інформації дивіться актуальную
+документацію\footnote{\url{https://n2o.dev/ua/deps/nitro/index.html}}
+
 \section{Висновки}
+
+Кожна мова, на якій реалізовано N2O.SPACE, має вбудовувати
+свою філософію максимально природно та компактно. Якщо
+потрібен якийсь шар між базовою бібліотекою мови,
+його можна надати, але, якщо можливо, його слід
+зменшити до нуля. У деяких випадках деякі частини
+базової бібліотеки можна замінити кращою альтернативою.
+N2O має надати клієнтську бібліотеку-компаньйон,
+зазвичай реалізовану на іншому наборі мов клієнта:
+JavaScript, Swift, Kotlin. Якщо ви все зробили
+правильно, значення N2O не повинно перевищувати
+500 LOC на будь-якій мові.

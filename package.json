@@ -1,7 +1,7 @@
 {
   "name": "formalsystem",
   "version": "1.0.1",
-  "description": "FORMAL.UNO: Formal System One",
+  "description": "FORMAL/1: Formal One",
   "main": "",
 
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/groupoid/formal.uno"
+    "url": "git://github.com/groupoid/formal.one"
   },
   "author": "Namdak Tonpa",
   "license": "DHARMA",

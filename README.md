@@ -14,7 +14,7 @@ purpose programming, and `ONE` stands for philosophy research.
 Monography
 ----------
 
-Compilation: https://groupoid.github.io/formal.one/monography.pdf
+Compilation: https://groupoid.github.io/axiom.dev/monography.pdf
 
 ```
 $ cp *.ttf ~/.local/share/fonts

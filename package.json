@@ -1,16 +1,15 @@
 {
   "name": "formalsystem",
   "version": "1.0.1",
-  "description": "FORMAL/1: Formal One",
+  "description": "FORMAL/1: Groupoid Infinity Formal System",
   "main": "",
-
   "scripts": {
     "start": "node-sass ../groupoid.space/styles -o ./ && pug -O ./framework.js ./ ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/groupoid/formal.one"
+    "url": "git://github.com/groupoid/axiom.dev"
   },
   "author": "Namdak Tonpa",
   "license": "DHARMA",

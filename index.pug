@@ -7,10 +7,10 @@ html
         meta(property='og:url'         content='https://groupoid.github.io/formal.one/')
 
 block title
-    title FORMAL.UNO
+    title AXIO/1
 
 block content
-    +header('', 'ПЕРША ФОРМАЛЬНА СИСТЕМА', 'Формальне середовище виконання, система вищих мов та базові бібліотеки для програмування, доведення теорем і формальної філософії')
+    +header('', 'AXIO/1', 'Формальне середовище виконання, система вищих мов та базові бібліотеки для програмування, доведення теорем і формальної філософії')
     article.main
         .om
             section
@@ -19,7 +19,7 @@ block content
             aside <a href="https://tonpa.guru">Максим Сохацький</a>
                 time 9 SEP 2021
             p.
-                Перша формальна система визначає формальний підхід до математичної
+                Перша формальна система AXIO/1 визначає формальний підхід до математичної
                 верифікації та описує спробу автора у цій парадигмі побудувати
                 замкнену уніфіковану систему формальних мов для програмування,
                 математики та філософії. В процесі розробки моделі такої
@@ -68,12 +68,12 @@ block content
         h2 Вищі мови програмування
         .index
             .index__col
-                h2 PTS/MLTT
+                h2 Ядро PTS/PTS/MLTT
                 ul
                     li: a(href='https://henk.groupoid.space') Чисте-ядро
                     li: a(href='https://groupoid.space/misc/semantics/') Фібраційне-ядро
             .index__col
-                h2 HTS/CCHM
+                h2 HTS/CCHM і Бібліотека
                 ul
                     li: a(href='https://anders.groupoid.space/') Гомотопічне ядро
                     li: a(href='https://groupoid.space/misc/library/') Математичні компоненти
@@ -137,6 +137,18 @@ block content
                 Система вищих мов мість базові бібліотеки PURE для системи PTS
                 та HOMOTOPY для системи MLTT/CCHM/HTS. Для побудови вищих мов
                 використовувалися мови OCaml та Erlang.
+
+            +tex.
+                $\mathbf{Alonzo}$ — просто типізоване лямбда-числення Каррі.
+            +tex.
+                $\mathbf{Henk}$ — чиста система з всвесвітами Кокана.
+            +tex.
+                $\mathbf{Per}$ — система Поулін-Моурін.
+            +tex.
+                $\mathbf{Anders}$ — гомотопічна система з двома рівностями.
+            +tex.
+                $\mathbf{Urs}$ — еквіваріантна супергомотопічна система типів.
+
 
         .index
 

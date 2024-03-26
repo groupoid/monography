@@ -54,11 +54,12 @@
     <section>
         <a name=Joe></a>
         <h3><a href="https://github.com/o83/n2o">Joe</a></h3>
-         <p><b style="sel">Joe</b> is a peer verified bytecode single threaded interpreter
-            implemented in assembly [1,2] and is based on Interaction Networks of Lambda Calculus [3].</p>
+         <p><b style="sel">Joe</b> is a peer verified bytecode single threaded interpreter.</p>
          <P>[1] — CoqASM<br>
             [2] — Verified LISP Interpreter<br>
-            [3] — Kind<br> </p>
+            [3] — MinCaml<br>
+            [4] — Kind<br>
+         </p>
         <figure><code>
 fun a (0, n) = n + 1
   | a (m, 0) = a (m - 1, 1)
@@ -156,6 +157,7 @@ def pow (m n : N) : N := λ (A : U) (S : A → A) (Z : A), n (A → A) (m A) S Z
            Inductive Constructions and idenitity types (MLTT-75). The natural
            extension of CoC to CIC was done by Frank Pfenning and Christine Paulin (IND-89).</p>
         <p>
+           Mini-TT — OCaml implementation<br>
            MLTT-72 — Pi, Sigma<br>
            MLTT-75 — Pi, Sigma, Id<br>
            MLTT-80 — 0, 1, 2, W, Pi, Sigma, Id<br>

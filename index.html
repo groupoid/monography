@@ -44,22 +44,60 @@
         <hr>
     </section>
     <section>
-        <p>Interaction Networks Optimal Lambda Interpreter.</p>
+        <p>Optimal Lambda Interpreter and Concurrent Parallel Matrix Runtime.</p>
     </section>
     <section>
         <a name=Joe></a>
         <h3><a href="https://github.com/o83/n2o">Joe</a></h3>
-         <p><b style="sel">Joe</b> is a verified bytecode single threaded isolated interpreter
-            implemented in assembly and is based on Interaction Networks of Lambda Calculus,
-            the core of LIB/IO foundation and libraries (see Kind, Kindelia language and libraries).
-            In addition to Joe we are using sub-optimal BEAM Ericsson production JIT-interpreter
-            for ERP/IO foundation and libraries.</p>
+         <p><b style="sel">Joe</b> is a peer verified bytecode single threaded interpreter
+            implemented in assembly [1,2] and is based on Interaction Networks of Lambda Calculus [3].</p>
+         <P>[1] — CoqASM<br>
+            [2] — Verified LISP Interpreter<br>
+            [3] — Kind<br> </p>
+        <figure><code>
+fun a (0, n) = n + 1
+  | a (m, 0) = a (m - 1, 1)
+  | a (m, n) = a (m - 1, a (m, n - 1))
+        </code></figure>
     </section>
     <section>
-        <a name=Kernel></a>
-        <h3><a href="https://github.com/o83/n2o">Kernel</a></h3>
-         <p><b style="sel">Kernel</b> is a concurrent non-blocking zero-copy
-            run-time with CAS queue cursors.</p>
+        <a name=Bob></a>
+        <h3><a href="https://github.com/o83/n2o">Bob</a></h3>
+         <p><b style="sel">Bob</b> is a concurrent non-blocking zero-copy run-time with CAS queue cursors [4,5].</p>
+         <P>[4] — Pony<br>
+            [5] — Kernel<br> </p>
+        <figure><code>
+fun proc =
+let val p0 = pub(0,8)
+    val s1 = sub(0,p0)
+    val s2 = sub(0,p0)
+ in send(p0,11);
+    send(p0,12);
+    [ receive(s1);
+      receive(s2);
+      receive(s1);
+      receive(s2)
+    ]
+    end
+        </code></figure>
+    </section>
+    <section>
+        <a name=Alice></a>
+        <h3><a href="https://github.com/o83/n2o">Alice</a></h3>
+         <p><b style="sel">Alice</b> is a linear types calculus
+            with partial fractions [6] for BLAS level 3 programming.</p>
+         <P>[6] — NumLin<br> </p>
+   <figure><code>
+fun simpleConvolution (i n: int) (x0: float) (write w: vector float)
+  : vector float
+  = begin
+      if n = i then result.emit(write),
+      a = [w0,w1,w2] = w.get(0,3),
+      b = [x0,x1,x2] = [ x0 | write.get(i,2) ],
+      write.set(i, Dotp(a,b)),
+      simpleConvolution((i + 1),n,x1,write,w)
+    end
+     </code></figure>
     </section>
     <section>
         <hr>
@@ -75,6 +113,13 @@
          <p>
            STLC-40 — Simple Theory of Types<br>
          </p>
+
+         <figure><code>
+def zero : (T → T) → T → T := λ (s: T → T) (z: T), z
+def succ : ((T → T) → T → T) → ((T → T) → T → T)
+ := λ (w: (T → T) → T → T) (y: T → T) (x: T), y (w y x)
+         </code></figure>
+
     </section>
     <section>
         <a name=Henk></a>
@@ -87,6 +132,16 @@
            CoC-88 — Calculus of Constructions<br>
            PTS-91 — Pure Type System (Π)<br>
         </p>
+
+        <figure><code>
+def N := Π (A : U), (A → A) → A → A
+def zero : N := λ (A : U) (S : A → A) (Z : A), Z
+def succ : N -> N := λ (n : N) (A : U) (S : A → A) (Z : A), S (n A S Z)
+def plus (m n : N) : N := λ (A : U) (S : A → A) (Z : A), m A S (n A S Z)
+def mult (m n : N) : N := λ (A : U) (S : A → A) (Z : A), m A (n A S) Z
+def pow (m n : N) : N := λ (A : U) (S : A → A) (Z : A), n (A → A) (m A) S Z
+        </code></figure>
+
     </section>
     <section>
         <a name=Per></a>
@@ -101,6 +156,17 @@
            PP-89 — Inductively Defined Types<br>
            CIC-2015 — Calculus of Inductive Constructiions<br>
         </p>
+        <figure><code>
+def empty      : U := inductive { }
+def L¹ (A : U) : U := inductive { nil | cons (head: A) (tail: L¹ A) }
+def S¹         : U := inductive { base | loop : Equ S¹ base base }
+
+def quot (A: U) (R : A -> A -> U) : U
+ := inductive { quotient (a: A)
+              | identification (a b: A) (r: R a b)
+              : Equ (quot A R) (quotient a) (quotient b)
+              }
+        </code></figure>
     </section>
     <section>
         <a name=Anders></a>
@@ -115,6 +181,28 @@
            CHM-2017 — Huber Equations<br>
            VMA-2017 — Cubical Agda<br>
         </p>
+        <figure><code>
+def idfun  (A : U) : A → A := λ (a : A), a
+def idfun′ (A : U) : A → A := transp (&lt;i> A) 0
+def idfun″ (A : U) : A → A := λ (a : A), hcomp A 0 (λ (i : I), []) a
+def isFiberBundle (B: U) (p: B → U) (F: U): U
+ := Σ (v: U) (w: surjective v B), (Π (x: v), PathP (&lt;_>U) (p (w.1 x)) F)
+def ~~ (X : U) (a x′ : X) : U := Path (ℑ X) (ι X a) (ι X x′)
+def 𝔻 (X : U) (a : X) : U := Σ (x′ : X), ~~ X a x′
+def unitDisc (X : U) (x : ℑ X) : U := Σ (x′ : X), Path (ℑ X) x (ι X x′)
+def starDisc (X : U) (x : X) : 𝔻 X x := (x, idp (ℑ X) (ι X x))
+def T∞ (A : U) : U := Σ (a : A), 𝔻 A a
+def inf-prox-ap (X Y : U) (f : X → Y) (x x′ : X) (p : ~~ X x x′)
+  : ~~ Y (f x) (f x′) := &lt;i> ℑ-app X Y f (p @ i)
+def d (X Y : U) (f : X → Y) (x : X) (ε : 𝔻 X x) : 𝔻 Y (f x)
+ := (f ε.1, inf-prox-ap X Y f x ε.1 ε.2)
+def T∞-map (X Y : U) (f : X → Y) (τ : T∞ X) : T∞ Y
+ := (f τ.1, d X Y f τ.1 τ.2)
+def is-homogeneous (A : U)
+ := Σ (e : A) (t : A → equiv A A),
+    Π (x : A), Path A ((t x).1 e) x
+         </code></figure>
+
     </section>
     <section>
         <a name=Urs></a>

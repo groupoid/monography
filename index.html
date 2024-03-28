@@ -48,16 +48,17 @@
         <hr>
     </section>
     <section>
-        <p>Verified Optimal Lambda Interpreter and Concurrent Parallel Matrix Runtime.
+        <p>Verified Lambda Interpreter and Concurrent Parallel Matrix Runtime.
            Joe, Bob, and Alice languages share the same Standard ML like BNF grammar.</p>
     </section>
     <section>
         <a name=Joe></a>
         <h3><a href="https://github.com/o83/n2o">Joe</a></h3>
-         <p><b style="sel">Joe</b> is a peer verified bytecode single threaded interpreter.</p>
-         <P>[1] — CoqASM<br>
-            [2] — Verified LISP Interpreter<br>
-            [3] — MinCaml<br>
+         <p><b style="sel">Joe</b> is a certified
+            bytecode stack interpreter and Intel/ARM extractor.</p>
+         <P>[1] — MinCaml<br>
+            [2] — CoqASM<br>
+            [3] — Verified LISP Interpreter<br>
             [4] — Kind<br>
          </p>
         <figure><code>
@@ -69,9 +70,11 @@ fun a (0, n) = n + 1
     <section>
         <a name=Bob></a>
         <h3><a href="https://github.com/o83/n2o">Bob</a></h3>
-         <p><b style="sel">Bob</b> is a concurrent non-blocking zero-copy run-time with CAS queue cursors [4,5].</p>
-         <P>[4] — Pony<br>
-            [5] — Kernel<br> </p>
+         <p><b style="sel">Bob</b> is a parallel concurrent non-blocking
+            zero-copy run-time with CAS cursors [4,5].</p>
+         <P>[5] — Kernel<br>
+            [6] — Pony<br>
+            [7] — Erlang<br></p>
         <figure><code>
 fun proc =
 let val p0 = pub(0,8)
@@ -92,7 +95,7 @@ let val p0 = pub(0,8)
         <h3><a href="https://tonpa.guru/stream/2023/2023-09-25%20Formal%20Tensor.htm">Alice</a></h3>
          <p><b style="sel">Alice</b> is a linear types calculus
             with partial fractions [6] for BLAS level 3 programming.</p>
-         <P>[6] — NumLin<br> </p>
+         <P>[8] — NumLin<br> </p>
    <figure><code>
 fun simpleConvolution (i n: int) (x0: float) (write w: vector float)
   : vector float

@@ -1,0 +1,78 @@
+module subtype where
+import path
+import pi
+import equiv
+import iso_sigma
+import univ
+
+-- Subtype
+hsubtypes  (X: U): U = X -> PROP
+hrel       (X: U): U = X -> X -> PROP
+funresprel  (A B: U) (f: A->B) (R: hrel A): U = (a a': A) (r: (R a a').1) -> Path B (f a) (f a')
+funresprel2 (A B C: U) (f: A->B->C) (R0: hrel A) (R1: hrel B): U = (a a': A) (b b': B)->(R0 a a').1->(R1 b b').1 -> Path C (f a b) (f a' b')
+ishinh_UU  (X: U): U = (P: PROP) -> ((X -> P.1) -> P.1)
+propishinh (X: U): isProp (ishinh_UU X) = propPi PROP (\(P:PROP)->((X->P.1)->P.1)) (\(P:PROP)->propPi (X->P.1) (\(_: X->P.1)->P.1) (\(f: X->P.1)->P.2))
+ishinh     (X: U): PROP = (ishinh_UU X,propishinh X)
+hinhpr     (X: U): X -> (ishinh X).1 = \(x: X) (P: PROP) (f: X -> P.1) -> f x
+exists     (A: U) (B: A -> U): PROP = ishinh ((x: A) * B x)
+existspr   (A: U) (B: A -> U) (a: A) (b: B a): (exists A B).1 = hinhpr ((x : A) * B x) (a, b)
+hProppair (X Y: PROP): PROP = (prod X.1 Y.1, propAnd X.1 Y.1 X.2 Y.2)
+hrelpair (A B: U) (R0 : hrel A) (R1 : hrel B) (x y: prod A B): PROP = hProppair (R0 x.1 y.1) (R1 x.2 y.2)
+hsubtypespair (A B: U) (H0: hsubtypes A) (H1: hsubtypes B) (x: prod A B): PROP = hProppair (H0 x.1) (H1 x.2)
+hinhuniv   (X: U) (P: PROP) (f: X -> P.1) (inhX: (ishinh X).1): P.1 = inhX P f
+existsel (A:U)(B:A->U)(P:PROP)(f:(x:A)->(B x)->P.1)(e:(exists A B).1):P.1=hinhuniv((x:A)*B x)P(\(z:(x:A)*(B x))->f z.1 z.2)e
+carr       (X: U) (A: hsubtypes X) : U = (x : X) * (A x).1
+propidU    (X Y: U): Path U X Y -> isProp Y -> isProp X = substInv U isProp X Y
+propequiv  (X Y: U) (H: isProp Y) (f g : equiv X Y) : Path (equiv X Y) f g = equivLemma X Y f g (<i> \(x : X) -> H (f.1 x) (g.1 x) @ i)
+
+iseqclass (X : U) (R : hrel X) (A : hsubtypes X) : U =
+  prod (prod (ishinh (carr X A)).1
+                   ((x1 x2 : X) -> (R x1 x2).1 -> (A x1).1 -> (A x2).1))
+          ((x1 x2 : X) -> (A x1).1 -> (A x2).1 -> (R x1 x2).1)
+
+propiseqclass (X : U) (R : hrel X) (A : hsubtypes X) : isProp (iseqclass X R A) =
+  propAnd (prod (ishinh (carr X A)).1
+                          ((x1 x2 : X) -> (R x1 x2).1 -> (A x1).1 -> (A x2).1))
+                 ((x1 x2 : X) -> (A x1).1 -> (A x2).1 -> (R x1 x2).1)
+                 (propAnd (ishinh (carr X A)).1
+                                 ((x1 x2 : X) -> (R x1 x2).1 -> (A x1).1 -> (A x2).1) p1 p2) p3
+  where
+  p1 : isProp (ishinh (carr X A)).1 = propishinh (carr X A)
+  p2 (f g : (x1 x2 : X) -> (R x1 x2).1 -> (A x1).1 -> (A x2).1) :
+   Path ((x1 x2 : X) -> (R x1 x2).1 -> (A x1).1 -> (A x2).1) f g =
+    <i> \(x1 x2 : X) (h1 : (R x1 x2).1) (h2 : (A x1).1) ->
+         (A x2).2 (f x1 x2 h1 h2) (g x1 x2 h1 h2) @ i
+  p3 (f g : (x1 x2 : X) -> (A x1).1 -> (A x2).1 -> (R x1 x2).1) :
+    Path ((x1 x2 : X) -> (A x1).1 -> (A x2).1 -> (R x1 x2).1) f g =
+   <i> \(x1 x2 : X) (h1 : (A x1).1) (h2 : (A x2).1) ->
+        (R x1 x2).2 (f x1 x2 h1 h2) (g x1 x2 h1 h2) @ i
+
+existsel2 (A : U) (B : A -> U) (C : U) (D : C -> U)
+    (P: PROP) (f : (x : A) (_ : B x) (y : C) (_ : D y) -> P.1)
+    (e0 : (exists A B).1) (e1 : (exists C D).1) : P.1
+  = let
+    T0 : U = (c : C) (d : D c) -> P.1
+    pT0 : isProp T0 = propPi C (\(c : C) -> (D c) -> P.1)
+          (\(c : C) -> propPi (D c) (\(_ : D c) -> P.1) (\(_ : D c) -> P.2))
+  in existsel C D P (existsel A B (T0, pT0) f e0) e1
+
+-- require iso_sigma
+sethProp   (P P': PROP) : isProp (Path PROP P P')
+    = propidU (Path PROP P P') (equiv P.1 P'.1) rem (propequiv P.1 P'.1 P'.2)
+  where
+   rem1: Path U (Path PROP P P') (Path U P.1 P'.1) = lemSigProp U isProp propIsProp P P'
+   rem2: Path U (Path U P.1 P'.1) (equiv P.1 P'.1) = corrUniv P.1 P'.1
+   rem: Path U (Path PROP P P') (equiv P.1 P'.1) =
+     composition U (Path PROP P P') (Path U P.1 P'.1) (equiv P.1 P'.1) rem1 rem2
+
+subtypeEquality (A: U) (B: A -> U) (pB: (x : A) -> isProp (B x))
+                (s t: Sigma A B) : Path A s.1 t.1 -> Path (Sigma A B) s t =
+  trans (Path A s.1 t.1) (Path (Sigma A B) s t) (<i> lemSigProp A B pB s t @ -i)
+
+sethsubtypes (X : U) : isSet (hsubtypes X) = setPi X (\(_ : X) -> PROP) (\(_ : X) -> sethProp)
+
+-- Subset
+subset (A: U) (_: isSet A): U = A -> PROP
+lem (A:U) (P:A->U) (pP:(x:A) -> isProp (P x)) (u v:(x:A) * P x) (p:Path A u.1 v.1) :
+  Path ((x:A)*P x) u v = <i>(p@i,(lemPropF A P pP u.1 v.1 p u.2 v.2)@i)
+

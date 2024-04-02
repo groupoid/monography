@@ -1,0 +1,21 @@
+module iso_pi where
+
+import pi
+import iso
+
+pathPi (A:U) (B:A->U) (f g : Pi A B)
+     : Path U (Path (Pi A B) f g) ((x:A) -> Path (B x) (f x) (g x))
+     = isoPath  (Path (Pi A B) f g) ((x:A) -> Path (B x) (f x) (g x)) F G S T where
+       T0 : U = Path (Pi A B) f g
+       T1 : U = (x:A) -> Path (B x) (f x) (g x)
+       F (p:T0) : T1 = \ (x:A) -> <i>p@i x
+       G (p:T1) : T0 = <i>\ (x:A) -> p x @ i
+       S (p:T1) : Path T1 (F (G p)) p = refl T1 p
+       T (p:T0) : Path T0 (G (F p)) p = refl T0 p
+
+groupoidPi (A: U) (B: A -> U) (h: (x: A) -> isGroupoid (B x)) (f g: Pi A B)
+         : isSet (Path (Pi A B) f g)
+         = subst U isSet T (Path (Pi A B) f g) (<i> pathPi A B f g @ -i) rem where
+           T: U = (x:A) -> Path (B x) (f x) (g x)
+           rem: isSet T =  setPi A (\ (x:A) -> Path (B x) (f x) (g x)) (\ (x:A) -> h x (f x) (g x))
+

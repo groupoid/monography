@@ -1,0 +1,193 @@
+{- Bool Theory:
+   - Bool Decidable.
+   - Theorems are in bool_theory module.
+   Copyright (c) Groupoid Infinity, 2014-2018. -}
+
+module bool_theory where
+import proto
+import prop
+import bool
+import hedberg
+import univ
+
+falseNeqTrue : neg (Path bool false true) =
+  \(h : Path bool false true) -> subst bool (boolRec U bool empty) false true h false
+
+trueNeqFalse : neg (Path bool true false) =
+  \(h : Path bool true false) -> subst bool (boolRec U empty bool) true false h true
+
+boolDec : (b1 b2 : bool) -> dec (Path bool b1 b2) = split
+ false -> rem
+  where
+  rem : (b : bool) -> dec (Path bool false b) = split
+   false -> inl (<i> false)
+   true -> inr falseNeqTrue
+ true -> rem
+  where
+  rem : (b : bool) -> dec (Path bool true b) = split
+   false -> inr trueNeqFalse
+   true -> inl (<i> true)
+
+setbool' : isSet bool = hedberg bool boolDec
+
+-- Direct proof that bool is a set:
+lem1 : (y:bool) (p:Path bool true y) -> Path bool true y = split
+ false -> \ (p : Path bool true false) -> p
+ true -> \ (p : Path bool true true) -> <i>true
+
+lem2 : (x y :bool)  (p:Path bool true x) (q:Path bool true y) -> Path bool x y = split
+ false -> \ (y:bool) (p:Path bool true false) (q:Path bool true y) -> efq (Path bool false y) (trueNeqFalse p)
+ true -> \ (y:bool) (p:Path bool true true) (q:Path bool true y) -> lem1 y q
+
+lem3 : isProp (Path bool true true) =
+ \ (p q:Path bool true true) -> <j i>lem2 (p@i) (q@i) (<k>p@i/\k) (<k>q@i/\k) @ j
+
+lem4 : (y:bool) (p:Path bool false y) -> Path bool false y = split
+ false -> \ (p : Path bool false false) -> <i>false
+ true -> \ (p : Path bool false true) -> p
+
+lem5 : (x y :bool)  (p:Path bool false x) (q:Path bool false y) -> Path bool x y = split
+ false -> \ (y:bool) (p:Path bool false false) (q:Path bool false y) -> lem4 y q
+ true -> \ (y:bool) (p:Path bool false true) (q:Path bool false y) -> efq (Path bool true y) (falseNeqTrue p)
+
+lem6 : isProp (Path bool false false) =
+ \ (p q:Path bool false false) -> <j i>lem5 (p@i) (q@i) (<k>p@i/\k) (<k>q@i/\k) @ j
+
+lem7 : (y:bool) (p:Path bool false y) (q:Path bool false y) -> Path (Path bool false y) p q = split
+ false -> lem6
+ true -> \ (p:Path bool false true) (q:Path bool false true) -> efq (Path (Path bool false true) p q) (falseNeqTrue p)
+
+lem8 : (y:bool) (p:Path bool true y) (q:Path bool true y) -> Path (Path bool true y) p q = split
+ false -> \ (p:Path bool true false) (q:Path bool true false) -> efq (Path (Path bool true false) p q) (trueNeqFalse p)
+ true -> lem3
+
+setbool : isSet bool = split
+ false -> lem7
+ true -> lem8
+
+
+      ---------------------------------------------------------
+      -- Example: Non-trivial equality between bool and bool --
+      ---------------------------------------------------------
+
+-- negBool is involutive:
+negBoolK : (b : bool) -> Path bool (negation (negation b)) b = split
+  false -> <i> false
+  true  -> <i> true
+
+-- negBool is hence and equivalence:
+negBoolEquiv : equiv bool bool =
+  (negation,isoToEquiv bool bool negation negation negBoolK negBoolK)
+
+-- This defines a non-trivial equality between bool and bool:
+negBoolEq : Path U bool bool =
+  <i> Glue bool [ (i = 0) -> (bool,negBoolEquiv)
+                , (i = 1) -> (bool,idEquiv bool) ]
+
+-- We can transport true along this non-trivial equality:
+testFalse : bool = transport negBoolEq true
+
+
+
+-- An isomorphic representation to bool:
+
+data F2 = zeroF2 | oneF2
+
+f2ToBool : F2 -> bool = split
+  zeroF2 -> false
+  oneF2 -> true
+
+boolToF2 : bool -> F2 = split
+  false -> zeroF2
+  true -> oneF2
+
+f2ToBoolK : (x : F2) -> Path F2 (boolToF2 (f2ToBool x)) x = split
+  zeroF2 -> refl F2 zeroF2
+  oneF2 -> refl F2 oneF2
+
+boolToF2K : (b : bool) -> Path bool (f2ToBool (boolToF2 b)) b = split
+  false -> refl bool false
+  true -> refl bool true
+
+boolEqF2 : Path U bool F2 =
+ isoPath bool F2 boolToF2 f2ToBool f2ToBoolK boolToF2K
+
+negF2 : F2 -> F2 = subst U (\(X : U) -> (X -> X)) bool F2 boolEqF2 negation
+
+-- lemTest (A : U) : (B : U) (p : Path U A B) (a : A) -> PathP p a (transport p a) =
+--   J U A (\(B : U) (p : Path U A B) -> (a : A) -> PathP p a (transport p a)) (refl A)
+
+-- test : PathP boolEqF2 true oneF2 = <i> glue oneF2 [ (i = 0) -> true ]
+-- test1 : PathP boolEqF2 true oneF2 = lemTest bool F2 boolEqF2 true
+
+F2EqBool : Path U F2 bool = inv U bool F2 boolEqF2
+
+negBool' : bool -> bool = subst U (\(X : U) -> (X -> X)) F2 bool F2EqBool negF2
+
+F2EqBoolComp : Path U F2 bool =
+  composition U F2 bool bool F2EqBool negBoolEq
+
+test2 : bool = trans F2 bool F2EqBoolComp oneF2
+
+negNegEq : Path U bool bool =
+  composition U bool bool bool negBoolEq negBoolEq
+
+test3 : bool = trans bool bool negNegEq true
+test4 : Path U bool bool = <i> negNegEq @ i
+
+kanBool : Path U bool bool =
+  kan U bool bool bool bool negBoolEq negBoolEq negBoolEq
+
+squareBoolF2 : Square U bool bool bool F2 (refl U bool)
+                  boolEqF2 (refl U bool) boolEqF2 =
+  <i j> boolEqF2 @ i /\ j
+
+test5 : PathP boolEqF2 true oneF2 =
+  <i> comp (<j> boolEqF2 @ i /\ j) true []
+
+test6 : Path bool true true =
+  <i> comp (<j> F2EqBool @ i \/ j) (test5 @ - i) []
+
+test7 : Path U F2 F2 =
+  subst U (\(X:U) -> Path U X X) bool F2 boolEqF2 negNegEq
+
+test8 : Path U F2 F2 =
+  subst U (\(X:U) -> Path U X X) bool F2 boolEqF2 (refl U bool)
+
+test9 : Path U F2 F2 =
+  comp (<i> Path U (boolEqF2 @ i) (boolEqF2 @ i)) (refl U bool) []
+
+p : Path U F2 bool = <i> comp (<_> U) bool [ (i = 0) -> boolEqF2, (i = 1) -> <_> bool]
+q : Path U F2 F2 = <i> p @ (i /\ - i)
+
+
+-- A small test of univalence using boolean negation
+isEquivNegBool : isEquiv bool bool negation =
+ isoToEquiv bool bool negation negation negBoolK negBoolK
+
+eqBool : Path U bool bool =
+ trans (equiv bool bool) (Path U bool bool)
+       (<i> corrUniv bool bool @ -i) (negation,isEquivNegBool)
+
+testf : bool = trans bool bool eqBool true
+testt : bool = trans bool bool eqBool false
+
+-- Some tests of normal forms of univalence:
+testUniv1 (A : U) : Path U A A =
+  trans (equiv A A) (Path U A A) (<i> corrUniv A A @ -i) (idEquiv A)
+
+-- obtained by normal form
+ntestUniv1 (A:U) : Path U A A =
+ <i> comp (<_>U)
+      (comp (<_>U) A
+         [ (i = 0) -> <l> comp (<_>U) A [ (l = 0) -> <i> Glue A [ (i = 0) -> (A,(\(x : A) -> x,\(a : A) -> ((a,<l> a),\(z : ((x : A) * PathP (<l> A) a x)) -> <l> (z.2 @ l,<i> z.2 @ (l /\ i))))), (i = 1) -> (A,(comp (<l> A -> A) (\(x : A) -> x) [],comp (<l> (y : A) ->
+  ((x : ((x : A) * PathP (<j> A) y (comp (<j> A) (comp (<i> A) x []) [ (l = 0) -> <j> comp (<k> A) x [ (j = 1) -> <k> x ] ]))) *    (y0 : ((x0 : A) * PathP (<j> A) y (comp (<j> A) (comp (<i> A) x0 []) [ (l = 0) -> <j> comp (<k> A) x0 [ (j = 1) -> <k> x0 ] ]))) -> PathP (<j> ((x0 : A) * PathP (<j> A) y (comp (<j> A) (comp (<i> A) x0 []) [ (l = 0) -> <j> comp (<k> A) x0 [ (j = 1) -> <k> x0 ] ]))) x y0)) (\(a : A) -> ((a,<l> a),\(z : ((x : A) * PathP (<l> A) a x)) -> <l> (z.2 @ l,<i> z.2 @ (l /\ i)))) [])) ], (l = 1) -> <i> Glue A [ (i = 0) -> (A,(\(x : A) -> x,\(a : A) -> ((a,<l> a),\(z : ((x : A) * PathP (<l> A) a x)) -> <l> (z.2 @ l,<i> z.2 @ (l /\ i))))), (i = 1) -> (A,(comp (<l> A -> A) (\(x : A) -> x) [],comp (<l> (y : A) ->
+        ((x : ((x : A) * PathP (<j> A) y (comp (<j> A) (comp (<i> A) x []) [ (l = 0) -> <j> comp (<k> A) x [ (j = 1) -> <k> x ] ]))) * (y0 : ((x0 : A) * PathP (<j> A) y (comp (<j> A) (comp (<i> A) x0 []) [ (l = 0) -> <j> comp (<k> A) x0 [ (j = 1) -> <k> x0 ] ]))) -> PathP (<j> ((x0 : A) * PathP (<j> A) y (comp (<j> A) (comp (<i> A) x0 []) [ (l = 0) -> <j> comp (<k> A) x0 [ (j = 1) -> <k> x0 ] ]))) x y0)) (\(a : A) -> ((a,<l> a),\(z : ((x : A) * PathP (<l> A) a x)) -> <l> (z.2 @ l,<i> z.2 @ (l /\ i)))) [])) ] ], (i = 1) -> <l> A ]) [ (i = 0) -> <l> A, (i = 1) -> <l> A ]
+
+testUniv2 : bool = trans bool bool (ntestUniv1 bool) true
+
+ntestUniv2 : bool =
+ comp (<i> comp (<_>U) (comp (<_>U) bool [ (i = 0) -> <j> comp (<_>U) bool [ (j = 0) -> <i> Glue bool [ (i = 0) -> (bool,(\(x : bool) -> x,\(a : bool) -> ((a,<i> a),\(z : ((x : bool) * PathP (<i> bool) a x)) -> <i> (z.2 @ i,<j> z.2 @ (i /\ j))))), (i = 1) -> (bool,(comp (<i> bool -> bool) (\(x : bool) -> x) [],comp (<i> (y : bool) ->
+  ((x : ((x : bool) * PathP (<j> bool) y (comp (<j> bool) (comp (<i> bool) x []) [ (i = 0) -> <j> comp (<k> bool) x [ (j = 1) -> <k> x ] ]))) * (y0 : ((x0 : bool) * PathP (<j> bool) y (comp (<j> bool) (comp (<i> bool) x0 []) [ (i = 0) -> <j> comp (<k> bool) x0 [ (j = 1) -> <k> x0 ] ]))) -> PathP (<j> ((x0 : bool) * PathP (<k> bool) y (comp (<j> bool) (comp (<i> bool) x0 []) [ (i = 0) -> <j> comp (<k> bool) x0 [ (j = 1) -> <k> x0 ] ]))) x y0)) (\(a : bool) -> ((a,<i> a),\(z : ((x : bool) * PathP (<i> bool) a x)) -> <i> (z.2 @ i,<j> z.2 @ (i /\ j)))) [])) ], (j = 1) -> <i> Glue bool [ (i = 0) -> (bool,(\(x : bool) -> x,\(a : bool) -> ((a,<i> a),\(z : ((x : bool) * PathP (<i> bool) a x)) -> <i> (z.2 @ i,<j> z.2 @ (i /\ j))))), (i = 1) -> (bool,(comp (<i> bool -> bool) (\(x : bool) -> x) [],comp (<i> (y : bool) ->
+  ((x : ((x : bool) * PathP (<j> bool) y (comp (<j> bool) (comp (<i> bool) x []) [ (i = 0) -> <j> comp (<k> bool) x [ (j = 1) -> <k> x ] ]))) * (y0 : ((x0 : bool) * PathP (<j> bool) y (comp (<j> bool) (comp (<i> bool) x0 []) [ (i = 0) -> <j> comp (<k> bool) x0 [ (j = 1) -> <k> x0 ] ]))) -> PathP (<j> ((x0 : bool) * PathP (<k> bool) y (comp (<j> bool) (comp (<i> bool) x0 []) [ (i = 0) -> <j> comp (<k> bool) x0 [ (j = 1) -> <k> x0 ] ]))) x y0)) (\(a : bool) -> ((a,<i> a),\(z : ((x : bool) * PathP (<i> bool) a x)) -> <i> (z.2 @ i,<j> z.2 @ (i /\ j)))) [])) ] ], (i = 1) -> <j> bool ]) [ (i = 0) -> <j> bool, (i = 1) -> <j> bool ]) true []
+

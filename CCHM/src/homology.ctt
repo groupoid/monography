@@ -1,0 +1,133 @@
+{- Homology Theory:
+   - Chain Complexes.
+   - Ker, Im, B, Z, H;
+   - Isomorphism theorems;
+   - Homology Group.
+   Copyright (c) Groupoid Infinity, 2016-2020. -}
+
+module homology where
+import int
+import algebra
+
+isGroupHom (G H: group) (f: G.1.1 -> H.1.1): U
+  = (g1 g2: G.1.1) -> Path H.1.1 (f ((opGroup G) g1 g2)) ((opGroup H) (f g1) (f g2))
+
+isGroupKer (G H: group) (f: G.1.1 -> H.1.1) (x: G.1.1): U
+  = Path H.1.1 (f x) (idGroup H)
+
+isGroupIm (G H: group) (f: G.1.1 -> H.1.1) (g: H.1.1): U
+  = propTrunc (fiber G.1.1 H.1.1 f g)
+
+kerProp (G H: group) (phi: grouphom G H)
+  : subgroupProp G
+  = (prop,level,ident,inv,op) where
+    prop (x: G.1.1): U = isGroupKer G H phi.1 x
+    ident: prop (idGroup G) = phi.2.2
+    level (x: G.1.1): isProp (prop x) = \(p q: prop x) -> H.1.2 (phi.1 x) (idGroup H) p q
+    inv (x: G.1.1) (p : prop x) : prop ((invGroup G) x) =
+      <i> comp (<_> H.1.1) ((invGroup H) (p @ i))
+               [ (i = 0) -> <j> lem_grouphom_inv G H phi x @ -j
+               , (i = 1) -> lemma_group_inv_id H ]
+    op (g1 g2: G.1.1) (p : prop g1) (q : prop g2) : prop ((opGroup G) g1 g2) =
+      <i> comp (<_> H.1.1) ((opGroup H) (p @ i) (q @ i))
+               [ (i = 0) -> <j> phi.2.1 g1 g2 @ -j
+               , (i = 1) -> (hasIdGroup H).1 (idGroup H) ]
+
+imProp (G H: group) (phi: grouphom G H)
+  : subgroupProp H
+  = (prop, level, ident, inv, op) where
+    prop (x: H.1.1): U = isGroupIm G H phi.1 x
+    ident: prop (idGroup H) = inc ((idGroup G), <i> phi.2.2 @ -i)
+    level (x: H.1.1): isProp (prop x) = propTruncIsProp (fiber G.1.1 H.1.1 phi.1 x)
+    fib (x : H.1.1) : U = fiber G.1.1 H.1.1 phi.1 x
+    inv (x: H.1.1) : prop x -> prop ((invGroup H) x) =
+      propTruncLift (fib x) (fib ((invGroup H) x))
+        (\(u : fib x) ->
+          ((invGroup G) u.1,
+           <i> comp (<_> H.1.1) ((invGroup H) (u.2 @ i))
+                    [ (i = 0) -> <_> (invGroup H) x
+                    , (i = 1) -> <j> lem_grouphom_inv G H phi u.1 @ -j ]))
+    op (g1 g2: H.1.1) : prop g1 -> prop g2 -> prop ((opGroup H) g1 g2) =
+      propTruncBinLift (fib g1) (fib g2) (fib ((opGroup H) g1 g2))
+        (\(u : fib g1) (v : fib g2) ->
+          ((opGroup G) u.1 v.1,
+           <i> comp (<_> H.1.1) (phi.2.1 u.1 v.1 @ -i)
+                    [ (i = 0) -> <j> (opGroup H) (u.2 @ -j) (v.2 @ -j)
+                    , (i = 1) -> <_> phi.1 ((opGroup G) u.1 v.1) ]))
+
+kerGroup (G: group) (H: group) (phi: grouphom G H): group
+  = subgroup G (kerProp G H phi)
+
+imGroup (G: group) (H: group) (psi: grouphom G H): group
+  = subgroup H (imProp G H psi)
+
+relKerIm (G H: group) (phi: grouphom G H) (x y: H.1.1): U
+  = propTrunc (fiber G.1.1 H.1.1 phi.1 (rdiv H x y))
+
+elKerIm (G H: group) (phi: grouphom G H): U
+  = quot H.1.1 (relKerIm G H phi)
+
+-- Theorems
+
+--                       phiUnfold
+--   φ (g1 * g2 * g1⁻¹) - - - - - - > φ g1 * φ g2 * (φ g1)⁻¹
+--            ^                               ^
+--            |                               |
+--            |                               |
+--            |                               |
+-- φ (g1 * g2) * φ g1⁻¹ ------------> φ g1 * φ g2 * φ g1⁻¹
+
+phiUnfold (G H : group) (phi : grouphom G H) (g1 g2 : G.1.1) :
+  Path H.1.1 (phi.1 (conjugate G g1 g2)) ((opGroup H) ((opGroup H) (phi.1 g1) (phi.1 g2)) ((invGroup H) (phi.1 g1))) =
+  <i> comp (<_> H.1.1) ((opGroup H) (phi.2.1 g1 g2 @ i) (phi.1 ((invGroup G) g1)))
+           [ (i = 0) -> <j> phi.2.1 ((opGroup G) g1 g2) ((invGroup G) g1) @ -j
+           , (i = 1) -> <j> ((opGroup H) ((opGroup H) (phi.1 g1) (phi.1 g2)) (lem_grouphom_inv G H phi g1 @ j)) ]
+
+--                          conjOne
+-- φ g1 * φ g2 * (φ g1)⁻¹ - - - - - - > 1
+--         ^                            ^
+--         |                            |
+--         |                            |
+--         |                            |
+--  φ g1 * 1 * (φ g1)⁻¹  --------> φ g1 * (φ g1)⁻¹
+
+conjOne (G H : group) (phi : grouphom G H) (g1 g2 : G.1.1) (p : Path H.1.1 (phi.1 g2) (idGroup H)) :
+  Path H.1.1 ((opGroup H) ((opGroup H) (phi.1 g1) (phi.1 g2)) ((invGroup H) (phi.1 g1))) (idGroup H) =
+  <i> comp (<_> H.1.1) ((opGroup H) ((hasIdGroup H).2 (phi.1 g1) @ i) ((invGroup H) (phi.1 g1)))
+           [ (i = 0) -> <j> (opGroup H) ((opGroup H) (phi.1 g1) (p @ -j)) ((invGroup H) (phi.1 g1))
+           , (i = 1) -> (hasInvGroup H).2 (phi.1 g1) ]
+
+kernelIsNormalSubgroup (G H : group) (phi : grouphom G H)
+  : normalSubgroupProp G
+  = (ker, cond) where
+    ker: subgroupProp G = kerProp G H phi
+    phiConj (g1 g2: G.1.1) (p : Path H.1.1 (phi.1 g2) (idGroup H)) :
+      Path H.1.1 (phi.1 (conjugate G g1 g2)) (idGroup H)
+      = <i> comp (<_> H.1.1) (conjOne G H phi g1 g2 p @ i)
+                 [ (i = 0) -> <j> phiUnfold G H phi g1 g2 @ -j
+                 , (i = 1) -> <_> idGroup H ]
+    cond: isNormal G ker = (G, phiConj)
+
+chainComplex : U
+  = (K : nat -> abgroup)
+  * (hom : (n : nat) -> abgrouphom (K (succ n)) (K n))
+  * ((n : nat) -> Path (abgrouphom (K (succ2 n)) (K n))
+      (abgrouphomcomp (K (succ2 n)) (K (succ n)) (K n) (hom (succ n)) (hom n))
+      (trivabgrouphom (K (succ2 n)) (K n)))
+
+K (C : chainComplex) : nat -> abgroup = C.1
+K' (C : chainComplex) (n : nat) : group = abgroup' (K C n)
+
+hom (C : chainComplex) : (n : nat) -> abgrouphom (K C (succ n)) (K C n) = C.2.1
+
+propZ (C : chainComplex) (n : nat) : subgroupProp (K' C (succ n))
+  = kerProp (K' C (succ n)) (K' C n) (hom C n)
+
+Z (C : chainComplex) (n : nat) : group = subgroup (K' C (succ n)) (propZ C n)
+
+B (C : chainComplex) (n : nat) : normalSubgroupProp (Z C n)
+  = abelianSubgroupIsNormal (abelianSubgroupIsAbelian (K C (succ n)) (propZ C n))
+      (subgroupSubgroup (K' C (succ n))
+        (imProp (K' C (succ (succ n))) (K' C (succ n)) (hom C (succ n))) (propZ C n))
+
+H (C : chainComplex) (n : nat) : group = factorGroup (Z C n) (B C n)

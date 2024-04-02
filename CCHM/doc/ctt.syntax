@@ -1,0 +1,76 @@
+# Cubical Syntax for Midnight Commander
+
+context default
+    keyword whole Pi white
+    keyword whole lam white
+    keyword whole app white
+    keyword whole ap white
+    keyword whole fiber white
+    keyword whole subst white
+    keyword whole contr white
+    keyword whole inv white
+    keyword whole isContr white
+    keyword whole transport white
+    keyword whole cong white
+    keyword whole Sigma white
+    keyword whole pi1 white
+    keyword whole pi2 white
+    keyword whole pr1 white
+    keyword whole pr2 white
+    keyword whole fst white
+    keyword whole snd white
+    keyword whole funext white
+    keyword whole happly white
+    keyword whole Path white
+    keyword whole PathP white
+    keyword whole J white
+    keyword whole refl white
+    keyword whole sym white
+    keyword whole trans white
+    keyword whole isSet white
+    keyword whole isProp white
+    keyword whole isGroupoid white
+    keyword whole propQuot white
+    keyword whole setQuot white
+    keyword whole grpdQuot white
+    keyword whole propTrunc white
+    keyword whole setTrunc white
+    keyword whole grpdTrunc white
+    keyword whole diff white
+    keyword whole conjugate white
+    keyword whole empty white
+    keyword whole unit white
+    keyword whole data cyan
+    keyword whole split cyan
+    keyword whole opaque cyan
+    keyword whole import cyan
+    keyword whole module cyan
+    keyword whole where cyan
+    keyword .1 cyan
+    keyword .2 cyan
+    keyword whole comp cyan
+    keyword whole fill cyan
+    keyword > cyan
+    keyword < cyan
+    keyword * cyan
+    keyword | cyan
+    keyword - cyan
+    keyword whole /\\ cyan
+    keyword whole \\/ cyan
+    keyword @ cyan
+    keyword = cyan
+    keyword [ cyan
+    keyword ] cyan
+    keyword ( cyan
+    keyword ) cyan
+    keyword { cyan
+    keyword } cyan
+    keyword , cyan
+    keyword : cyan
+    keyword ; cyan
+
+context exclusive -- \n brightred
+context exclusive {- -} brightred
+
+# context exclusive -- \n yellow
+# context exclusive {- -} yellow

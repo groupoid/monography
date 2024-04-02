@@ -1,0 +1,62 @@
+{- Proto Module:
+   - Empty and Unit;
+   - Tuple and Either;
+   - Id, Const, Composition;
+   - Decideability, Discretness, Stability.
+   Copyright (c) Groupoid Infinity, 2014-2018. -}
+
+module proto where
+
+-- basic types
+data empty           =
+data unit            = tt
+data tuple  (A B: U) = pair (a: A)      (b: B)
+data either (A B: U) = inl (a: A) | inr (b: B)
+data exists (A: U) (B: A -> U) = sigma (a: A) (b: B(a))
+
+fst  (A B: U): tuple A B -> A = split pair a b -> a
+snd  (A B: U): tuple A B -> B = split pair a b -> b
+pr1  (A: U) (B: A -> U): exists A B -> A = split sigma a b -> a
+pr2  (A: U) (B: A -> U): (x:exists A B) -> B (pr1 A B x) = split sigma a b -> b
+prod (A B: U): U = (_:A) * B
+
+{- Type Former Elims   Desc
+   ----------- ------- ----------------------------
+   prod        .1  .2  non-dependent sigma
+   Sigma       pi1 pi2 dependent sigma
+   tuple       fst snd non-dependent inductive type
+   exists      pr1 pr2 dependent inductive type     -}
+
+-- recursors and induction
+emptyRec  (C: U): empty -> C = split {}
+emptyInd  (C: empty->U): (z:empty) -> C z = split {}
+unitRec   (C: U) (x: C): unit -> C = split tt -> x
+unitInd   (C: unit -> U) (x: C tt): (z:unit) -> C z = split tt -> x
+tupleRec  (A B C: U) (c: (x:A) (y:B) -> C): (x: tuple A B) -> C = split pair a b -> c a b
+tupleInd  (A B:U)(C:tuple A B->U)(c:(x:A)(y:B)->C(pair x y)):(x:tuple A B)->C x=split pair a b -> c a b
+eitherRec (A B C: U) (b: A -> C) (c: B -> C): either A B -> C = split { inl x -> b(x) ; inr y -> c(y) }
+eitherInd (A B: U) (C: either A B -> U)
+          (x: (a: A) -> C (inl a))
+          (y: (b: B) -> C (inr b))
+        : (x: either A B) -> C x
+        = split { inl i -> x i ; inr j -> y j }
+
+-- HoTT 1.7 Coproduct types
+-- HoTT 2.12 Coproducts
+-- HoTT 2.6 Cartesian product types
+-- HoTT 2.8 The unit type
+
+-- functions proto_pi ?
+id (A: U): U = A -> A
+idfun (A: U) (a: A): A = a
+const (A B: U): U = A
+lam         (A: U) (B: A -> U) (x: A) (b: B(x)): A -> B(x) = \(x: A) -> b --\ dependent
+app         (A: U) (B: A -> U) (x: A) (f: A -> B(x)): B(x) = f(x)         --/ version
+lambda    (A B: U) (b: B): A -> B = \(_:A) -> b --\ non-dependent
+apply     (A B: U) (f: A -> B) (x: A): B = f(x) --/ version
+ot (A B C: U) : U = (B -> C) -> (A -> B) -> (A -> C)
+o  (A B C: U) : ot A B C = \ (g: B -> C) (f: A -> B) (x: A) -> g (f x)
+O  (F G: U -> U) (t: U): U = F (G t)
+flip    (A B C: U) (f: A -> B -> C) (b: B) (a: A): C = f a b
+uncurry (A: U) (B: U) (C : prod A B -> U) (f: (x: A) -> (y: B) -> C (x,y))
+      : (p: prod A B) -> C p = \ (p: prod A B) -> f p.1 p.2

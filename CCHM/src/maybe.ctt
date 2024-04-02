@@ -1,0 +1,23 @@
+{- Run-time Maybe Type:
+   Copyright (c) Groupoid Infinity, 2014-2018. -}
+
+module maybe where
+import proto
+import path
+
+data maybe  (A: U) = nothing | just (a: A)
+
+fromMaybe   (A: U) (n: A): maybe A->A = split { nothing -> n; just a -> a}
+maybeMap  (A B: U) (f: A->B): maybe A->maybe B = split { nothing -> nothing; just x -> just (f x) }
+maybeRec  (A P: U) (n: P) (j: A->P): maybe A->P = split { nothing -> n; just a -> j a}
+maybeInd  (A: U) (P: maybe A -> U) (n: P nothing) (j: (a: A) -> P (just a)):
+          (a: maybe A) -> P a = split { nothing -> n ; just x -> j x }
+
+maybeId     (A: U): maybe A->maybe A = maybeMap A A (idfun A)
+maybeRefl   (A: U)  (a: maybe A): Path (maybe A) a a = refl (maybe A) a
+maybeIsElim (A: U): (a: maybe A) -> Path (maybe A) a (maybeRec A (maybe A) nothing (\(a:A) -> just a) a)
+                  = split { nothing -> maybeRefl A nothing ; just x -> maybeRefl A (just x) }
+-- usage
+-- maybeElim nat nat zero (\ (x: nat) -> x) (just zero)
+-- law of maybeElim
+-- maybe_ nothing just a == a

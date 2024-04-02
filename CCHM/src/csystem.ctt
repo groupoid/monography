@@ -1,0 +1,583 @@
+{- C-System:
+   - Definition of C-systems and universe categories.
+   - Construction of a C-system from a universe category by Rafaël Bocquet.
+   - C-system defined by a universe category (Vladimir Voevodsky 2015)
+   - https://arxiv.org/pdf/1409.7925.pdf -}
+
+module csystem where
+import sigma
+import equiv
+import nat_theory
+import cones
+import fun
+import hedberg
+import set
+
+natSet : isSet nat = hedberg nat natDec
+
+mkFt (ob : nat -> U) (ft0 : (n : nat) -> ob (succ n) -> ob n) : (n : nat) -> ob n -> Sigma nat ob = split
+  zero  -> \(x : ob zero) -> (zero, x)
+  succ n -> \(x : ob (succ n)) -> (n, ft0 n x)
+
+--
+-- C0-Systems
+-- Objects of C0-systems are given by a length indexed family "ob : nat -> U", to avoid equalities on object lengths
+-- The morphisms (p : (x y : A) -> Path A (ft x) y -> hom x y) depend on a path in "Path A (ft x) y" because we can't
+-- enforce a definitional equality in "Path A (ft f*(X)) Y" in this square :
+--
+--      q(f, X)
+-- f*(X) ----> X
+-- |           |
+-- |           | p_X
+-- |           |
+-- Y -------> ft(X)
+--      f
+--
+
+isC0System (ob : nat -> U)
+           (Hom : Sigma nat ob -> Sigma nat ob -> U)
+           (isC : isPrecategory (Sigma nat ob, Hom)) : U
+  = let A : U = Sigma nat ob
+        CD : cat = (A,Hom)
+        C : precategory = (CD, isC)
+    in (AisSet : (n : nat) -> isSet (ob n))
+     * (ft0 : (n : nat) -> ob (succ n) -> ob n)
+     * (let ft (x : A) : A = mkFt ob ft0 x.1 x.2
+        in
+       (p : (x y : A) -> Path A (ft x) y -> Hom x y)
+     * (sq : (n : nat) -> (X : ob (succ n)) -> (Y : A) ->
+             (f : Hom Y (n, ft0 n X)) ->
+             (f_star : ob (succ Y.1)) * (ftf : Path A (Y.1, ft0 Y.1 f_star) Y)
+           * (q : Hom (succ Y.1, f_star) (succ n, X))
+           * Path (Hom (succ Y.1, f_star) (n, ft0 n X))
+                (compose C (succ Y.1, f_star) Y (n, ft0 n X) (p (succ Y.1, f_star) Y ftf) f)
+                (compose C (succ Y.1, f_star) (succ n, X) (n, ft0 n X) q (p (succ n, X) (n, ft0 n X) (<_> (n, ft0 n X))))
+       )
+     * (sqPath : (n : nat) -> (X : ob (succ n)) ->
+               (p0 : Path A (succ n, (sq n X (n, ft0 n X) (path C (n, ft0 n X))).1) (succ n, X))
+             * (PathP (<i>hom C (p0@i) (succ n, X)) (sq n X (n, ft0 n X) (path C (n, ft0 n X))).2.2.1 (path C (succ n, X)))
+       )
+     * ((n : nat) -> (X : ob (succ n)) ->
+        (Y : A) -> (f : Hom Y (n, ft0 n X)) ->
+        (Z : A) -> (g : Hom Z Y) ->
+        (let f_star : ob (succ Y.1) = (sq n X Y f).1
+             g' : Hom Z (Y.1, ft0 Y.1 f_star) = transport (<i>hom C Z ((sq n X Y f).2.1@-i)) g
+         in (p0 : Path A (succ Z.1, (sq Y.1 f_star Z g').1)
+                       (succ Z.1, (sq n X Z (compose C Z Y (n, ft0 n X) g f)).1))
+          * PathP (<i> hom C (p0@i) (succ n, X))
+                (compose C (succ Z.1, (sq Y.1 f_star Z g').1) (succ Y.1, f_star) (succ n, X)
+                  (sq Y.1 f_star Z g').2.2.1 (sq n X Y f).2.2.1)
+                (sq n X Z (compose C Z Y (n, ft0 n X) g f)).2.2.1)))
+
+C0System : U
+  = (ob : nat -> U)
+  * (hom : Sigma nat ob -> Sigma nat ob -> U)
+  * (isC : isPrecategory (Sigma nat ob, hom))
+  * isC0System ob hom isC
+
+c0C (C : C0System) : precategory = ((Sigma nat C.1, C.2.1), C.2.2.1)
+
+c0AisSet (C : C0System) : isSet (carrier (c0C C)) = setSig nat C.1 natSet C.2.2.2.1
+c0Ft (C : C0System) (x : carrier (c0C C)) : carrier (c0C C) = mkFt C.1 C.2.2.2.2.1 x.1 x.2
+c0P (C : C0System) : (x y : carrier (c0C C)) -> Path (carrier (c0C C)) (c0Ft C x) y -> C.2.1 x y = C.2.2.2.2.2.1
+
+c0CanSq (C : C0System) : U
+  = (n : nat)
+  * (X : C.1 (succ n))
+  * (Y : carrier (c0C C))
+  * (C.2.1 Y (n, C.2.2.2.2.1 n X))
+
+c0Star (C : C0System) (T : c0CanSq C) : carrier (c0C C)
+  = (succ T.2.2.1.1, (C.2.2.2.2.2.2.1 T.1 T.2.1 T.2.2.1 T.2.2.2).1)
+
+c0FtStar (C : C0System) (T : c0CanSq C)
+  : Path (carrier (c0C C)) (c0Ft C (c0Star C T)) T.2.2.1
+  = (C.2.2.2.2.2.2.1 T.1 T.2.1 T.2.2.1 T.2.2.2).2.1
+
+c0Q (C : C0System) (T : c0CanSq C) : C.2.1 (c0Star C T) (succ T.1, T.2.1)
+  = (C.2.2.2.2.2.2.1 T.1 T.2.1 T.2.2.1 T.2.2.2).2.2.1
+
+c0Square (C : C0System) (T : c0CanSq C)
+  : (let X : carrier (c0C C) = (succ T.1, T.2.1) in
+     Path (C.2.1 (c0Star C T) (c0Ft C X))
+        (compose (c0C C) (c0Star C T) T.2.2.1 (c0Ft C X) (c0P C (c0Star C T) T.2.2.1 (c0FtStar C T)) T.2.2.2)
+        (compose (c0C C) (c0Star C T) X (c0Ft C X) (c0Q C T) (c0P C X (c0Ft C X) (<_> (c0Ft C X)))))
+  = (C.2.2.2.2.2.2.1 T.1 T.2.1 T.2.2.1 T.2.2.2).2.2.2
+
+c0FtH (C : C0System) (Y X : carrier (c0C C)) (f : hom (c0C C) Y X) : hom (c0C C) Y (c0Ft C X)
+  = compose (c0C C) Y X (c0Ft C X) f (c0P C X (c0Ft C X) (<_> c0Ft C X))
+
+--
+-- A C0-system is a C-system if all of its canonical squares ("c0CanSq C") are pullback squares
+--
+
+isCSystemCospan (C : C0System) (T : c0CanSq C) : cospan (c0C C)
+  = let X : carrier (c0C C) = (succ T.1, T.2.1) in
+    (c0Ft C X,
+     (T.2.2.1, T.2.2.2),
+     (X, c0P C X (c0Ft C X) (<_>c0Ft C X)))
+
+isCSystemCospanCone (C : C0System) (T : c0CanSq C) : cospanCone (c0C C) (isCSystemCospan C T)
+  = (c0Star C T,
+     c0P C (c0Star C T) T.2.2.1 (c0FtStar C T),
+     c0Q C T,
+     c0Square C T)
+
+isCSystemType (C : C0System) (T : c0CanSq C) : U
+  = isPullback (c0C C)
+      (isCSystemCospan C T)
+      (isCSystemCospanCone C T)
+
+isCSystem (C : C0System) : U
+  = (T : c0CanSq C) -> isCSystemType C T
+
+isCSystemisProp (C : C0System) : isProp (isCSystem C)
+  = propPi (c0CanSq C) (\(T : c0CanSq C) -> isCSystemType C T)
+    (\(T : c0CanSq C) -> isPullbackProp (c0C C) (isCSystemCospan C T) (isCSystemCospanCone C T))
+
+CSystem : U
+  = (ob : nat -> U)
+  * (hom : Sigma nat ob -> Sigma nat ob -> U)
+  * (isC : isPrecategory (Sigma nat ob, hom))
+  * (c0 : isC0System ob hom isC)
+  * isCSystem (ob, hom, isC, c0)
+
+-- Definition of a universe category
+uc : U
+   = (C : precategory)
+   * (_ : isCategory C)
+   * (pt : terminal C)
+   * (V : carrier C) * (VT : carrier C) * (p : hom C VT V)
+   * ((f : homTo C V) -> hasPullback C (V, f, VT, p))
+
+-- An equivalence of universe categories is an equivalence of categories compatible with the "p" morphism
+ucEquiv (A B : uc) : U
+  = (e : catEquiv A.1 B.1)
+  * (V : Path (carrier B.1) (e.1.1 A.2.2.2.1) B.2.2.2.1)
+  * (VT : Path (carrier B.1) (e.1.1 A.2.2.2.2.1) B.2.2.2.2.1)
+  * (PathP (<i>hom B.1 (VT@i) (V@i)) (e.1.2.1 A.2.2.2.2.1 A.2.2.2.1 A.2.2.2.2.2.1) B.2.2.2.2.2.1)
+
+ucEquivPath (A B : uc) (e : ucEquiv A B) : Path uc A B
+  = let p : Path ((C:category)*catEquiv A.1 C.1) ((A.1, A.2.1), catPathEquiv A.1) ((B.1, B.2.1), e.1)
+          = isContrProp ((C:category)*catEquiv A.1 C.1) (catEquivEqPath' (A.1, A.2.1)) ((A.1, A.2.1), catPathEquiv A.1) ((B.1, B.2.1), e.1)
+        opaque p
+        pFinal : PathP (<i> terminal (p@i).1.1) A.2.2.1  B.2.2.1
+               = lemPathPProp (terminal A.1)
+                            (terminal B.1)
+                            (terminalProp A.1 A.2.1)
+                            (<i>terminal (p@i).1.1)
+                            A.2.2.1 B.2.2.1
+        opaque pFinal
+        pV : PathP (<i> carrier (p@i).1.1) A.2.2.2.1 B.2.2.2.1
+           = <i> comp (<_> carrier (p@i).1.1) ((p@i).2.1.1 A.2.2.2.1)
+                  [(i=0)-><_>A.2.2.2.1 ,(i=1)-><k>e.2.1@k]
+        pVT : PathP (<i> carrier (p@i).1.1) A.2.2.2.2.1 B.2.2.2.2.1
+            = <i> comp (<_> carrier (p@i).1.1) ((p@i).2.1.1 A.2.2.2.2.1)
+                   [(i=0)-><_>A.2.2.2.2.1 ,(i=1)-><k>e.2.2.1@k]
+        pP : PathP (<i> hom (p@i).1.1 (pVT@i) (pV@i)) A.2.2.2.2.2.1 B.2.2.2.2.2.1
+           = <i> comp (<k> hom (p@i).1.1
+                       (fill (<_> carrier (p@i).1.1) ((p@i).2.1.1 A.2.2.2.2.1) [(i=0)-><_>A.2.2.2.2.1 ,(i=1)-><k>e.2.2.1@k]@k)
+                       (fill (<_> carrier (p@i).1.1) ((p@i).2.1.1 A.2.2.2.1) [(i=0)-><_>A.2.2.2.1 ,(i=1)-><k>e.2.1@k]@k))
+                  ((p@i).2.1.2.1 A.2.2.2.2.1 A.2.2.2.1 A.2.2.2.2.2.1)
+                  [(i=0)-><_>A.2.2.2.2.2.1, (i=1)-><k>e.2.2.2@k]
+        opaque pV
+        opaque pVT
+        opaque pP
+        pPb : PathP (<i> (f : homTo (p@i).1.1 (pV@i)) -> hasPullback (p@i).1.1 (pV@i, f, pVT@i, pP@i)) A.2.2.2.2.2.2 B.2.2.2.2.2.2
+            = lemPathPProp ((f : homTo A.1 (pV@0)) -> hasPullback A.1 (pV@0, f, pVT@0, pP@0))
+                         ((f : homTo B.1 (pV@1)) -> hasPullback B.1 (pV@1, f, pVT@1, pP@1))
+                         (propPi (homTo A.1 (pV@0)) (\(f : homTo A.1 (pV@0)) -> hasPullback A.1 (pV@0, f, pVT@0, pP@0))
+                          (\(f : homTo A.1 (pV@0)) -> hasPullbackProp A.1 A.2.1 (pV@0, f, pVT@0, pP@0)))
+                         (<i>(f : homTo (p@i).1.1 (pV@i)) -> hasPullback (p@i).1.1 (pV@i, f, pVT@i, pP@i))
+                         A.2.2.2.2.2.2 B.2.2.2.2.2.2
+        opaque pPb
+        t:nat=zero
+    in <i> ((p@i).1.1
+           ,(p@i).1.2
+           ,pFinal@i
+           ,pV@i, pVT@i, pP@i
+           ,pPb@i)
+
+
+--
+-- Definition of a C0-system from a universe category
+--
+ucToC0 (C : uc) : CSystem = hole
+  where
+    V : carrier C.1 = C.2.2.2.1
+    VT : carrier C.1 = C.2.2.2.2.1
+    p : hom C.1 VT V = C.2.2.2.2.2.1
+    mutual
+      ob : (n : nat) -> U = split
+        zero -> unit
+        succ n -> (A : ob n) * hom C.1 (int n A) V
+      int : (n : nat) -> ob n -> carrier C.1 = split
+        zero -> \(_:unit) -> C.2.2.1.1
+        succ n -> \(X : ob (succ n)) -> (pb n X).1.1
+      F (n : nat) (X : ob (succ n)) : homTo C.1 V = (int n X.1, X.2)
+      cs (n : nat) (X : ob (succ n)) : cospan C.1 = (V, F n X, VT, p)
+      pb (n : nat) (X : ob (succ n)) : hasPullback C.1 (cs n X)
+        = C.2.2.2.2.2.2 (int n X.1, X.2)
+    obSet : (n : nat) -> isSet (ob n) = split
+      zero -> setUnit
+      succ n -> setSig (ob n) (\(A : ob n) -> hom C.1 (int n A) V) (obSet n) (\(A : ob n) -> homSet C.1 (int n A) V)
+    obD : U = Sigma nat ob
+    intD (x : obD) : carrier C.1 = int x.1 x.2
+    homD (a b : obD) : U = C.1.1.2 (intD a) (intD b)
+    homDSet (a b : obD) : isSet (homD a b) = homSet C.1 (intD a) (intD b)
+    DPath (a : obD) : homD a a = path C.1 (intD a)
+    DC (a b c : obD) (f : homD a b) (g : homD b c) : homD a c = compose C.1 (intD a) (intD b) (intD c) f g
+    DPathL (a b : obD) (g : homD a b) : Path (homD a b) (DC a a b (DPath a) g) g = C.1.2.2.2.2.1 (intD a) (intD b) g
+    DPathR (a b : obD) (g : homD a b) : Path (homD a b) (DC a b b g (DPath b)) g = C.1.2.2.2.2.2.1 (intD a) (intD b) g
+    DPathC (a b c d : obD) (f : homD a b) (g : homD b c) (h : homD c d)
+         : Path (homD a d) (DC a c d (DC a b c f g) h) (DC a b d f (DC b c d g h))
+         = C.1.2.2.2.2.2.2 (intD a) (intD b) (intD c) (intD d) f g h
+    DD : cat = (obD, homD)
+    D : isPrecategory DD
+      = (DPath, DC, homDSet, DPathL, DPathR, DPathC)
+    DC : precategory = (DD, D)
+    -- ^ Definition of the precategory
+
+    ft0 (n : nat) (x : ob (succ n)) : ob n = x.1
+    ft (x : obD) : obD = mkFt ob ft0 x.1 x.2
+    p0 : (n : nat) -> (x : ob n) -> homD (n, x) (ft (n, x)) = split
+      zero  -> \(A:unit) -> DPath (zero, A)
+      succ n -> \(X:ob (succ n)) -> (pb n X).1.2.1
+    pD (x y : obD) (p : Path obD (ft x) y) : homD x y = transport (<i>homD x (p@i)) (p0 x.1 x.2)
+
+    fstar (n : nat) (X : ob (succ n)) (Y : obD) (f : homD Y (n, X.1)) : obD
+      = (succ Y.1, Y.2, compose C.1 (intD Y) (int n X.1) V f X.2)
+
+    -- The C-system constructed from the universe category has the definitional equality ft(f*(X)) = Y,
+    -- but this cannot be required to hold definitionally in the definition of C-systems, so what we need
+    -- to prove contains transports by reflexivity.
+    -- To simplify the proofs, the proofs are done without this transport first, and transported to the
+    -- right types afterwards.
+    q_ (n : nat) (X : ob (succ n)) (Y : obD) (f : homD Y (n, X.1))
+      : (q : homD (fstar n X Y f) (succ n, X))
+      * (qSq : Path (homD (fstar n X Y f) (n, X.1))
+                  (compose DC (fstar n X Y f) Y (n, X.1) (p0 (succ Y.1) (fstar n X Y f).2) f)
+                  (compose DC (fstar n X Y f) (succ n, X) (n, X.1) q (p0 (succ n) X)))
+      * (_ : Path (hom C.1 (intD (fstar n X Y f)) VT)
+                (compose C.1 (intD (fstar n X Y f)) (int (succ n) X) VT q (pb n X).1.2.2.1)
+                (pb Y.1 (Y.2, compose C.1 (intD Y) (int n X.1) V f X.2)).1.2.2.1)
+      * isPullback DC ((n, X.1), (Y, f), ((succ n, X), p0 (succ n) X)) (fstar n X Y f, p0 (succ Y.1) (fstar n X Y f).2, q, qSq)
+      = let f_star : obD = fstar n X Y f
+            if_star : carrier C.1 = intD f_star
+            gF : hom C.1 (intD Y) V = compose C.1 (intD Y) (int n X.1) V f X.2
+            qq : hom C.1 if_star VT = (pb Y.1 (Y.2, gF)).1.2.2.1
+            pg : hom C.1 if_star (int n X.1) = compose C.1 if_star (intD Y) (int n X.1) (p0 (succ Y.1) f_star.2) f
+            hole0 : Path (hom C.1 if_star V)
+                       (compose C.1 if_star (int n X.1) V pg X.2)
+                       (compose C.1 if_star VT V qq p)
+                  = composition (hom C.1 if_star V)
+                           (compose C.1 if_star (int n X.1) V pg X.2)
+                           (compose C.1 if_star (intD Y) V (pb Y.1 (Y.2, gF)).1.2.1 gF)
+                           (compose C.1 if_star VT V qq p)
+                           (pathC C.1 if_star (intD Y) (int n X.1) V (pb Y.1 (Y.2, gF)).1.2.1 f X.2)
+                           (pb Y.1 (Y.2, gF)).1.2.2.2
+            pp : cospanCone C.1 (cs n X)
+               = (if_star, pg, qq, hole0)
+            q : homD (fstar n X Y f) (succ n, X) = ((pb n X).2 pp).1.1
+            hole1 : Path (hom C.1 if_star V)
+                       (compose C.1 if_star (intD Y) V (pb Y.1 (Y.2, gF)).1.2.1 gF)
+                       (compose C.1 if_star VT V (compose C.1 if_star (int (succ n) X) VT q (pb n X).1.2.2.1) p)
+                  = transport
+                      (<i> Path (hom C.1 if_star V)
+                       (compose C.1 if_star (intD Y) V (pb Y.1 (Y.2, gF)).1.2.1 gF)
+                       (compose C.1 if_star VT V (((pb n X).2 pp).1.2.2 @ -i) p))
+                       (pb Y.1 (Y.2, gF)).1.2.2.2
+            pbD : isPullback C.1 (int n X.1, (intD Y, f), (int (succ n) X, p0 (succ n) X))
+                                 (if_star, p0 (succ Y.1) (fstar n X Y f).2, q, <i>((pb n X).2 pp).1.2.1@-i)
+               = pullbackPasting C.1
+                   if_star (int (succ n) X) VT
+                   (intD Y) (int n X.1) V
+                   q (pb n X).1.2.2.1
+                   f X.2
+                   (p0 (succ Y.1) f_star.2) (p0 (succ n) X) p
+                   (<i>((pb n X).2 pp).1.2.1@-i)
+                   (pb n X).1.2.2.2
+                   hole1
+                   (pb n X).2
+                   (transport
+                     (<i> isPullback C.1 (cs Y.1 f_star.2)
+                       ((pb Y.1 f_star.2).1.1
+                       ,(pb Y.1 f_star.2).1.2.1
+                       ,((pb n X).2 pp).1.2.2@-i
+                       ,lemPathPProp
+                         (Path (hom C.1 if_star V) (compose C.1 if_star (intD Y) V (pb Y.1 (Y.2, gF)).1.2.1 gF)
+                           (compose C.1 if_star VT V (((pb n X).2 pp).1.2.2@1) p))
+                         (Path (hom C.1 if_star V) (compose C.1 if_star (intD Y) V (pb Y.1 (Y.2, gF)).1.2.1 gF)
+                           (compose C.1 if_star VT V (((pb n X).2 pp).1.2.2@0) p))
+                         (homSet C.1 if_star V (compose C.1 if_star (intD Y) V (pb Y.1 (Y.2, gF)).1.2.1 gF)
+                           (compose C.1 if_star VT V (((pb n X).2 pp).1.2.2@1) p))
+                         (<i>Path (hom C.1 if_star V) (compose C.1 if_star (intD Y) V (pb Y.1 (Y.2, gF)).1.2.1 gF)
+                           (compose C.1 if_star VT V (((pb n X).2 pp).1.2.2@-i) p))
+                           (pb Y.1 f_star.2).1.2.2.2 hole1 @ i
+                       ))
+                     (pb Y.1 f_star.2).2)
+        in (q,
+            <i>((pb n X).2 pp).1.2.1@-i,
+            ((pb n X).2 pp).1.2.2,
+            \(A : cospanCone DC ((n, X.1), (Y, f), ((succ n, X), p0 (succ n) X))) ->
+              pbD (intD A.1, A.2.1, A.2.2.1, A.2.2.2)
+           )
+
+    sqD0 (n : nat) (X : ob (succ n)) (Y : obD) (f : homD Y (n, X.1))
+      : (f_star : ob (succ Y.1)) * (ftf : Path obD (Y.1, ft0 Y.1 f_star) Y)
+      * (q : homD (succ Y.1, f_star) (succ n, X))
+      * (qSq : Path (homD (succ Y.1, f_star) (n, X.1))
+                  (compose DC (succ Y.1, f_star) Y (n, X.1) (pD (succ Y.1, f_star) Y ftf) f)
+                  (compose DC (succ Y.1, f_star) (succ n, X) (n, X.1) q (pD (succ n, X) (n, X.1) (<_> (n, X.1)))))
+      * isPullback DC ((n, X.1), (Y, f), ((succ n, X), pD (succ n, X) (n, X.1) (<_> (n, X.1))))
+                      ((succ Y.1, f_star), pD (succ Y.1, f_star) Y ftf, q, qSq)
+      = ((fstar n X Y f).2, <_> Y, (q_ n X Y f).1,
+          transport
+            (<i> (qSq : Path (homD (fstar n X Y f) (n, X.1))
+                           (compose DC (fstar n X Y f) Y (n, X.1) (transRefl (hom DC (fstar n X Y f) Y) (p0 (succ Y.1) (fstar n X Y f).2) @ -i) f)
+                           (compose DC (fstar n X Y f) (succ n, X) (n, X.1) (q_ n X Y f).1 (transRefl (hom DC (succ n, X) (n, X.1)) (p0 (succ n) X) @ -i))
+                 )
+               * isPullback DC ((n, X.1), (Y, f), ((succ n, X), (transRefl (hom DC (succ n, X) (n, X.1)) (p0 (succ n) X) @ -i)))
+                               (fstar n X Y f, (transRefl (hom DC (fstar n X Y f) Y) (p0 (succ Y.1) (fstar n X Y f).2) @ -i), (q_ n X Y f).1, qSq)
+                    )
+            ((q_ n X Y f).2.1, (q_ n X Y f).2.2.2))
+
+    -- Projections of the previous proof to the actual datum of the C system
+    sqD (n : nat) (X : ob (succ n)) (Y : obD) (f : homD Y (n, X.1))
+      : (f_star : ob (succ Y.1)) * (ftf : Path obD (Y.1, ft0 Y.1 f_star) Y)
+      * (q : homD (succ Y.1, f_star) (succ n, X))
+      * Path (homD (succ Y.1, f_star) (n, X.1))
+           (compose DC (succ Y.1, f_star) Y (n, X.1) (pD (succ Y.1, f_star) Y ftf) f)
+           (compose DC (succ Y.1, f_star) (succ n, X) (n, X.1) q (pD (succ n, X) (n, X.1) (<_> (n, X.1))))
+      = ((sqD0 n X Y f).1, (sqD0 n X Y f).2.1, (sqD0 n X Y f).2.2.1, (sqD0 n X Y f).2.2.2.1)
+
+    pbSq (sq : (n : nat) * (X : ob (succ n)) * (Y : obD) * (homD Y (n, X.1)))
+       : isPullback DC ((sq.1, sq.2.1.1), (sq.2.2.1, sq.2.2.2), ((succ sq.1, sq.2.1), pD (succ sq.1, sq.2.1) (sq.1, sq.2.1.1) (<_> (sq.1, sq.2.1.1))))
+                       (fstar sq.1 sq.2.1 sq.2.2.1 sq.2.2.2
+                       ,pD (succ sq.2.2.1.1, (fstar sq.1 sq.2.1 sq.2.2.1 sq.2.2.2).2) sq.2.2.1 (sqD sq.1 sq.2.1 sq.2.2.1 sq.2.2.2).2.1
+                       ,(sqD sq.1 sq.2.1 sq.2.2.1 sq.2.2.2).2.2.1
+                       ,(sqD sq.1 sq.2.1 sq.2.2.1 sq.2.2.2).2.2.2)
+       = (sqD0 sq.1 sq.2.1 sq.2.2.1 sq.2.2.2).2.2.2.2
+
+    qPath (n : nat) (X : ob (succ n)) :
+        (p0 : Path obD (fstar n X (n, X.1) (path DC (n, X.1))) (succ n, X))
+      * (PathP (<i>hom DC (p0@i) (succ n, X)) (q_ n X (n, X.1) (path DC (n, X.1))).1 (path DC (succ n, X)))
+      = let f_star : obD = fstar n X (n, X.1) (path DC (n, X.1))
+            p1 : Path obD f_star (succ n, X) = <i> (succ n, X.1, pathL C.1 (int n X.1) V X.2 @ i)
+            if_star : carrier C.1 = intD f_star
+            gF : hom C.1 (int n X.1) V = compose C.1 (int n X.1) (int n X.1) V (path DC (n, X.1)) X.2
+            qq : hom C.1 if_star VT = (pb n (X.1, gF)).1.2.2.1
+            pg : hom C.1 if_star (int n X.1)
+               = compose C.1 if_star (int n X.1) (int n X.1) (p0 (succ n) f_star.2) (path DC (n, X.1))
+            hole0 : Path (hom C.1 if_star V)
+                       (compose C.1 if_star (int n X.1) V pg X.2)
+                       (compose C.1 if_star VT V qq p)
+                  = composition (hom C.1 if_star V)
+                           (compose C.1 if_star (int n X.1) V pg X.2)
+                           (compose C.1 if_star (int n X.1) V (pb n (X.1, gF)).1.2.1 gF)
+                           (compose C.1 if_star VT V qq p)
+                           (pathC C.1 if_star (int n X.1) (int n X.1) V (pb n (X.1, gF)).1.2.1 (path DC (n, X.1)) X.2)
+                           (pb n (X.1, gF)).1.2.2.2
+            pp : cospanCone C.1 (cs n X)
+               = (if_star, pg, qq, hole0)
+            ppPath : Path (cospanCone C.1 (cs n X)) pp (pb n X).1
+                 = <i> (intD (p1@i),
+                        pathR C.1 (intD (p1@i)) (int n X.1) (p0 (succ n) (p1@i).2) @ i,
+                        (pb n (X.1, pathL C.1 (int n X.1) V X.2 @ i)).1.2.2.1,
+                        lemPathPProp (Path (hom C.1 if_star V) (compose C.1 if_star (int n X.1) V pg X.2) (compose C.1 if_star VT V qq p))
+                                   (Path (hom C.1 (int (succ n) X) V)
+                                     (compose C.1 (int (succ n) X) (int n X.1) V (p0 (succ n) X) X.2)
+                                     (compose C.1 (int (succ n) X) VT V (pb n X).1.2.2.1 p))
+                                   (homSet C.1 if_star V (compose C.1 if_star (int n X.1) V pg X.2) (compose C.1 if_star VT V qq p))
+                                   (<i>Path (hom C.1 (intD (p1@i)) V)
+                                     (compose C.1 (intD (p1@i)) (int n X.1) V (pathR C.1 (intD (p1@i)) (int n X.1) (p0 (succ n) (p1@i).2) @ i) X.2)
+                                     (compose C.1 (intD (p1@i)) VT V ((pb n (X.1, pathL C.1 (int n X.1) V X.2 @ i)).1.2.2.1) p))
+                                   hole0
+                                   (pb n X).1.2.2.2
+                                   @ i
+                       )
+            pph : cospanConeHom C.1 (cs n X) pp (pb n X).1
+                = transport (<i> cospanConeHom C.1 (cs n X) (ppPath@-i) (pb n X).1) (cospanConePath C.1 (cs n X) (pb n X).1)
+            pphPath : Path (cospanConeHom C.1 (cs n X) pp (pb n X).1) ((pb n X).2 pp).1 pph
+                  = ((pb n X).2 pp).2 pph
+            qPath : Path (hom DC f_star (succ n, X)) ((pb n X).2 pp).1.1 (transport (<i> hom C.1 (ppPath@-i).1 (int (succ n) X)) (path DC (succ n, X)))
+                = <i>(pphPath@i).1
+        in
+        ( p1
+        , <i> substPathP
+                (hom DC (p1@1) (succ n, X)) (hom DC (p1@0) (succ n, X))
+                (<i>hom DC (p1@-i) (succ n, X)) (path DC (succ n, X)) (q_ n X (n, X.1) (path DC (n, X.1))).1
+                (<i>qPath@-i)
+                @ -i
+        )
+
+    qComp (n : nat) (X : ob (succ n))
+          (Y : obD) (f : homD Y (n, X.1))
+          (Z : obD) (g : homD Z Y)
+        : (p0 : Path obD (fstar Y.1 (fstar n X Y f).2 Z g)
+                       (fstar n X Z (compose DC Z Y (n, X.1) g f)))
+        * PathP (<i> hom DC (p0@i) (succ n, X))
+              (compose DC (fstar Y.1 (fstar n X Y f).2 Z g) (fstar n X Y f) (succ n, X)
+                (q_ Y.1 (fstar n X Y f).2 Z g).1 (q_ n X Y f).1)
+              (q_ n X Z (compose DC Z Y (n, X.1) g f)).1
+      = let F : homD Z (n, X.1) = compose DC Z Y (n, X.1) g f
+            f_star : obD = fstar n X Z F
+            if_star : carrier C.1 = intD f_star
+            gF : hom C.1 (intD Z) V = compose C.1 (intD Z) (int n X.1) V F X.2
+            qq : hom C.1 if_star VT = (pb Z.1 (Z.2, gF)).1.2.2.1
+            pg : hom C.1 if_star (int n X.1) = compose C.1 if_star (intD Z) (int n X.1) (p0 (succ Z.1) f_star.2) F
+            hole0 : Path (hom C.1 if_star V)
+                       (compose C.1 if_star (int n X.1) V pg X.2)
+                       (compose C.1 if_star VT V qq p)
+                  = composition (hom C.1 if_star V)
+                           (compose C.1 if_star (int n X.1) V pg X.2)
+                           (compose C.1 if_star (intD Z) V (pb Z.1 (Z.2, gF)).1.2.1 gF)
+                           (compose C.1 if_star VT V qq p)
+                           (pathC C.1 if_star (intD Z) (int n X.1) V (pb Z.1 (Z.2, gF)).1.2.1 F X.2)
+                           (pb Z.1 (Z.2, gF)).1.2.2.2
+            pp : cospanCone C.1 (cs n X)
+               = (if_star, pg, qq, hole0)
+            f_star2 : obD = fstar Y.1 (fstar n X Y f).2 Z g
+            if_star2 : carrier C.1 = intD f_star2
+            q2 : hom DC f_star2 (fstar n X Y f) = (q_ Y.1 (fstar n X Y f).2 Z g).1
+            pg2 : hom C.1 if_star2 (int n X.1)
+                = compose DC f_star2 Z (n,X.1) (p0 (succ Z.1) f_star2.2) F
+            qq2 : hom C.1 if_star2 VT
+                = (pb Z.1 (Z.2, compose C.1 (intD Z) (intD Y) V g (compose C.1 (intD Y) (int n X.1) V f X.2))).1.2.2.1
+            p1 : Path obD f_star2 f_star
+               = <i> (succ Z.1, Z.2, pathC C.1 (intD Z) (intD Y) (int n X.1) V g f X.2 @ -i)
+            pp2 : cospanCone C.1 (cs n X)
+                = (if_star2, pg2, qq2,
+                   transport (<i>Path (hom C.1 (intD(p1@-i)) V)
+                              (compose C.1 (intD(p1@-i)) (int n X.1) V (compose DC (p1@-i) Z (n,X.1) (p0 (succ Z.1) (p1@-i).2) F) X.2)
+                              (compose C.1 (intD(p1@-i)) VT V (pb Z.1 (Z.2, pathC C.1 (intD Z) (intD Y) (int n X.1) V g f X.2 @ i)).1.2.2.1 p))
+                             hole0)
+            ppPath : Path (cospanCone C.1 (cs n X)) pp2 pp
+                 = <i> (intD (p1@i),
+                        compose DC (p1@i) Z (n,X.1) (p0 (succ Z.1) (p1@i).2) F,
+                        (pb Z.1 (Z.2, pathC C.1 (intD Z) (intD Y) (int n X.1) V g f X.2 @ -i)).1.2.2.1,
+                        lemPathPProp
+                         (Path (hom C.1 if_star2 V) (compose C.1 if_star2 (int n X.1) V pg2 X.2) (compose C.1 if_star2 VT V qq2 p))
+                         (Path (hom C.1 if_star V) (compose C.1 if_star (int n X.1) V pg X.2) (compose C.1 if_star VT V qq p))
+                         (homSet C.1 if_star2 V (compose C.1 if_star2 (int n X.1) V pg2 X.2) (compose C.1 if_star2 VT V qq2 p))
+                         (<i>Path (hom C.1 (intD(p1@i)) V)
+                           (compose C.1 (intD(p1@i)) (int n X.1) V (compose DC (p1@i) Z (n,X.1) (p0 (succ Z.1) (p1@i).2) F) X.2)
+                           (compose C.1 (intD(p1@i)) VT V (pb Z.1 (Z.2, pathC C.1 (intD Z) (intD Y) (int n X.1) V g f X.2 @ -i)).1.2.2.1 p))
+                         pp2.2.2.2 hole0 @ i)
+
+            hole3 : Path (hom C.1 if_star2 (int n X.1))
+                       (compose DC f_star2 (succ n, X) (n,X.1)
+                        (compose C.1 if_star2 (intD (fstar n X Y f)) (int (succ n) X) q2 (q_ n X Y f).1)
+                        (p0 (succ n) X)
+                       )
+                       (compose DC f_star2 Z (n,X.1) (p0 (succ Z.1) f_star2.2) F)
+                  = composition (hom C.1 if_star2 (int n X.1))
+                           (compose DC f_star2 (succ n, X) (n,X.1)
+                             (compose DC f_star2 (fstar n X Y f) (succ n, X) q2 (q_ n X Y f).1)
+                             (p0 (succ n) X))
+                           (compose DC f_star2 (fstar n X Y f) (n,X.1)
+                             q2
+                             (compose DC (fstar n X Y f) (succ n, X) (n, X.1) (q_ n X Y f).1 (p0 (succ n) X)))
+                           (compose DC f_star2 Z (n,X.1) (p0 (succ Z.1) f_star2.2) F)
+                           (pathC DC f_star2 (fstar n X Y f) (succ n, X) (n,X.1) q2 (q_ n X Y f).1 (p0 (succ n) X))
+                   (composition (hom C.1 if_star2 (int n X.1))
+                           (compose DC f_star2 (fstar n X Y f) (n,X.1)
+                             q2
+                             (compose DC (fstar n X Y f) (succ n, X) (n, X.1) (q_ n X Y f).1 (p0 (succ n) X)))
+                           (compose DC f_star2 (fstar n X Y f) (n,X.1)
+                             q2
+                             (compose DC (fstar n X Y f) Y (n, X.1) (p0 (succ Y.1) (fstar n X Y f).2) f))
+                           (compose DC f_star2 Z (n,X.1) (p0 (succ Z.1) f_star2.2) F)
+                           (<i> compose DC f_star2 (fstar n X Y f) (n,X.1) q2
+                                  ((q_ n X Y f).2.1@-i))
+                   (composition (hom C.1 if_star2 (int n X.1))
+                           (compose DC f_star2 (fstar n X Y f) (n,X.1)
+                             q2
+                             (compose DC (fstar n X Y f) Y (n, X.1) (p0 (succ Y.1) (fstar n X Y f).2) f))
+                           (compose DC f_star2 Y (n,X.1)
+                             (compose DC f_star2 (fstar n X Y f) Y q2 (p0 (succ Y.1) (fstar n X Y f).2))
+                             f)
+                           (compose DC f_star2 Z (n,X.1) (p0 (succ Z.1) f_star2.2) F)
+                           (<i>pathC DC f_star2 (fstar n X Y f) Y (n, X.1) q2 (p0 (succ Y.1) (fstar n X Y f).2) f@-i)
+                   (composition (hom C.1 if_star2 (int n X.1))
+                           (compose DC f_star2 Y (n,X.1)
+                             (compose DC f_star2 (fstar n X Y f) Y q2 (p0 (succ Y.1) (fstar n X Y f).2))
+                             f)
+                           (compose DC f_star2 Y (n,X.1)
+                             (compose DC f_star2 Z Y (p0 (succ Z.1) f_star2.2) g)
+                             f)
+                           (compose DC f_star2 Z (n,X.1) (p0 (succ Z.1) f_star2.2) F)
+                           (<i>compose DC f_star2 Y (n,X.1)
+                              ((q_ Y.1 (fstar n X Y f).2 Z g).2.1@-i) f)
+                           (pathC DC f_star2 Z Y (n, X.1) (p0 (succ Z.1) f_star2.2) g f))))
+            opaque hole3
+
+            hole4 : Path (hom C.1 if_star2 VT)
+                       (compose C.1 if_star2 (int (succ n) X) VT
+                         (compose C.1 if_star2 (intD (fstar n X Y f)) (int (succ n) X) q2 (q_ n X Y f).1)
+                         (pb n X).1.2.2.1)
+                       (pb Z.1 (Z.2, compose C.1 (intD Z) (intD Y) V g (compose C.1 (intD Y) (int n X.1) V f X.2))).1.2.2.1
+                  = composition (hom C.1 if_star2 VT)
+                           (compose C.1 if_star2 (int (succ n) X) VT
+                            (compose C.1 if_star2 (intD (fstar n X Y f)) (int (succ n) X) q2 (q_ n X Y f).1)
+                            (pb n X).1.2.2.1)
+                           (compose C.1 if_star2 (intD (fstar n X Y f)) VT
+                            q2
+                            (compose C.1 (intD (fstar n X Y f)) (int (succ n) X) VT (q_ n X Y f).1 (pb n X).1.2.2.1))
+                           (pb Z.1 (Z.2, compose C.1 (intD Z) (intD Y) V g (compose C.1 (intD Y) (int n X.1) V f X.2))).1.2.2.1
+                           (pathC C.1 if_star2 (intD (fstar n X Y f)) (int (succ n) X) VT q2 (q_ n X Y f).1 (pb n X).1.2.2.1)
+                   (composition (hom C.1 if_star2 VT)
+                           (compose C.1 if_star2 (intD (fstar n X Y f)) VT
+                            q2
+                            (compose C.1 (intD (fstar n X Y f)) (int (succ n) X) VT (q_ n X Y f).1 (pb n X).1.2.2.1))
+                           (compose C.1 if_star2 (intD (fstar n X Y f)) VT
+                            q2
+                            (pb Y.1 (Y.2, compose C.1 (intD Y) (int n X.1) V f X.2)).1.2.2.1)
+                           (pb Z.1 (Z.2, compose C.1 (intD Z) (intD Y) V g (compose C.1 (intD Y) (int n X.1) V f X.2))).1.2.2.1
+                           (<i> compose C.1 if_star2 (intD (fstar n X Y f)) VT q2 ((q_ n X Y f).2.2.1@i))
+                           (q_ Y.1 (fstar n X Y f).2 Z g).2.2.1)
+            opaque hole4
+
+            pph : cospanConeHom C.1 (cs n X) pp (pb n X).1
+                = transport
+                  (<i>cospanConeHom C.1 (cs n X) (ppPath@i) (pb n X).1)
+                  ( compose C.1 if_star2 (intD (fstar n X Y f)) (int (succ n) X) q2 (q_ n X Y f).1
+                  , hole3
+                  , hole4
+                  )
+            pphPath : Path (cospanConeHom C.1 (cs n X) pp (pb n X).1) ((pb n X).2 pp).1 pph
+                  = ((pb n X).2 pp).2 pph
+            qPath : Path (hom C.1 if_star (int (succ n) X))
+                     (transport (<i>hom C.1 (intD(p1@i)) (int (succ n) X))
+                       (compose C.1 if_star2 (intD (fstar n X Y f)) (int (succ n) X) q2 (q_ n X Y f).1))
+                     (q_ n X Z (compose DC Z Y (n, X.1) g f)).1
+                = <i>(pphPath@-i).1
+        in (p1,
+            substPathP (hom DC (p1@0) (succ n, X)) (hom DC (p1@1) (succ n, X))
+                     (<i> hom DC (p1@i) (succ n, X))
+                     (compose C.1 if_star2 (intD (fstar n X Y f)) (int (succ n) X) q2 (q_ n X Y f).1)
+                     (q_ n X Z (compose DC Z Y (n, X.1) g f)).1
+                     qPath)
+
+    qComp' (n : nat) (X : ob (succ n))
+           (Y : obD) (f : homD Y (n, X.1))
+           (Z : obD) (g : homD Z Y)
+        : (let g' : homD Z Y = transport (<_> homD Z Y) g in
+          (p0 : Path obD (fstar Y.1 (fstar n X Y f).2 Z g')
+                       (fstar n X Z (compose DC Z Y (n, X.1) g f)))
+        * PathP (<i> hom DC (p0@i) (succ n, X))
+              (compose DC (fstar Y.1 (fstar n X Y f).2 Z g') (fstar n X Y f) (succ n, X)
+                (q_ Y.1 (fstar n X Y f).2 Z g').1 (q_ n X Y f).1)
+              (q_ n X Z (compose DC Z Y (n, X.1) g f)).1)
+        = transport
+          (<j> (p0 : Path obD (fstar Y.1 (fstar n X Y f).2 Z (transRefl (homD Z Y) g @ -j))
+                            (fstar n X Z (compose DC Z Y (n, X.1) g f)))
+             * PathP (<i> hom DC (p0@i) (succ n, X))
+                   (compose DC (fstar Y.1 (fstar n X Y f).2 Z (transRefl (homD Z Y) g @ -j)) (fstar n X Y f) (succ n, X)
+                     (q_ Y.1 (fstar n X Y f).2 Z (transRefl (homD Z Y) g @ -j)).1 (q_ n X Y f).1)
+                   (q_ n X Z (compose DC Z Y (n, X.1) g f)).1)
+          (qComp n X Y f Z g)
+
+    hole : CSystem
+         = (ob, homD, D, (obSet, ft0, pD, sqD, qPath, qComp'), pbSq)
+         

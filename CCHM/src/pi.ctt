@@ -1,0 +1,84 @@
+{- Pi Type:
+   - Pi;
+   - FunExt.
+   Copyright (c) Groupoid Infinity, 2014-2018.
+
+   HoTT 1.5 Product types
+   HoTT 2.9 Pi-types and the function extensionality axiom. -}
+
+module pi where
+import proto
+import prop
+import path
+
+-- Pi Formation
+Pi (A: U) (B: A -> U) : U = (x:A) -> B(x)
+
+-- Pi Intro
+lam (A: U) (B: A -> U) (b: Pi A B): Pi A B = \(x: A) -> b x
+
+-- Pi Elim
+app (A: U) (B: A -> U) (f: Pi A B) (a: A): B a = f a
+
+-- Pi Computation
+Pi_Beta (A: U) (B: A -> U) (f: Pi A B)
+  : Path (Pi A B) (\(x:A) -> f x) f
+  = refl (Pi A B) f
+
+-- Pi Uniqueness
+Pi_Eta (A: U) (B: A -> U) (f: Pi A B)
+  : Path (Pi A B) f (\(x:A) -> f x)
+  = refl (Pi A B) f
+
+-- FunExt Type
+funext_form (A B: U) (f g: A -> B): U
+  = Path (A -> B) f g
+
+-- funext Intro
+funext (A B: U) (f g: A -> B) (p: (x:A) -> Path B (f x) (g x))
+  : funext_form A B f g
+  = <i> \(a: A) -> p a @ i
+
+-- funext Elim
+happly (A B: U) (f g: A -> B) (p: funext_form A B f g) (x: A)
+  : Path B (f x) (g x)
+  = cong (A -> B) B (\(h: A -> B) -> apply A B h x) f g p
+
+-- funext Computation
+funext_Beta (A B: U) (f g: A -> B) (p: (x:A) -> Path B (f x) (g x))
+  : (x:A) -> Path B (f x) (g x)
+  = \(x:A) -> happly A B f g (funext A B f g p) x
+
+-- funext Uniqueness
+funext_Eta (A B: U) (f g: A -> B) (p: Path (A -> B) f g)
+  : Path (Path (A -> B) f g) (funext A B f g (happly A B f g p)) p
+  = refl (Path (A -> B) f g) p
+
+-- dependent funext
+piext (A: U) (B: A -> U) (f g: (x:A) -> B x) (p: (x:A) -> Path (B x) (f x) (g x))
+  : Path ((y:A) -> B y) f g
+  = <i> \(a: A) -> (p a) @ i
+
+-- if pi is set and two functions are equal in two ways then these ways are contractible
+setPi (A: U) (B: A -> U) (h: (x: A) -> isSet (B x)) (f g: Pi A B) (p q: Path (Pi A B) f g)
+  : Path (Path (Pi A B) f g) p q
+  = <i j> \(x: A) -> (h x (f x) (g x) (<i>(p@i)x) (<i>(q@i)x)) @ i @ j
+
+-- pi is set on codomain
+setFun' (X Y: U) (p: X -> isSet Y)
+  : isSet (X -> Y)
+  = setPi X (\(_: X) -> Y) p
+
+setFun (A B : U) (sB: isSet B)
+  : isSet (A -> B)
+  = setPi A (\(x: A) -> B) (\(x: A) -> sB)
+
+-- if pi is contractible on domain and codomain then whole space is contractible
+piIsContr (A: U) (B: A -> U) (u: isContr A) (q: (x: A) -> isContr (B x))
+  : isContr (Pi A B)
+  = (g,r) where
+--    a: A = u.1
+--    p: (x:A) -> Path A a x = u.2
+    g (x:A): B x = (q x).1
+    h (x:A): (y:B x) -> Path (B x) (g x) y = (q x).2
+    r (z:Pi A B): Path (Pi A B) g z = piext A B g z (\(x:A) -> h x (z x))

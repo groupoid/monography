@@ -1,0 +1,61 @@
+module suspension where
+import proto
+import iso
+import s1
+import pointed
+
+data susp (A : U) = north | south| merid (a : A) <i> [ (i=0) -> north , (i=1) -> south ]
+
+suspension (A: U): nat -> U = split { zero -> A ; succ x -> susp (suspension A x) }
+Sn: nat -> U = suspension bool
+sn: nat -> U = split { zero -> bool ; succ x -> susp (Sn x) }
+
+S2 : U = susp S1
+S3 : U = susp S2
+S4 : U = susp S3
+
+merid1 (A : U) (a : A) : Path (susp A) north south = <i> merid {susp A} a @ i
+susppt (A : U) : pointed = (susp A,north)
+S1pt : pointed = (S1,base)
+S2pt : pointed = susppt S1
+S3pt : pointed = susppt S2
+
+suspS1 : susp bool -> S1 = split
+  north   -> base
+  south   -> base
+  merid b @ i -> let case : bool -> Path S1 base base = split
+    false -> loop1
+    true  -> <_> base
+    in case b @ i
+
+S1susp : S1 -> susp bool = split
+  base -> north
+  loop @ i -> composition (susp bool) north south north
+                          (merid1 bool false) (<i> merid1 bool true @ -i) @ i
+
+suspOf (A X : U) : U = (u:X) * (v:X) * (A -> Path X u v)
+
+funToL (A X:U) (f:susp A -> X) : suspOf A X = (f north,f south,\ (a:A) -> <i>f (merid{susp A} a@i))
+lToFun (A X:U) (z:suspOf A X)  : susp A -> X = split
+  north -> z.1
+  south -> z.2.1
+  merid a @ i-> z.2.2 a @ i
+
+suspOfLem (A X:U) (f:susp A ->X)
+  : (u:susp A) -> Path X (lToFun A X (funToL A X f) u) (f u)
+  = split
+    north -> refl X (f north)
+    south -> refl X (f south)
+    merid a @ i -> refl X (f (merid{susp A} a @ i))
+
+test1 (A X:U) (z:suspOf A X)
+  : Path (suspOf A X) (funToL A X (lToFun A X z)) z
+  = refl (suspOf A X) z
+
+test2 (A X:U) (f:susp A ->X)
+  : Path (susp A ->X) (lToFun A X (funToL A X f)) f
+  = <i>\ (u:susp A) -> suspOfLem A X f u @ i
+
+funSusp (A X:U)
+  : Path U (susp A -> X) (suspOf A X)
+  = isoPath (susp A -> X) (suspOf A X) (funToL A X) (lToFun A X) (test1 A X) (test2 A X)

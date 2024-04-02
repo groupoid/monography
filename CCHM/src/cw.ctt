@@ -1,0 +1,16 @@
+{- CW-Comlexes
+   Copyright (c) Groupoid Infinity, 2014-2020.
+
+   HoTT 6.6 Cell Complexes -}
+
+module cw where
+import suspension
+import nat
+import pushout
+
+-- Cell complexes as attachment cells
+attaching (A B C: U): U = B -> C -> A
+attached (A B C: U) (a: attaching A B C): U
+  = pushout A B (prod B C) (\(x: prod B C) -> a x.1 x.2)
+                           (\(x: prod B C) -> x.1)
+

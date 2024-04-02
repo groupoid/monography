@@ -1,0 +1,33 @@
+{- Étale Maps:
+   - Etale.
+   Copyright (c) Groupoid Infinity, 2014-2018.
+
+   EGA4 4.1 Etale maps -}
+
+module etale where
+import path
+import pullback
+import infinitesimal
+
+--        w
+--    A ----> Im A
+--  f |       | x
+--    V       V
+--    B ----> Im B
+--       y
+
+isÉtaleMap (A B: U) (f: A -> B): U
+  = isPullbackSq A iA B (Im B) x y w f h where
+  iA : U = Im A
+  iB : U = Im B
+  x: iA -> iB = ImApp  A B f
+  y:  B -> iB = ImUnit B
+  w:  A -> iA = ImUnit A
+  c1: A -> iB = o A iA iB x w
+  c2: A -> iB = o A B  iB y f
+  T2: U = (a:A) -> Path iB (c1 a) (c2 a)
+  h: T2 = \(a : A) -> <i> ImNaturality A B f a @ -i
+
+EtaleMap (A B: U): U
+  = (f: A -> B)
+  * isÉtaleMap A B f

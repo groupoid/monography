@@ -1,0 +1,332 @@
+{- Category Theory:
+   - Universal Mapping Property.
+   Copyright (c) Groupoid Infinity, 2014-2018. -}
+
+module ump where
+import cat
+import fun
+import adj
+
+-- Universal Mapping Property : a -> F
+initArr (C D: precategory)
+        (a: carrier C)
+        (F: catfunctor D C): U = initial (cosliceCat C D a F)
+
+termArr (C D: precategory)
+        (a: carrier (opCat C))
+        (F: catfunctor D (opCat C)): U = terminal (sliceCat C D a F)
+
+univarr (C D: precategory) (a: carrier C) (F: catfunctor D C): U
+  = initial (cosliceCat C D a F)
+
+-- uO : D
+-- η : hom(a, F(uO))
+-- ∃! hom((u0, η), y)
+-- hom(u0, y)
+-- F(uH') ∘ η = yH
+
+uO   (C D: precategory) (F: catfunctor D C) (a: carrier C) (ua: univarr C D a F): carrier D = ua.1.1
+uEta (C D: precategory) (F: catfunctor D C) (a: carrier C) (ua: univarr C D a F): hom C a (F.1 (uO C D F a ua)) = ua.1.2
+uH   (C D: precategory) (F: catfunctor D C) (a: carrier C) (ua: univarr C D a F) (y: carrier (cosliceCat C D a F)): isContr (hom (cosliceCat C D a F) ua.1 y) = ua.2 y
+uH'  (C D: precategory) (F: catfunctor D C) (a: carrier C) (ua: univarr C D a F) (y: carrier (cosliceCat C D a F)): hom D ua.1.1 y.1 = (ua.2 y).1.1
+uHP  (C D: precategory) (F: catfunctor D C) (a: carrier C) (ua: univarr C D a F) (y: carrier (cosliceCat C D a F))
+  : Path (hom C a (F.1 y.1)) y.2 (compose C a (F.1 ua.1.1) (F.1 y.1) (uEta C D F a ua) (F.2.1 ua.1.1 y.1 (uH' C D F a ua y))) = (ua.2 y).1.2
+
+lemma_univarr_induced_functor (C D : precategory) (F : catfunctor D C) (ua : (a : carrier C) -> univarr C D a F)
+  : catfunctor C D
+  = let
+    fob (a : carrier C) : carrier D
+      = uO C D F a (ua a)
+    fmor (a b : carrier C) (f : hom C a b) : hom D (fob a) (fob b)
+      = uH' C D F a (ua a) (fob b, compose C a b (F.1 (fob b)) f (uEta C D F b (ua b)))
+    fid (a : carrier C) : Path (hom D (fob a) (fob a)) (fmor a a (path C a)) (path D (fob a))
+      = let
+        h0 : hom (cosliceCat C D a F) (ua a).1 (ua a).1
+          = (path D (fob a), <i> comp (<_> hom C a (F.1 (fob a))) (pathR C a (F.1 (fob a)) (ua a).1.2 @ -i)
+              [ (i = 0) -> <_> (ua a).1.2
+              , (i = 1) -> <j> compose C a (F.1 (fob a)) (F.1 (fob a)) (ua a).1.2 (F.2.2.1 (fob a) @ -j) ])
+        h1 : hom (cosliceCat C D a F) (ua a).1 (ua a).1
+          = let
+            y : carrier (cosliceCat C D a F)
+              = (fob a, compose C a a (F.1 (fob a)) (path C a) (ua a).1.2)
+            h : hom D (fob a) (fob a)
+              = uH' C D F a (ua a) y
+            p : Path (hom C a (F.1 (fob a))) (ua a).1.2 (compose C a (F.1 (fob a)) (F.1 (fob a)) (ua a).1.2 (F.2.1 (fob a) (fob a) h))
+              = <i> comp (<_> hom C a (F.1 (fob a))) (pathL C a (F.1 (fob a)) (ua a).1.2 @ -i)
+                [ (i = 0) -> <_> (ua a).1.2
+                , (i = 1) -> uHP C D F a (ua a) y ]
+          in (h, p)
+        p : Path (hom (cosliceCat C D a F) (ua a).1 (ua a).1) h0 h1
+          = <i> comp (<_> hom (cosliceCat C D a F) (ua a).1 (ua a).1) (((ua a).2 (ua a).1).2 h0 @ -i)
+            [ (i = 0) -> <_> h0
+            , (i = 1) -> ((ua a).2 (ua a).1).2 h1 ]
+      in <i> (p @ -i).1
+    fc (a b c : carrier C) (f : hom C a b) (g : hom C b c)
+      : Path (hom D (fob a) (fob c)) (fmor a c (compose C a b c f g)) (compose D (fob a) (fob b) (fob c) (fmor a b f) (fmor b c g))
+      = let
+        eta_a : hom C a (F.1 (fob a))
+          = uEta C D F a (ua a)
+        eta_b : hom C b (F.1 (fob b))
+          = uEta C D F b (ua b)
+        eta_c : hom C c (F.1 (fob c))
+          = uEta C D F c (ua c)
+        x : carrier (cosliceCat C D a F)
+          = (fob a, eta_a)
+        y : carrier (cosliceCat C D a F)
+          = (fob c, compose C a c (F.1 (fob c)) (compose C a b c f g) eta_c)
+        z : carrier (cosliceCat C D a F)
+          = (fob b, compose C a b (F.1 (fob b)) f eta_b)
+        w : carrier (cosliceCat C D b F)
+          = (fob c, compose C b c (F.1 (fob c)) g eta_c)
+        h0 : hom (cosliceCat C D a F) x y
+          = let
+            h : hom D (fob a) (fob c)
+              -- = uH' C D F a (ua a) y
+              = fmor a c (compose C a b c f g)
+            p : Path (hom C a (F.1 (fob c)))
+                (compose C a c (F.1 (fob c)) (compose C a b c f g) eta_c)
+                (compose C a (F.1 (fob a)) (F.1 (fob c)) eta_a (F.2.1 (fob a) (fob c) h))
+              = uHP C D F a (ua a) y
+          in (h, p)
+        h1 : hom (cosliceCat C D a F) x y
+          = let
+            h : hom D x.1 y.1
+              -- = compose D (fob a) (fob b) (fob c) (fmor a b f) (fmor b c g)
+              = compose D (fob a) (fob b) (fob c) (uH' C D F a (ua a) z) (uH' C D F b (ua b) w)
+            p0 : Path (hom C a (F.1 (fob c)))
+                (compose C a (F.1 (fob a)) (F.1 (fob c)) eta_a (F.2.1 (fob a) (fob c) h))
+                (compose C a (F.1 (fob a)) (F.1 (fob c)) eta_a (compose C (F.1 (fob a)) (F.1 (fob b)) (F.1 (fob c))
+                  (F.2.1 (fob a) (fob b) (uH' C D F a (ua a) z)) (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w))))
+              = <i> compose C a (F.1 (fob a)) (F.1 (fob c)) eta_a (F.2.2.2 (fob a) (fob b) (fob c) (uH' C D F a (ua a) z) (uH' C D F b (ua b) w) @ i)
+            p1 : Path (hom C a (F.1 (fob c)))
+                (compose C a (F.1 (fob a)) (F.1 (fob c)) eta_a (compose C (F.1 (fob a)) (F.1 (fob b)) (F.1 (fob c))
+                  (F.2.1 (fob a) (fob b) (uH' C D F a (ua a) z)) (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w))))
+                (compose C a (F.1 (fob b)) (F.1 (fob c)) (compose C a (F.1 (fob a)) (F.1 (fob b)) eta_a
+                  (F.2.1 (fob a) (fob b) (uH' C D F a (ua a) z))) (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w)))
+              = <i> pathC C a (F.1 (fob a)) (F.1 (fob b)) (F.1 (fob c)) eta_a (F.2.1 (fob a) (fob b) (uH' C D F a (ua a) z)) (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w)) @ -i
+            p2 : Path (hom C a (F.1 (fob c)))
+                (compose C a (F.1 (fob b)) (F.1 (fob c)) (compose C a (F.1 (fob a)) (F.1 (fob b)) eta_a
+                  (F.2.1 (fob a) (fob b) (uH' C D F a (ua a) z))) (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w)))
+                (compose C a (F.1 (fob b)) (F.1 (fob c)) z.2 (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w)))
+              = <i> compose C a (F.1 (fob b)) (F.1 (fob c)) (uHP C D F a (ua a) z @ -i) (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w))
+            p3 : Path (hom C a (F.1 (fob c)))
+                (compose C a (F.1 (fob b)) (F.1 (fob c)) z.2 (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w)))
+                (compose C a b (F.1 (fob c)) f (compose C b (F.1 (fob b)) (F.1 (fob c)) eta_b (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w))))
+              = pathC C a b (F.1 (fob b)) (F.1 (fob c)) f eta_b (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w))
+            p4 : Path (hom C a (F.1 (fob c)))
+                (compose C a b (F.1 (fob c)) f (compose C b (F.1 (fob b)) (F.1 (fob c)) eta_b (F.2.1 (fob b) (fob c) (uH' C D F b (ua b) w))))
+                (compose C a b (F.1 (fob c)) f w.2)
+              = <i> compose C a b (F.1 (fob c)) f (uHP C D F b (ua b) w @ -i)
+            p5 : Path (hom C a (F.1 (fob c)))
+                (compose C a b (F.1 (fob c)) f w.2)
+                (compose C a c (F.1 (fob c)) (compose C a b c f g) eta_c)
+              = <i> pathC C a b c (F.1 (fob c)) f g eta_c @ -i
+            p : Path (hom C a (F.1 (fob c)))
+                (compose C a c (F.1 (fob c)) (compose C a b c f g) eta_c)
+                (compose C a (F.1 (fob a)) (F.1 (fob c)) eta_a (F.2.1 (fob a) (fob c) h))
+              = <i> comp (<_> hom C a (F.1 (fob c))) (p2 @ -i)
+                [ (i = 1) -> <j> comp (<_> hom C a (F.1 (fob c))) (p1 @ -j)
+                  [ (j = 0) -> <_> p1 @ 1
+                  , (j = 1) -> <k> p0 @ -k ]
+                , (i = 0) -> <j> comp (<_> hom C a (F.1 (fob c))) (p4 @ j)
+                  [ (j = 0) -> <k> p3 @ -k
+                  , (j = 1) -> p5 ]]
+          in (h, p)
+      in <i> (comp (<_> hom (cosliceCat C D a F) x y) (((ua a).2 y).2 h0 @ -i)
+        [ (i = 0) -> <_> h0
+        , (i = 1) -> ((ua a).2 y).2 h1 ]).1
+  in (fob, fmor, fid, fc)
+
+lemma_univarr_unit (C D : precategory) (F : catfunctor D C) (ua : (a : carrier C) -> univarr C D a F)
+  : ntrans C C (idFunctor C) (compFunctor C D C (lemma_univarr_induced_functor C D F ua) F)
+  = (eta,\(x y: carrier C) (h: hom C x y) -> uHP C D F x (ua x) (f.1 y, compose C x y (F.1 (f.1 y)) h (eta y))) where
+    f : catfunctor C D = lemma_univarr_induced_functor C D F ua
+    eta (x : carrier C) : hom C x (F.1 (f.1 x)) = uEta C D F x (ua x)
+
+lemma_univarr_counit (C D : precategory) (F : catfunctor D C) (ua : (a : carrier C) -> univarr C D a F)
+  : ntrans D D (compFunctor D C D F (lemma_univarr_induced_functor C D F ua)) (idFunctor D)
+  = let
+    S : catfunctor D D
+      = compFunctor D C D F (lemma_univarr_induced_functor C D F ua)
+    T : catfunctor D D
+      = idFunctor D
+    f : catfunctor C D
+      = lemma_univarr_induced_functor C D F ua
+    eta (x : carrier C) : hom C x (F.1 (f.1 x))
+      = uEta C D F x (ua x)
+    taF (x : carrier D) : hom D (f.1 (F.1 x)) x
+      = (uH' C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x)))
+    p (x y : carrier D) (h : hom D x y) : Path (hom D (S.1 x) y)
+        (compose D (S.1 x) (S.1 y) y (S.2.1 x y h) (taF y))
+        (compose D (S.1 x) x y (taF x) h)
+      = let 
+        a : carrier C
+          = F.1 x
+        d : carrier (cosliceCat C D a F)
+          = (f.1 (F.1 x), eta (F.1 x))
+        e : carrier (cosliceCat C D a F)
+          = (y, F.2.1 x y h)
+
+        -- To prove the two homomorphisms in D equal we use them to construct
+        -- two parallel homomorphisms in the coslice category. It follows from
+        -- the uniqueness property that these are equal, and by extension that the
+        -- two original homomorphisms are equal as well.
+        
+        -- The construction of the first homomorphism, hom0
+        h00 : hom D (S.1 x) (S.1 y)
+          = (uH' C D F (F.1 x) (ua (F.1 x)) (f.1 (F.1 y), compose C (F.1 x) (F.1 y) (F.1 (f.1 (F.1 y))) (F.2.1 x y h) (eta (F.1 y))))
+        h01 : hom D (S.1 y) y
+          = ((uH' C D F (F.1 y) (ua (F.1 y)) (y, path C (F.1 y))))
+        h0 : hom D d.1 e.1
+          = compose D (S.1 x) (S.1 y) y h00 h01
+        p0 : Path (hom C a (F.1 e.1))
+               (compose C a (F.1 d.1) (F.1 e.1) (eta (F.1 x)) (F.2.1 d.1 e.1 h0))
+               (compose C a (F.1 d.1) (F.1 e.1) (eta (F.1 x)) (compose C (F.1 (S.1 x)) (F.1 (S.1 y)) (F.1 y) (F.2.1 (S.1 x) (S.1 y) h00) (F.2.1 (S.1 y) y h01)))
+          = <i> compose C a (F.1 d.1) (F.1 e.1) (eta (F.1 x)) (F.2.2.2 (S.1 x) (S.1 y) y h00 h01 @ i)
+        p1 : Path (hom C a (F.1 e.1))
+               (compose C a (F.1 d.1) (F.1 e.1) (eta (F.1 x)) (compose C (F.1 (S.1 x)) (F.1 (S.1 y)) (F.1 y) (F.2.1 (S.1 x) (S.1 y) h00) (F.2.1 (S.1 y) y h01)))
+               (compose C a (F.1 (S.1 y)) (F.1 e.1) (compose C a (F.1 (S.1 x)) (F.1 (S.1 y)) (eta (F.1 x)) (F.2.1 (S.1 x) (S.1 y) h00)) (F.2.1 (S.1 y) y h01))
+          = <i> pathC C a (F.1 d.1) (F.1 (S.1 y)) (F.1 y) (eta (F.1 x)) (F.2.1 (S.1 x) (S.1 y) h00) (F.2.1 (S.1 y) y h01) @ -i
+        p2 : Path (hom C a (F.1 e.1))
+               (compose C a (F.1 (S.1 y)) (F.1 e.1) (compose C a (F.1 (S.1 x)) (F.1 (S.1 y)) (eta (F.1 x)) (F.2.1 (S.1 x) (S.1 y) h00)) (F.2.1 (S.1 y) y h01))
+               (compose C a (F.1 (S.1 y)) (F.1 e.1) (compose C (F.1 x) (F.1 y) (F.1 (f.1 (F.1 y))) (F.2.1 x y h) (eta (F.1 y))) (F.2.1 (S.1 y) y h01))
+          = <i> (compose C a (F.1 (S.1 y)) (F.1 e.1) (uHP C D F a (ua a) (f.1 (F.1 y), compose C (F.1 x) (F.1 y) (F.1 (f.1 (F.1 y))) (F.2.1 x y h) (eta (F.1 y))) @ -i) (F.2.1 (S.1 y) y h01))
+        p3 : Path (hom C a (F.1 e.1))
+               (compose C a (F.1 (S.1 y)) (F.1 e.1) (compose C (F.1 x) (F.1 y) (F.1 (f.1 (F.1 y))) (F.2.1 x y h) (eta (F.1 y))) (F.2.1 (S.1 y) y h01))
+               (compose C a (F.1 y) (F.1 e.1) (F.2.1 x y h) (compose C (F.1 y) (F.1 (f.1 (F.1 y))) (F.1 e.1) (eta (F.1 y)) (F.2.1 (S.1 y) y h01)))
+          = pathC C (F.1 x) (F.1 y) (F.1 (f.1 (F.1 y))) (F.1 e.1) (F.2.1 x y h) (eta (F.1 y)) (F.2.1 (S.1 y) y h01)
+        p4 : Path (hom C a (F.1 e.1))
+               (compose C a (F.1 y) (F.1 e.1) (F.2.1 x y h) (compose C (F.1 y) (F.1 (f.1 (F.1 y))) (F.1 e.1) (eta (F.1 y)) (F.2.1 (S.1 y) y h01)))
+               (compose C a (F.1 y) (F.1 e.1) (F.2.1 x y h) (path C (F.1 y)))
+          = <i> compose C a (F.1 y) (F.1 e.1) (F.2.1 x y h) (uHP C D F (F.1 y) (ua (F.1 y)) (y, path C (F.1 y)) @ -i)
+        p5 : Path (hom C a (F.1 e.1))
+               (compose C a (F.1 y) (F.1 e.1) (F.2.1 x y h) (path C (F.1 y)))
+               e.2
+          = pathR C a (F.1 y) (F.2.1 x y h)
+        p : Path (hom C a (F.1 e.1)) e.2 (compose C a (F.1 d.1) (F.1 e.1) (eta (F.1 x)) (F.2.1 d.1 e.1 h0))
+          = <i> comp (<_> hom C a (F.1 e.1)) (p2 @ -i)
+            [ (i = 0) -> <j> comp (<_> hom C a (F.1 e.1)) (p4 @ j)
+              [ (j = 0) -> <k> p3 @ -k
+              , (j = 1) -> p5 ]
+            , (i = 1) -> <j> comp (<_> hom C a (F.1 e.1)) (p1 @ -j)
+              [ (j = 0) -> <_> p1 @ 1
+              , (j = 1) -> <k> p0 @ -k ] ]
+        hom0 : hom (cosliceCat C D a F) d e
+          = (h0, p)
+
+        -- The construction of the second homomorphism, hom1
+        h1 : hom D d.1 e.1
+          = (compose D (S.1 x) x y (uH' C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x))) h)
+        q0 : Path (hom C a (F.1 e.1))
+              (compose C a (F.1 d.1) (F.1 e.1) (eta (F.1 x)) (F.2.1 d.1 e.1 h1))
+              (compose C a (F.1 d.1) (F.1 e.1) (eta (F.1 x)) (compose C (F.1 (S.1 x)) (F.1 x) (F.1 y) (F.2.1 (S.1 x) x (uH' C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x)))) (F.2.1 x y h)))
+          = <i> compose C a (F.1 d.1) (F.1 e.1) (eta (F.1 x)) (F.2.2.2 (S.1 x) x y (uH' C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x))) h @ i)
+        q1 : Path (hom C a (F.1 e.1))
+              (compose C a (F.1 d.1) (F.1 e.1) (eta (F.1 x)) (compose C (F.1 (S.1 x)) (F.1 x) (F.1 y) (F.2.1 (S.1 x) x (uH' C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x)))) (F.2.1 x y h)))
+              (compose C a (F.1 x) (F.1 e.1) (compose C a (F.1 (S.1 x)) (F.1 x) (eta (F.1 x)) (F.2.1 (S.1 x) x (uH' C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x))))) (F.2.1 x y h))
+          = <i> pathC C a (F.1 d.1) (F.1 x) (F.1 e.1) (eta (F.1 x)) (F.2.1 (S.1 x) x (uH' C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x)))) (F.2.1 x y h) @ -i
+        q2 : Path (hom C a (F.1 e.1))
+              (compose C a (F.1 x) (F.1 e.1) (compose C a (F.1 (S.1 x)) (F.1 x) (eta (F.1 x)) (F.2.1 (S.1 x) x (uH' C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x))))) (F.2.1 x y h))
+              (compose C a (F.1 x) (F.1 e.1) (path C (F.1 x)) (F.2.1 x y h))
+          = <i> compose C a (F.1 x) (F.1 e.1) (uHP C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x)) @ -i) (F.2.1 x y h)
+        q3 : Path (hom C a (F.1 e.1))
+              (compose C a (F.1 x) (F.1 e.1) (path C (F.1 x)) (F.2.1 x y h))
+              e.2
+          = pathL C (F.1 x) (F.1 y) (F.2.1 x y h)
+        q : Path (hom C a (F.1 e.1)) e.2 (compose C a (F.1 d.1) (F.1 e.1) (eta (F.1 x)) (F.2.1 d.1 e.1 h1))
+          = <i> comp (<_> hom C a (F.1 e.1)) (q1 @ -i)
+            [ (i = 0) -> <j> comp (<_> hom C a (F.1 e.1)) (q3 @ j)
+              [ (j = 0) -> <k> q2 @ -k
+              , (j = 1) -> <_> e.2 ]
+            , (i = 1) -> <j> q0 @ -j ]
+        hom1 : hom (cosliceCat C D a F) d e
+          = (h1, q)
+
+        -- It follows from universality that hom0 ≡ hom1
+        phom : Path (hom (cosliceCat C D a F) d e) hom0 hom1
+          = <i> comp (<_> hom (cosliceCat C D a F) d e) (uH C D F (F.1 x) (ua (F.1 x)) e).1
+            [ (i = 0) -> (uH C D F (F.1 x) (ua (F.1 x)) e).2 hom0
+            , (i = 1) -> (uH C D F (F.1 x) (ua (F.1 x)) e).2 hom1 ]
+      in <i> (phom @ i).1
+  in (taF, p)
+
+lemma_univarr_adjoint (C D : precategory) (F : catfunctor D C) (ua : (a : carrier C) -> univarr C D a F)
+  : adjoint D C (lemma_univarr_induced_functor C D F ua) F
+  = let
+    f : catfunctor C D
+      = lemma_univarr_induced_functor C D F ua
+    eta (x : carrier C) : hom C x (F.1 (f.1 x))
+      = uEta C D F x (ua x)
+    unit : ntrans C C (idFunctor C) (compFunctor C D C f F)
+      = lemma_univarr_unit C D F ua
+    counit : ntrans D D (compFunctor D C D F f) (idFunctor D)
+      = lemma_univarr_counit C D F ua
+    h0 (x : carrier D) : hom C (F.1 x) (F.1 x)
+      = compose C (F.1 x) (F.1 (f.1 (F.1 x))) (F.1 x)
+          ((ntransL C C (idFunctor C) (compFunctor C D C f F) unit D F).1 x)   -- (eta (F.1 x))
+          ((ntransR D D (compFunctor D C D F f) (idFunctor D) counit C F).1 x) -- (F.2.1 (f.1 (F.1 x)) x (uH' C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x))))
+    p0 (x: carrier D) : Path (hom C (F.1 x) (F.1 x)) (path C (F.1 x)) (h0 x)
+      = uHP C D F (F.1 x) (ua (F.1 x)) (x, path C (F.1 x))
+    h10 (x : carrier C) : hom D (f.1 x) (f.1 (F.1 (f.1 x)))
+      = (uH' C D F x (ua x) (f.1 (F.1 (f.1 x)), compose C x (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (eta x) (eta (F.1 (f.1 x)))))
+    h11 (x : carrier C) : hom D (f.1 (F.1 (f.1 x))) (f.1 x)
+      = (uH' C D F (F.1 (f.1 x)) (ua (F.1 (f.1 x))) ((f.1 x), path C (F.1 (f.1 x))))
+    h1 (x : carrier C) : hom D (f.1 x) (f.1 x)
+      = compose D (f.1 x) (f.1 (F.1 (f.1 x))) (f.1 x) (h10 x) (h11 x)
+    p1 (x: carrier C) : Path (hom D (f.1 x) (f.1 x)) (path D (f.1 x)) (h1 x)
+      = let
+        e : carrier (cosliceCat C D x F)
+          = (f.1 x, eta x)
+        h0 : hom D e.1 e.1
+          = path D e.1
+        hom0 : hom (cosliceCat C D x F) e e
+          = (h0, (path (cosliceCat C D x F) e).2)
+        p0 : Path (hom C x (F.1 (f.1 x)))
+          (compose C x (F.1 (f.1 x)) (F.1 (f.1 x)) (eta x) (F.2.1 (f.1 x) (f.1 x) (h1 x)))
+          (compose C x (F.1 (f.1 x)) (F.1 (f.1 x)) (eta x) (compose C (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x))
+              (F.2.1 (f.1 x) (f.1 (F.1 (f.1 x))) (h10 x)) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x))))
+          = <i> compose C x (F.1 (f.1 x)) (F.1 (f.1 x)) (eta x) (F.2.2.2 (f.1 x) (f.1 (F.1 (f.1 x))) (f.1 x) (h10 x) (h11 x) @ i)
+        p1 : Path (hom C x (F.1 (f.1 x)))
+          (compose C x (F.1 (f.1 x)) (F.1 (f.1 x)) (eta x) (compose C (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x))
+              (F.2.1 (f.1 x) (f.1 (F.1 (f.1 x))) (h10 x)) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x))))
+          (compose C x (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x)) (compose C x (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (eta x)
+              (F.2.1 (f.1 x) (f.1 (F.1 (f.1 x))) (h10 x))) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x)))
+          = <i> pathC C x (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x)) (eta x) (F.2.1 (f.1 x) (f.1 (F.1 (f.1 x))) (h10 x)) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x)) @ -i
+        p2 : Path (hom C x (F.1 (f.1 x)))
+          (compose C x (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x)) (compose C x (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (eta x)
+              (F.2.1 (f.1 x) (f.1 (F.1 (f.1 x))) (h10 x))) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x)))
+          (compose C x (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x)) (compose C x (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (eta x)
+              (eta (F.1 (f.1 x)))) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x)))
+          = <i> compose C x (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x)) (uHP C D F x (ua x) (f.1 (F.1 (f.1 x)), compose C x (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (eta x) (eta (F.1 (f.1 x)))) @ -i) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x))
+        p3 : Path (hom C x (F.1 (f.1 x)))
+          (compose C x (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x)) (compose C x (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (eta x)
+              (eta (F.1 (f.1 x)))) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x)))
+          (compose C x (F.1 (f.1 x)) (F.1 (f.1 x)) (eta x) (compose C (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x))
+              (eta (F.1 (f.1 x))) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x))))
+          = pathC C x (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x)) (eta x) (eta (F.1 (f.1 x))) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x))
+        p4 : Path (hom C x (F.1 (f.1 x)))
+          (compose C x (F.1 (f.1 x)) (F.1 (f.1 x)) (eta x) (compose C (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x))
+              (eta (F.1 (f.1 x))) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x))))
+          (compose C x (F.1 (f.1 x)) (F.1 (f.1 x)) (eta x) (path C (F.1 (f.1 x))))
+          = <i> compose C x (F.1 (f.1 x)) (F.1 (f.1 x)) (eta x) (uHP C D F (F.1 (f.1 x)) (ua (F.1 (f.1 x))) ((f.1 x), path C (F.1 (f.1 x))) @ -i)
+        p5 : Path (hom C x (F.1 (f.1 x)))
+          (compose C x (F.1 (f.1 x)) (F.1 (f.1 x)) (eta x) (path C (F.1 (f.1 x))))
+          (eta x)
+          = pathR C x (F.1 (f.1 x)) (eta x)
+        p : Path (hom C x (F.1 (f.1 x))) (eta x) (compose C x (F.1 (f.1 x)) (F.1 (f.1 x)) (eta x) (F.2.1 (f.1 x) (f.1 x) (h1 x)))
+          = <i> comp (<_> hom C x (F.1 (f.1 x))) (compose C x (F.1 (f.1 (F.1 (f.1 x)))) (F.1 (f.1 x)) (compose C x (F.1 (f.1 x)) (F.1 (f.1 (F.1 (f.1 x)))) (eta x)
+                  (eta (F.1 (f.1 x)))) (F.2.1 (f.1 (F.1 (f.1 x))) (f.1 x) (h11 x)))
+            [ (i = 0) -> <j> comp (<_> hom C x (F.1 (f.1 x))) (p4 @ j)
+              [ (j = 0) -> <k> p3 @ -k
+              , (j = 1) -> p5 ]
+            , (i = 1) -> <j> comp (<_> hom C x (F.1 (f.1 x))) (p1 @ -j)
+              [ (j = 0) -> p2
+              , (j = 1) -> <k> p0 @ -k ]]
+        hom1 : hom (cosliceCat C D x F) e e
+          = (h1 x, p)
+        phom : Path (hom (cosliceCat C D x F) e e) hom0 hom1
+          = <i> comp (<_> hom (cosliceCat C D x F) e e) (uH C D F x (ua x) e).1
+            [ (i = 0) -> (uH C D F x (ua x) e).2 hom0
+            , (i = 1) -> (uH C D F x (ua x) e).2 hom1 ]
+      in <i> (phom @ i).1
+  in (unit, counit, p0, p1)

@@ -1,0 +1,52 @@
+module logic where
+
+-- https://github.com/jonaprieto/agda-prop
+-- Cai, L., Kaposi, A., & Altenkirch, T. (2015)
+-- Formalising the Completeness Theorem of Classical Propositional Logic in Agda.
+-- Retrieved from https://akaposi.github.io/proplogic.pdf
+
+-- data PropFormula : Set where
+--   Var              : Fin n → PropFormula
+--   ⊤                : PropFormula
+--   ⊥                : PropFormula
+--   _∧_ _∨_ _⊃_ _⇔_  : (φ ψ : PropFormula) → PropFormula
+--   ¬_               : (φ : PropFormula)   → PropFormula
+
+-- _,_ : Ctxt → PropFormula → Ctxt
+-- Γ , φ = Γ ++ [ φ ]
+
+-- ∅ : Ctxt
+-- ∅ = []
+
+-- infix 30 _⨆_
+-- _⨆_ : Ctxt → Ctxt → Ctxt
+-- Γ ⨆ Δ = Γ ++ Δ
+
+-- Ctxt : Set
+-- Ctxt = List PropFormula
+
+-- infix  11 ¬_
+-- infixl 8 _∧_ _∨_
+-- infixr 7 _⊃_ _⇔_
+
+-- data _⊢_ : Ctxt → PropFormula → Set where
+--   assume   : ∀ {Γ} → (φ : PropFormula)      → Γ , φ ⊢ φ
+--   axiom    : ∀ {Γ} → (φ : PropFormula)      → φ ∈ Γ → Γ ⊢ φ
+--   weaken   : ∀ {Γ} {φ} → (ψ : PropFormula)  → Γ ⊢ φ → Γ , ψ ⊢ φ
+--   weaken₂  : ∀ {Γ} {φ} → (ψ : PropFormula)  → Γ ⊢ φ → ψ ∷ Γ ⊢ φ
+--   ⊤-intro  : ∀ {Γ}                          → Γ ⊢ ⊤
+--   ⊥-elim   : ∀ {Γ} → (φ : PropFormula)      → Γ ⊢ ⊥ → Γ ⊢ φ
+--   ¬-intro  : ∀ {Γ} {φ}                      → Γ , φ ⊢ ⊥ → Γ ⊢ ¬ φ
+--   ¬-elim   : ∀ {Γ} {φ}                      → Γ ⊢ ¬ φ → Γ ⊢ φ → Γ ⊢ ⊥
+--   ∧-intro  : ∀ {Γ} {φ ψ}                    → Γ ⊢ φ → Γ ⊢ ψ → Γ ⊢ φ ∧ ψ
+--   ∧-proj₁  : ∀ {Γ} {φ ψ}                    → Γ ⊢ φ ∧ ψ → Γ ⊢ φ
+--   ∧-proj₂  : ∀ {Γ} {φ ψ}                    → Γ ⊢ φ ∧ ψ → Γ ⊢ ψ
+--   ∨-intro₁ : ∀ {Γ} {φ} → (ψ : PropFormula)  → Γ ⊢ φ → Γ ⊢ φ ∨ ψ
+--   ∨-intro₂ : ∀ {Γ} {ψ} → (φ : PropFormula)  → Γ ⊢ ψ → Γ ⊢ φ ∨ ψ
+--   ∨-elim   : ∀ {Γ} {φ ψ χ}                  → Γ , φ ⊢ χ → Γ , ψ ⊢ χ → Γ , φ ∨ ψ ⊢ χ
+--   ⊃-intro  : ∀ {Γ} {φ ψ}                    → Γ , φ ⊢ ψ → Γ ⊢ φ ⊃ ψ
+--   ⊃-elim   : ∀ {Γ} {φ ψ}                    → Γ ⊢ φ ⊃ ψ → Γ ⊢ φ → Γ ⊢ ψ
+--   ⇔-intro  : ∀ {Γ} {φ ψ}                    → Γ , φ ⊢ ψ → Γ , ψ ⊢ φ → Γ ⊢ φ ⇔ ψ
+--   ⇔-elim₁  : ∀ {Γ} {φ ψ}                    → Γ ⊢ φ → Γ ⊢ φ ⇔ ψ → Γ ⊢ ψ
+--   ⇔-elim₂  : ∀ {Γ} {φ ψ}                    → Γ ⊢ ψ → Γ ⊢ φ ⇔ ψ → Γ ⊢ φ
+

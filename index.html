@@ -223,6 +223,23 @@ def is-homogeneous (A : U)
            R-HoTT — Rezk Infinity Categories<br>
            Hopf-HoTT — Hopf Fibrations, Stable Spherical Homotopy Groups<br>
         </p>
+        <figure><code>
+def ∆−mobius : Simplex
+ := simplex 2 [a b c] {
+        simplex 1 [b c] { simplex 0 [c] { }, simplex 0 [b] { } | bc },
+        simplex 1 [a c] { simplex 0 [c] { }, simplex 0 [a] { } | ac },
+        simplex 1 [a b] { simplex 0 [b] { }, simplex 0 [a] { } | twist } | coh
+    } where {
+        a : Simplex
+        b : Simplex
+        c : Simplex
+        bc : PathP (λ i → Simplex) b c
+        ac : PathP (λ i → Simplex) a c
+        twist : PathP (λ i → Simplex) a b
+        coh : PathP (λ i → PathP (λ j → Simplex) (bc i) (ac i)) twist
+    }
+         </code></figure>
+
     </section>
     <section>
         <a name=Urs></a>

@@ -8,7 +8,7 @@ AXIO/1
 Monography
 ----------
 
-Compilation: https://groupoid.github.io/monography/monography.pdf
+Compilation: https://axiosis.github.io/books/axio/axio.pdf
 
 ```
 $ cp *.ttf ~/.local/share/fonts

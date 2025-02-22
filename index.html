@@ -215,32 +215,43 @@ def is-homogeneous (A : U)
 
     </section>
     <section>
-        <a name=Hopf></a>
-        <h3><a href="https://github.com/groupoid/hopf">Hopf</a></h3>
-        <p><b style="sel">Hopf</b> is a simplicial CCHM-based verification system with Hopf fibrations built into the type checker core.
+        <a name=Daniel></a>
+        <h3><a href="https://github.com/groupoid/dan">Dan</a></h3>
+        <p><b style="sel">Dan</b> is a simplicial CCHM-based verification system with
+           Simplicial, Simplex, Chain, Monoid, Category, Group primitives built into the type checker core.
         </p>
         <p>
            R-HoTT — Rezk Infinity Categories<br>
            Hopf-HoTT — Hopf Fibrations, Stable Spherical Homotopy Groups<br>
         </p>
         <figure><code>
-def ∆−mobius : Simplex
- := simplex 2 [a b c] {
-        simplex 1 [b c] { simplex 0 [c] { }, simplex 0 [b] { } | bc },
-        simplex 1 [a c] { simplex 0 [c] { }, simplex 0 [a] { } | ac },
-        simplex 1 [a b] { simplex 0 [b] { }, simplex 0 [a] { } | twist } | coh
-    } where {
-        a : Simplex
-        b : Simplex
-        c : Simplex
-        bc : PathP (λ i → Simplex) b c
-        ac : PathP (λ i → Simplex) a c
-        twist : PathP (λ i → Simplex) a b
-        coh : PathP (λ i → PathP (λ j → Simplex) (bc i) (ac i)) twist
-    }
+def path_z2_category : Category
+ := П (x y : Simplex),
+      (f g h : Simplex),
+      (z2 : Group(П (e a : Simplex), a² = e ⊢ 1 (a | a² = e))),
+      f ∘ g = h
+    ⊢ 2 (x y | f g h | f ∘ g = h)
+
+def z3 : Group
+ := П (e a : Simplex),
+      a³ = e
+    ⊢ 1 (a | a³ = e)
+
+def Möbius : Simplex
+ := П (a b c : Simplex),
+      (bc ac : Simplex), ab = bc ∘ ac
+    ⊢ 2 (a b c | bc ac ab)
          </code></figure>
 
     </section>
+    <section>
+        <a name=Elie></a>
+        <h3><a href="https://github.com/groupoid/elie">Elie</a></h3>
+        <p><b style="sel">Elie</b> is a CCHM-based verification system with Hop Primitives  primitives built into the type checker core.
+        </p>
+        <p>
+           Hopf-HoTT — Hopf Fibrations, Stable Spherical Homotopy Groups<br>
+        </p>
     <section>
         <a name=Urs></a>
         <h3><a href="https://github.com/groupoid/urs">Urs</a></h3>

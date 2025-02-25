@@ -92,9 +92,9 @@
 <h2>3. Components (ཆ་ཤས cha shas)</h2>
 
 <h3>Condition (C) རྐྱེན Умова rkyen</h3>
-<pre>
+<code>
     C = (A, D, T, P, X)
-</pre>
+</code>
 <ul>
     <li><strong>Axioms (A)</strong>: Fundamental truths.</li>
     <li><strong>Definitions (D)</strong>: Precise descriptions of entities.</li>
@@ -103,9 +103,9 @@
 </ul>
 
 <h3>Environment (E) ཁོར་ཡུག Середовище khor yug </h3>
-<pre>
+<code>
     E = (M, C, K, L)
-</pre>
+</code>
 <ul>
     <li><strong>Model (M)</strong>: Formal representation of the system.</li>
     <li><strong>Consistency (C)</strong>: No contradictions within the system.</li>
@@ -114,9 +114,9 @@
 </ul>
 
 <h3>Reason (T) རྒྱུ Причина rgyu </h3>
-<pre>
+<code>
     T = (J, H, C, D, G)
-</pre>
+</code>
 <ul>
     <li><strong>Judgment (J)</strong>: Logical assertions.</li>
     <li><strong>Hypotheses (H)</strong>: Presupposition, Assumption, Supposition, Proposition.</li>
@@ -126,18 +126,18 @@
 </ul>
 
 <h3>Fruit (F) འབྲས་བུ Плід 'bras bu</h3>
-<pre>
+<code>
     F = (⊢,Θ)
-</pre>
+</code>
 <ul>
     <li><strong>Proof</strong> ⊢ Verified propositions.</li>
     <li><strong>Theorem</strong> Θ Established truths.</li>
 </ul>
 
 <h3>Insight (I) ལྟ་བའི་ཤེས་པ lta ba'i shes pa</h3>
-<pre>
+<code>
     I = (S, C, A)
-</pre>
+</code>
 <ul>
     <li><strong>Semantics</strong> Σ: Meaning assignment.</li>
     <li><strong>Categorical Frameworks </strong> C: High-level abstractions..</li>
@@ -161,9 +161,9 @@
 </ul>
 
 <p>The cycle repeats indefinitely, refining knowledge.</p>
-<pre>
+<code>
     S₀ → S₁ → S₂ → ... → Sₙ → Sₙ₊₁ → ...
-</pre>
+</code>
 <p>Where:</p>
 <ul>
     <li><code>Sₙ</code> is a finite reasoning step.</li>
@@ -196,11 +196,11 @@
             [3] — Verified LISP Interpreter<br>
             [4] — Kind<br>
          </p>
-        <figure><code>
+        <figure><pre>
 fun a (0, n) = n + 1
   | a (m, 0) = a (m - 1, 1)
   | a (m, n) = a (m - 1, a (m, n - 1))
-        </code></figure>
+        </pre></figure>
     </section>
     <section>
         <a name=Bob></a>
@@ -210,7 +210,7 @@ fun a (0, n) = n + 1
          <P>[5] — Kernel<br>
             [6] — Pony<br>
             [7] — Erlang<br></p>
-        <figure><code>
+        <figure><pre>
 fun proc =
 let val p0 = pub(0,8)
     val s1 = sub(0,p0)
@@ -223,7 +223,7 @@ let val p0 = pub(0,8)
       receive(s2)
     ]
     end
-        </code></figure>
+        </pre></figure>
     </section>
     <section>
         <a name=Alice></a>
@@ -231,7 +231,7 @@ let val p0 = pub(0,8)
          <p><b style="sel">Alice</b> is a linear types calculus
             with partial fractions [6] for BLAS level 3 programming.</p>
          <P>[8] — NumLin<br> </p>
-   <figure><code>
+   <figure><pre>
 fun simpleConvolution (i n: int) (x0: float) (write w: vector float)
   : vector float
   = begin
@@ -241,7 +241,7 @@ fun simpleConvolution (i n: int) (x0: float) (write w: vector float)
       write.set(i, Dotp(a,b)),
       simpleConvolution((i + 1),n,x1,write,w)
     end
-     </code></figure>
+     </pre></figure>
     </section>
     <section>
         <hr>
@@ -262,14 +262,14 @@ fun simpleConvolution (i n: int) (x0: float) (write w: vector float)
            PTS-91 — Pure Type System (Π)<br>
         </p>
 
-        <figure><code>
+        <figure><pre>
 def N := Π (A : U), (A → A) → A → A
 def zero : N := λ (A : U) (S : A → A) (Z : A), Z
 def succ : N -> N := λ (n : N) (A : U) (S : A → A) (Z : A), S (n A S Z)
 def plus (m n : N) : N := λ (A : U) (S : A → A) (Z : A), m A S (n A S Z)
 def mult (m n : N) : N := λ (A : U) (S : A → A) (Z : A), m A (n A S) Z
 def pow (m n : N) : N := λ (A : U) (S : A → A) (Z : A), n (A → A) (m A) S Z
-        </code></figure>
+        </pre></figure>
 
     </section>
     <section>
@@ -286,7 +286,7 @@ def pow (m n : N) : N := λ (A : U) (S : A → A) (Z : A), n (A → A) (m A) S Z
            PP-89 — Inductively Defined Types<br>
            CIC-2015 — Calculus of Inductive Constructiions<br>
         </p>
-        <figure><code>
+        <figure><pre>
 def empty      : U := inductive { }
 def L¹ (A : U) : U := inductive { nil | cons (head: A) (tail: L¹ A) }
 def S¹         : U := inductive { base | loop : Equ S¹ base base }
@@ -296,7 +296,7 @@ def quot (A: U) (R : A -> A -> U) : U
               | identification (a b: A) (r: R a b)
               : Equ (quot A R) (quotient a) (quotient b)
               }
-        </code></figure>
+        </pre></figure>
     </section>
     <section>
         <a name=Anders></a>
@@ -311,7 +311,7 @@ def quot (A: U) (R : A -> A -> U) : U
            CHM-2017 — Huber Equations<br>
            VMA-2017 — Cubical Agda<br>
         </p>
-        <figure><code>
+        <figure><pre>
 def idfun  (A : U) : A → A := λ (a : A), a
 def idfun′ (A : U) : A → A := transp (&lt;i> A) 0
 def idfun″ (A : U) : A → A := λ (a : A), hcomp A 0 (λ (i : I), []) a
@@ -331,7 +331,7 @@ def T∞-map (X Y : U) (f : X → Y) (τ : T∞ X) : T∞ Y
 def is-homogeneous (A : U)
  := Σ (e : A) (t : A → equiv A A),
     Π (x : A), Path A ((t x).1 e) x
-         </code></figure>
+         </pre></figure>
 
     </section>
     <section>
@@ -345,7 +345,7 @@ def is-homogeneous (A : U)
            R-HoTT — Rezk Infinity Categories<br>
            Hopf-HoTT — Hopf Fibrations, Stable Spherical Homotopy Groups<br>
         </p>
-        <figure><code>
+        <figure><pre>
 def path_z2_category : Category
  := П (x y : Simplex),
       (f g h : Simplex),
@@ -362,7 +362,7 @@ def Möbius : Simplex
  := П (a b c : Simplex),
       (bc ac : Simplex), ab = bc ∘ ac
     ⊢ 2 (a b c | bc ac ab)
-         </code></figure>
+         </pre></figure>
 
     </section>
     <section>
@@ -385,7 +385,6 @@ def Möbius : Simplex
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.querySelector(".canvas-container").appendChild(renderer.domElement);
 
-        // Create Starfield
         const starGeometry = new THREE.BufferGeometry();
         const starCount = 1500;
         const starVertices = [];
@@ -401,18 +400,14 @@ def Möbius : Simplex
         const starMaterial = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 2 });
         const stars = new THREE.Points(starGeometry, starMaterial);
         scene.add(stars);
-
-        // Camera Position (Static)
         camera.position.z = 300;
 
-        // Animation Loop
         function animate() {
             requestAnimationFrame(animate);
-            stars.rotation.y += 0.0005; // Slight rotation
+            stars.rotation.y += 0.001;
             renderer.render(scene, camera);
         }
 
-        // Handle Resize
         function onResize() {
             renderer.setSize(window.innerWidth, window.innerHeight);
             camera.aspect = window.innerWidth / window.innerHeight;

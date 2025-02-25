@@ -24,7 +24,10 @@ for formal reasoning, where an operator (a human thinker, AI, or hybrid) drives 
 
 * Starting Points (Axioms, Definitions, Types, Propositions, Syntax).
 * Environment (Model, Consistency, Completeness, Library).
-* Thinking (Hypotheses (Presupposition, Assumption, Supposition), Computation (Lambda Calculus, Pi-Calculus), Deduction (Inference, General Induction), Conjecture/Assertion).
+* Thinking (Hypotheses (Presupposition, Assumption, Supposition),
+            Computation (Lambda Calculus, Pi-Calculus),
+            Deduction (Inference, General Induction),
+            Conjecture/Assertion).
 * Conclusions (Proof, Judgement, Theorem).
 * Insight (Semantics, Categorical Frameworks, Abstraction).
 

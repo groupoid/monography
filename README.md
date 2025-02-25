@@ -35,7 +35,7 @@
 
 <h2>3. Components</h2>
 
-<h3>Conditions (C)</h3>
+<h3>Condition (C)</h3>
 <pre>
     C = (A, D, T, P, X)
 </pre>
@@ -57,7 +57,7 @@
     <li><strong>Library (L)</strong>: Repository of known results.</li>
 </ul>
 
-<h3>Thinking (T)</h3>
+<h3>Reason (T)</h3>
 <pre>
     T = (J, H, C, D, G)
 </pre>

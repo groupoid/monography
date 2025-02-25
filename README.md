@@ -39,7 +39,7 @@
 
 <h2>3. Components (ཆ་ཤས cha shas)</h2>
 
-<h3>Condition (C)</h3>
+<h3>Condition (C) རྐྱེན Умова rkyen</h3>
 <pre>
     C = (A, D, T, P, X)
 </pre>
@@ -50,7 +50,7 @@
     <li><strong>Syntax (X)</strong>: Structural rules.</li>
 </ul>
 
-<h3>Environment (E)</h3>
+<h3>Environment (E) ཁོར་ཡུག Середовище khor yug </h3>
 <pre>
     E = (M, C, K, L)
 </pre>
@@ -61,7 +61,7 @@
     <li><strong>Library (L)</strong>: Repository of known results.</li>
 </ul>
 
-<h3>Reason (T)</h3>
+<h3>Reason (T) རྒྱུ Причина rgyu </h3>
 <pre>
     T = (J, H, C, D, G)
 </pre>
@@ -73,7 +73,7 @@
     <li><strong>Conjecture/Assertion (G)</strong>: Formulation of potential truths.</li>
 </ul>
 
-<h3>Fruit (F)</h3>
+<h3>Fruit (F) འབྲས་བུ Плід 'bras bu</h3>
 <pre>
     F = (⊢,Θ)
 </pre>
@@ -82,7 +82,7 @@
     <li><strong>Theorem</strong> Θ Established truths.</li>
 </ul>
 
-<h3>Insight (I)</h3>
+<h3>Insight (I) ལྟ་བའི་ཤེས་པ lta ba'i shes pa</h3>
 <pre>
     I = (S, C, A)
 </pre>

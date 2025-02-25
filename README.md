@@ -1,6 +1,11 @@
 <H1>AXIO/1</h1>
 <p>Artificial Experienced Intelligent Ontology v10.0 (2025)</p>
 
+<ul>
+  <li>Українською: Штучна Досвідчена Інтелектуальна Онтологія</li>
+  <li>Тибетською: བཟོ་བཀོད་ཀྱི་ཉམས་ཡོད་པའི་རིག་པའི་ངོ་བོ་ལུགས། (bzo bkod kyi nyams yod pa'i rig pa'i ngo bo lugs)</li>
+</ul>
+
 <h2>Table of Contents</h2>
 <ul>
     <li>Introduction</li>

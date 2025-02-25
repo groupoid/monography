@@ -197,3 +197,6 @@ $ fc-match Geometria
 $ make
 ```
 
+## Copyright
+
+Namdak Tonpa

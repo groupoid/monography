@@ -20,6 +20,14 @@ AXIO/1 Framework is a layered system for infinite reasoning, split into Runtime 
 and Higher Languages (for theorem proving), each with specialized roles. This is a cyclic, iterative system
 for formal reasoning, where an operator (a human thinker, AI, or hybrid) drives a process that:
 
+## Components
+
+* Starting Points (Axioms, Definitions, Types, Propositions, Syntax).
+* Environment (Model, Consistency, Completeness, Library).
+* Thinking (Hypotheses (Presupposition, Assumption, Supposition), Computation (Lambda Calculus, Pi-Calculus), Deduction (Inference, General Induction), Conjecture/Assertion).
+* Conclusions (Proof, Judgement, Theorem).
+* Insight (Semantics, Categorical Frameworks, Abstraction).
+
 ## Process
 
 * Begins with foundational elements (Starting Points).
@@ -32,14 +40,6 @@ for formal reasoning, where an operator (a human thinker, AI, or hybrid) drives 
 Starting Points → Environment → Thinking → Conclusions → Insight → Cycle back — feels organic.
 It’s like a scientific method for formal thought: set rules, test them, reason, conclude, learn, repeat.
 Concurrency could mean multiple threads (human or machine) tackling different conjectures, syncing via the library.
-
-## Components
-
-* Starting Points (Axioms, Definitions, Types, Propositions, Syntax).
-* Environment (Model, Consistency, Completeness, Library).
-* Thinking (Hypotheses (Presupposition, Assumption, Supposition), Computation (Lambda Calculus, Pi-Calculus), Deduction (Inference, General Induction), Conjecture/Assertion).
-* Conclusions (Proof, Judgement, Theorem).
-* Insight (Semantics, Categorical Frameworks, Abstraction).
 
 ## Operators
 

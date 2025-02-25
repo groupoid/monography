@@ -6,7 +6,7 @@
   <li>Тибетською: བཟོ་བཀོད་ཀྱི་ཉམས་ཡོད་པའི་རིག་པའི་ངོ་བོ་ལུགས། (bzo bkod kyi nyams yod pa'i rig pa'i ngo bo lugs)</li>
 </ul>
 
-<h2>Table of Contents</h2>
+<h2>Table of Contents (དཀར་ཆག dkar chag)</h2>
 <ul>
     <li>Introduction</li>
     <li>Process</li>
@@ -18,7 +18,7 @@
     <li>Higher Languages</li>
 </ul>
 
-<h2>1. Introduction</h2>
+<h2>1. Introduction (ངོ་སྤྲོད ngo sprod)</h2>
 <p>The <strong>AXIO/1 Framework</strong> is a layered system for <strong>infinite reasoning</strong>, structured into:</p>
 <ul>
     <li><strong>Runtime Languages</strong>: Execute computations and manage concurrency.</li>
@@ -27,7 +27,7 @@
 <p>This framework operates as a <strong>cyclic, iterative system</strong> for formal reasoning,
    where an <strong>operator</strong> (human, AI, or hybrid) directs a process that continuously refines itself.</p>
 
-<h2>2. Process</h2>
+<h2>2. Process (ལས་ཀ las ka)</h2>
 <p>AXIO/1 follows a structured flow:</p>
 <ol>
     <li><strong>Conditions</strong>: Foundational elements (Axioms, Definitions, Types, Propositions, Syntax).</li>
@@ -37,8 +37,7 @@
     <li><strong>Insight</strong>: Higher-level understanding (Semantics, Categorical Frameworks, Abstraction).</li>
 </ol>
 
-
-<h2>3. Components</h2>
+<h2>3. Components (ཆ་ཤས cha shas)</h2>
 
 <h3>Condition (C)</h3>
 <pre>
@@ -93,7 +92,7 @@
     <li><strong>Abstraction</strong> A: Generalization of concepts.</li>
 </ul>
 
-<h2>3. Operators</h2>
+<h2>3. Operators (བཀོལ་སྤྱོད་པ bkol spyod pa) </h2>
 <p>Three types of operators drive the system:</p>
 <ul>
     <li><strong>Human</strong>: Chooses propositions, interprets insights, and guides conjectures.</li>
@@ -101,7 +100,7 @@
     <li><strong>Hybrid</strong>: Human sets goals, machine executes reasoning steps.</li>
 </ul>
 
-<h2>4. Refinements</h2>
+<h2>4. Refinements (ལེགས་བཅོས legs bcos) </h2>
 <p>Ensuring correctness and progression:</p>
 <ul>
     <li><strong>Infinite Thinking</strong>: Achieved via iteration <code>Sₙ → ∞</code>.</li>
@@ -120,7 +119,7 @@
     <li><strong>Limit process</strong>: <code>lim (n → ∞) Sₙ</code> represents <strong>infinite reasoning</strong>.</li>
 </ul>
 
-<h2>5. Design Goals</h2>
+<h2>5. Design Goals (དམིགས་ཡུལ dmigs yul)</h2>
 <ul>
     <li><strong>Runtime Languages</strong>: Handle computation and concurrency.</li>
     <li><strong>Higher Languages</strong>: Ensure theorem proving and soundness.</li>
@@ -128,7 +127,7 @@
     <li><strong>Operator-Driven</strong>: Collaboration between humans and machines.</li>
 </ul>
 
-## Runtime Languages
+## Runtime Languages (ལག་ལེན་གྱི་སྐད lag len gyi skad)
 
 ### Joe
 
@@ -151,7 +150,7 @@ Features: Ensures resource safety (linear types), optimizes matrix computations 
 Fit: Handles complex (e.g., matrix-based proofs), enforces no redundant copies.
 Use Case: Operator proves theorems involving linear algebra or tensor structures.
 
-## Higher Languages
+## Higher Languages (མཐོ་རིམ་གྱི་སྐད mtho rim gyi skad)
 
 ### Henk
 

@@ -31,10 +31,14 @@ data H₁ : Set where
   twist₁ : (b : S²) (f : S¹) → h₁ b f ≡ h₁ b f
   twist₁-coh : (b : S²) → twist₁ b base ≡ λ j → h₁ b (loop j)
 
+loop3-path : (i j : I) → S³
+loop3-path i j = loop3 i j j
+
 -- H₂: Complex Hopf fibration total space (S⁷)
 data H₂ : Set where
   h₂ : S⁴ → S³ → H₂
   twist₂ : (b : S⁴) (f : S³) → h₂ b f ≡ h₂ b f
+  twist₂-coh : (b : S⁴) → Square (twist₂ b base) (twist₂ b base) refl (λ j → h₂ b (loop3-path i1 j))
 
 -- Projection
 π₁ : H₁ → S²
@@ -46,6 +50,7 @@ data H₂ : Set where
 π₂ : H₂ → S⁴
 π₂ (h₂ b f) = b
 π₂ (twist₂ b f i) = b
+π₂ (twist₂-coh b i j) = b
 
 -- Hopf path in H₁
 hopf-path : h₁ base base ≡ h₁ base base
@@ -62,3 +67,4 @@ hopf-path-2 = twist₂ base base
 -- Element of π₂(S²) using S²’s surf
 π₂-s₂-elem : PathP (λ i → base ≡ base) refl refl
 π₂-s₂-elem = surf
+

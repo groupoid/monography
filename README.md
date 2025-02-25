@@ -1,6 +1,8 @@
 AXIO/1
 ======
 
+Version 10.0 (2025).
+
 ## TOC
 
 * Intro
@@ -14,7 +16,7 @@ AXIO/1
 
 ## Intro
 
-AXIO Framework is a layered system for infinite reasoning, split into Runtime Languages (for execution)
+AXIO/1 Framework is a layered system for infinite reasoning, split into Runtime Languages (for execution)
 and Higher Languages (for theorem proving), each with specialized roles. This is a cyclic, iterative system
 for formal reasoning, where an operator (a human thinker, AI, or hybrid) drives a process that:
 

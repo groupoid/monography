@@ -2,3 +2,4 @@
 *.css linguist-detectable=false
 *.html linguist-detectable=false
 *.sh linguist-detectable=false
+*.pug linguist-detectable=false

@@ -1,69 +1,133 @@
-AXIO/1
-======
+<H1>AXIO/1</h1>
+<p>Artificial Experienced Intelligent Ontology v10.0 (2025)</p>
 
-Artificial Experienced Intelligence Ontology Version 10.0 (2025).
+<ul>
+  <li>Українською: Штучна Досвідчена Інтелектуальна Онтологія</li>
+  <li>Тибетською: བཟོ་བཀོད་ཀྱི་ཉམས་ཡོད་པའི་རིག་པའི་ངོ་བོ་ལུགས། (bzo bkod kyi nyams yod pa'i rig pa'i ngo bo lugs)</li>
+</ul>
 
-## TOC
+<h2>Table of Contents (དཀར་ཆག dkar chag)</h2>
+<ul>
+    <li>Introduction</li>
+    <li>Process</li>
+    <li>Components</li>
+    <li>Operators</li>
+    <li>Refinments</li>
+    <li>Goals</li>
+    <li>Runtime Languages</li>
+    <li>Higher Languages</li>
+</ul>
 
-* Intro
-* Process
-* Components
-* Operators
-* Refinement Check
-* Design Goals
-* Runtime Lamguages
-* Higher Languages
+<h2>1. Introduction (ངོ་སྤྲོད ngo sprod)</h2>
+<p>The <strong>AXIO/1 Framework</strong> is a layered system for <strong>infinite reasoning</strong>, structured into:</p>
+<ul>
+    <li><strong>Runtime Languages</strong>: Execute computations and manage concurrency.</li>
+    <li><strong>Higher Languages</strong>: Handle theorem proving and formal verification.</li>
+</ul>
+<p>This framework operates as a <strong>cyclic, iterative system</strong> for formal reasoning,
+   where an <strong>operator</strong> (human, AI, or hybrid) directs a process that continuously refines itself.</p>
 
-## Intro
+<h2>2. Process (ལས་ཀ las ka)</h2>
+<p>AXIO/1 follows a structured flow:</p>
+<ol>
+    <li><strong>Conditions</strong>: Foundational elements (Axioms, Definitions, Types, Propositions, Syntax).</li>
+    <li><strong>Environment</strong>: The structured setting (Model, Consistency, Completeness, Library).</li>
+    <li><strong>Thinking</strong>: Reasoning mechanisms (Hypotheses, Computation, Deduction, Conjecture, Inference Rules, General Induction).</li>
+    <li><strong>Fruit</strong>: Logical results (Proof, Judgment, Theorem).</li>
+    <li><strong>Insight</strong>: Higher-level understanding (Semantics, Categorical Frameworks, Abstraction).</li>
+</ol>
 
-AXIO/1 Framework is a layered system for infinite reasoning, split into Runtime Languages (for execution)
-and Higher Languages (for theorem proving), each with specialized roles. This is a cyclic, iterative system
-for formal reasoning, where an operator (a human thinker, AI, or hybrid) drives a process that:
+<h2>3. Components (ཆ་ཤས cha shas)</h2>
 
-## Components
+<h3>Condition (C) རྐྱེན Умова rkyen</h3>
+<pre>
+    C = (A, D, T, P, X)
+</pre>
+<ul>
+    <li><strong>Axioms (A)</strong>: Fundamental truths.</li>
+    <li><strong>Definitions (D)</strong>: Precise descriptions of entities.</li>
+    <li><strong>Types (T)</strong>: Categorization of objects.</li>
+    <li><strong>Syntax (X)</strong>: Structural rules.</li>
+</ul>
 
-* Starting Points (Axioms, Definitions, Types, Propositions, Syntax).
-* Environment (Model, Consistency, Completeness, Library).
-* Thinking (Hypotheses (Presupposition, Assumption, Supposition),
-            Computation (Lambda Calculus, Pi-Calculus),
-            Deduction (Inference, General Induction),
-            Conjecture/Assertion).
-* Conclusions (Proof, Judgement, Theorem).
-* Insight (Semantics, Categorical Frameworks, Abstraction).
+<h3>Environment (E) ཁོར་ཡུག Середовище khor yug </h3>
+<pre>
+    E = (M, C, K, L)
+</pre>
+<ul>
+    <li><strong>Model (M)</strong>: Formal representation of the system.</li>
+    <li><strong>Consistency (C)</strong>: No contradictions within the system.</li>
+    <li><strong>Completeness (K)</strong>: The extent to which all truths can be derived.</li>
+    <li><strong>Library (L)</strong>: Repository of known results.</li>
+</ul>
 
-## Process
+<h3>Reason (T) རྒྱུ Причина rgyu </h3>
+<pre>
+    T = (J, H, C, D, G)
+</pre>
+<ul>
+    <li><strong>Judgment (J)</strong>: Logical assertions.</li>
+    <li><strong>Hypotheses (H)</strong>: Presupposition, Assumption, Supposition, Proposition.</li>
+    <li><strong>Computation (C)</strong>: Lambda Calculus, Pi-Calculus.</li>
+    <li><strong>Deduction (D)</strong>: Inference Rules, General Induction.</li>
+    <li><strong>Conjecture/Assertion (G)</strong>: Formulation of potential truths.</li>
+</ul>
 
-* Begins with foundational elements (Starting Points).
-* Operates within a structured setting (Environment).
-* Engages in reasoning (Thinking).
-* Produces results (Conclusions).
-* Gains understanding (Insight).
-* Loops back to refine and expand, infinitely.
+<h3>Fruit (F) འབྲས་བུ Плід 'bras bu</h3>
+<pre>
+    F = (⊢,Θ)
+</pre>
+<ul>
+    <li><strong>Proof</strong> ⊢ Verified propositions.</li>
+    <li><strong>Theorem</strong> Θ Established truths.</li>
+</ul>
 
-Starting Points → Environment → Thinking → Conclusions → Insight → Cycle back — feels organic.
-It’s like a scientific method for formal thought: set rules, test them, reason, conclude, learn, repeat.
-Concurrency could mean multiple threads (human or machine) tackling different conjectures, syncing via the library.
+<h3>Insight (I) ལྟ་བའི་ཤེས་པ lta ba'i shes pa</h3>
+<pre>
+    I = (S, C, A)
+</pre>
+<ul>
+    <li><strong>Semantics</strong> Σ: Meaning assignment.</li>
+    <li><strong>Categorical Frameworks </strong> C: High-level abstractions..</li>
+    <li><strong>Abstraction</strong> A: Generalization of concepts.</li>
+</ul>
 
-## Operators
+<h2>3. Operators (བཀོལ་སྤྱོད་པ bkol spyod pa) </h2>
+<p>Three types of operators drive the system:</p>
+<ul>
+    <li><strong>Human</strong>: Chooses propositions, interprets insights, and guides conjectures.</li>
+    <li><strong>Machine</strong>: Automates computations, checks consistency, and suggests hypotheses.</li>
+    <li><strong>Hybrid</strong>: Human sets goals, machine executes reasoning steps.</li>
+</ul>
 
-Human: Chooses propositions, interprets insights, guides conjectures.
-Machine: Automates computation (e.g., Lambda for functions), checks consistency, suggests hypotheses from patterns in Library.
-Hybrid: Human sets goals, machine crunches steps.
+<h2>4. Refinements (ལེགས་བཅོས legs bcos) </h2>
+<p>Ensuring correctness and progression:</p>
+<ul>
+    <li><strong>Infinite Thinking</strong>: Achieved via iteration <code>Sₙ → ∞</code>.</li>
+    <li><strong>Finite Steps</strong>: Each step is discrete, <code>Sₙ → Sₙ₊₁</code>.</li>
+    <li><strong>Operator-Driven</strong>: The direction of reasoning is controlled by <code>O</code>.</li>
+</ul>
 
-## Refinement Check
+<p>The cycle repeats indefinitely, refining knowledge.</p>
+<pre>
+    S₀ → S₁ → S₂ → ... → Sₙ → Sₙ₊₁ → ...
+</pre>
+<p>Where:</p>
+<ul>
+    <li><code>Sₙ</code> is a finite reasoning step.</li>
+    <li><code>Sₙ₊₁</code> builds upon <code>Sₙ</code>, ensuring refinement.</li>
+    <li><strong>Limit process</strong>: <code>lim (n → ∞) Sₙ</code> represents <strong>infinite reasoning</strong>.</li>
+</ul>
 
-Infinite Thinking: Achieved via cycles 𝑛 → ∞.
-Finite Steps: Each 𝑆𝑛 → 𝑆𝑛+1 is discrete.
-Operator-Driven: 𝑂 controls direction and pace.
+<h2>5. Design Goals (དམིགས་ཡུལ dmigs yul)</h2>
+<ul>
+    <li><strong>Runtime Languages</strong>: Handle computation and concurrency.</li>
+    <li><strong>Higher Languages</strong>: Ensure theorem proving and soundness.</li>
+    <li><strong>Infinite Thinking</strong>: Achieved via refinements cycles.</li>
+    <li><strong>Operator-Driven</strong>: Collaboration between humans and machines.</li>
+</ul>
 
-## Design Goals
-
-Runtime Languages: Handle computation and concurrency (finite steps of 𝑇𝑛 in our model).
-Higher Languages: Prove theorems and ensure soundness.
-Infinite Thinking: Runtime executes cycles, higher languages refine.
-Operator-Driven: Languages enable human/machine collaboration.
-
-## Runtime Languages
+## Runtime Languages (ལག་ལེན་གྱི་སྐད lag len gyi skad)
 
 ### Joe
 
@@ -86,7 +150,7 @@ Features: Ensures resource safety (linear types), optimizes matrix computations 
 Fit: Handles complex (e.g., matrix-based proofs), enforces no redundant copies.
 Use Case: Operator proves theorems involving linear algebra or tensor structures.
 
-## Higher Languages
+## Higher Languages (མཐོ་རིམ་གྱི་སྐད mtho rim gyi skad)
 
 ### Henk
 
@@ -137,3 +201,6 @@ $ fc-match Geometria
 $ make
 ```
 
+## Copyright
+
+Namdak Tonpa

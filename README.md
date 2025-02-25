@@ -1,5 +1,5 @@
 <H1>AXIO/1</h1>
-<p>Artificial Experienced Intelligence Ontology v10.0 (2025)</p>
+<p>Artificial Experienced Intelligent Ontology v10.0 (2025)</p>
 
 <h2>Table of Contents</h2>
 <ul>

@@ -1,7 +1,7 @@
 AXIO/1
 ======
 
-Version 10.0 (2025).
+Artificial Experienced Intelligence Ontology Version 10.0 (2025).
 
 ## TOC
 

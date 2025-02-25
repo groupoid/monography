@@ -43,7 +43,6 @@
     <li><strong>Axioms (A)</strong>: Fundamental truths.</li>
     <li><strong>Definitions (D)</strong>: Precise descriptions of entities.</li>
     <li><strong>Types (T)</strong>: Categorization of objects.</li>
-    <li><strong>Propositions (P)</strong>: Statements to be evaluated.</li>
     <li><strong>Syntax (X)</strong>: Structural rules.</li>
 </ul>
 

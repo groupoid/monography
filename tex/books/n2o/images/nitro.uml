@@ -1,9 +1,0 @@
-title NITRO over N2O/WebSocket
-
-Browser->+GH Pages: HTTP GET
-GH Pages->-Browser: HTTP Static HTML
-Browser->+NITRO: BERT NITRO INIT
-NITRO->-Browser: BERT NITRO IO (HTML/JS)
-Browser->+NITRO: BERT NITRO PICKLE
-NITRO->-Browser: BERT NITRO IO (HTML/JS)
-

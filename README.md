@@ -37,7 +37,7 @@ Concurrency could mean multiple threads (human or machine) tackling different co
 
 * Starting Points (Axioms, Definitions, Types, Propositions, Syntax).
 * Environment (Model, Consistency, Completeness, Library).
-* 𝑇𝑛 Thinking (Hypotheses (Presupposition, Assumption, Supposition), Computation (Lambda Calculus, Pi-Calculus), Deduction (Inference, General Induction), Conjecture/Assertion).
+* Thinking (Hypotheses (Presupposition, Assumption, Supposition), Computation (Lambda Calculus, Pi-Calculus), Deduction (Inference, General Induction), Conjecture/Assertion).
 * Conclusions (Proof, Judgement, Theorem).
 * Insight (Semantics, Categorical Frameworks, Abstraction).
 

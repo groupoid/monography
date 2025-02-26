@@ -180,11 +180,10 @@ Features: Simplicial types, primitives (Simplex, Chain, Monoid, Category, Group)
 Fit: Formalizes cat (e.g., "parity as a monoid"), verifies geometric proofs.
 Use Case: Operator proves simplicial or algebraic topology insights.
 
-### Élie
+### Heinz 
 
-Role: CCHM-based system with Hopf Primitives.
-Features: Hopf algebras (e.g., co-multiplication), topological type checking.
-Fit: Deepens (e.g., "parity in Hopf structures"), proves advanced Abstractions.
+Role: A Minimal Framework for Homotopy Groups of Spheres.
+Features: Hopf Fibrations, Suspensions, Truncations, Π, Σ, Id, ℕ, ℕ∞.
 Use Case: Operator links proofs to topological or physical systems.
 
 ## Monography

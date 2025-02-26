@@ -180,7 +180,7 @@ Features: Simplicial types, primitives (Simplex, Chain, Monoid, Category, Group)
 Fit: Formalizes cat (e.g., "parity as a monoid"), verifies geometric proofs.
 Use Case: Operator proves simplicial or algebraic topology insights.
 
-### Heinz 
+### Jack 
 
 Role: A Minimal Framework for Homotopy Groups of Spheres.
 Features: Hopf Fibrations, Suspensions, Truncations, Π, Σ, Id, ℕ, ℕ∞.

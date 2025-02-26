@@ -68,3 +68,30 @@ hopf-path-2 = twist₂ base base
 π₂-s₂-elem : PathP (λ i → base ≡ base) refl refl
 π₂-s₂-elem = surf
 
+record Real-Hopf-Fib-Rules : Set where
+  -- Formation: Fib₁ is a type family over S²
+  field
+    Fib₁ : S² → Set
+
+  -- Introduction Rules (Constructors for the fiber)
+  field
+    fib₁-intro : (b : S²) → S¹ → Fib₁ b
+    twist₁-fib : (b : S²) (f : S¹) → fib₁-intro b f ≡ fib₁-intro b f
+    twist₁-coh-fib : (b : S²) (i : I) → twist₁-fib b base i ≡ fib₁-intro b (loop i)
+
+  -- Elimination Rule (Dependent elimination over the fibration)
+  field
+    Fib₁-elim : {C : (b : S²) → Fib₁ b → Set}
+              → (c-h₁ : (b : S²) (f : S¹) → C b (fib₁-intro b f))
+              → (c-twist₁ : (b : S²) (f : S¹) → PathP (λ i → C b (twist₁-fib b f i)) (c-h₁ b f) (c-h₁ b f))
+              → (c-twist₁-coh : (b : S²) → PathP (λ i → C b (fib₁-intro b (loop i))) (c-h₁ b base) (c-h₁ b (loop i1)))
+              → (b : S²) (x : Fib₁ b) → C b x
+
+  -- Computation Rules
+  field
+    Fib₁-comp : {C : (b : S²) → Fib₁ b → Set}
+              → (c-h₁ : (b : S²) (f : S¹) → C b (fib₁-intro b f))
+              → (c-twist₁ : (b : S²) (f : S¹) → PathP (λ i → C b (twist₁-fib b f i)) (c-h₁ b f) (c-h₁ b f))
+              → (c-twist₁-coh : (b : S²) → PathP (λ i → C b (fib₁-intro b (loop i))) (c-h₁ b base) (c-h₁ b (loop i1)))
+              → (b : S²) (f : S¹)
+              → Fib₁-elim c-h₁ c-twist₁ c-twist₁-coh b (fib₁-intro b f) ≡ c-h₁ b f

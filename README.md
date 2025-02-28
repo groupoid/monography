@@ -227,6 +227,10 @@ of CH, and Martin’s Maximum—showcasing its ability to span algebraic, analyt
 foundational domains. AXIOSIS stands as a candidate for a universal mechanized mathematics platform,
 rivaling systems like Cubical Type Theory while extending their scope.
 
+AXIOSIS achieves a landmark synthesis, unifying synthetic and classical mathematics in a mechanically
+verifiable framework. Its type formers—spanning simplicial ∞-categories, stable spectra, cohesive modalities,
+reals, ZFC, large cardinals, and forcing — cover all known mathematical domains as of 2025.
+
 ## Monography
 
 * Compilation: https://axiosis.github.io/books/axio/axio.pdf

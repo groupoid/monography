@@ -229,8 +229,8 @@ rivaling systems like Cubical Type Theory while extending their scope.
 
 ## Monography
 
-Compilation: https://axiosis.github.io/books/axio/axio.pdf
-Github Organization: https://github.com/groupoid/
+* Compilation: https://axiosis.github.io/books/axio/axio.pdf
+* Github Organization: https://github.com/groupoid/
 
 AXIOSIS achieves a landmark synthesis, unifying synthetic and classical mathematics in a mechanically verifiable framework.
 Its type formers—spanning simplicial ∞-categories, stable spectra, cohesive modalities, reals, ZFC,

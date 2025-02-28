@@ -222,6 +222,7 @@ theory and homotopy. Building on top of advanced frameworks:
 * **Dan Kan** Simplicial HoTT,
 * **Jack Morava** Type Theory for Chromatic Homotopy Theory and K-Theory,
 * **Urs Schreiber** Type Theory for Equivariant Supergeometry,
+* **Fabien Morel** Type Theory for A¹-homotopy theory,
 * **Julius Dedeking** Type Theory for Reals,
 * **Ernst Zermelo** Type Theory for ZFC with LEM, and
 * **Paul Cohen** Type Theory for cardinals system incorporating large cardinals and forcing

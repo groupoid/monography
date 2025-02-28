@@ -182,13 +182,59 @@ Use Case: Operator proves simplicial or algebraic topology insights.
 
 ### Jack 
 
-Role: A Minimal Framework for Homotopy Groups of Spheres.
+Role: A Framework for Chromatic Homotopy Theory and K-Theory.
 Features: Hopf Fibrations, Suspensions, Truncations, Π, Σ, Id, ℕ, ℕ∞.
 Use Case: Operator links proofs to topological or physical systems.
+
+### Urs
+
+Role: A Framework for Supergeometry in Cohesive Topos.
+Features: Hopf Fibrations, Suspensions, Truncations, Π, Σ, Id, ℕ, ℕ∞.
+Use Case: Operator links proofs to topological or physical systems.
+
+### Julius
+
+Role: Dedekind Reals and Cuts.
+Features: ℝ, ℚ, ⊢ (𝐿, 𝑈) : ℝ, where 𝐿, 𝑈 : ℚ → Prop, ∀ 𝑞 < 𝑟 → 𝐿(𝑞) ∨ 𝑈(𝑟).
+Use case: Real Analysis.
+
+### Ernst 
+
+Role: ZFC LEM theories.
+Features: 𝑉, Pow(𝐴), 𝑥 ∈ 𝐴, 𝐴 ⊆ 𝐵; LEM: ⊢ 𝑃 ∨ ¬𝑃
+Use case: Classical Logic Support.
+
+### Paul 
+
+Role: Forced Cardinals.
+Features: ⊢ 𝜅 : Card, inaccessible(𝜅), measurable(𝜅), Force(𝑃, 𝐺) : 𝑉 → 𝑉, 𝑝 ⊩ 𝜙
+Use case: Generic filter 𝐺 over a poset 𝑃, yielding a new model 𝑉[𝐺], adjoin reals and control cardinalities or axioms.
+
+## AXIOSIS
+
+Axiomatic Extended Integrated Ordered System for Infinite Structures is a novel type theory engineered
+to mechanically verify all existing theorems across mathematics, from classical analysis to modern set
+theory and homotopy. Building on advanced frameworks like: **Anders Mörtberg** CCHM/CHM/HTS,
+**Dan Kan** Simplicial HoTT, **Jack Morava** Type Theory for Chromatic Homotopy Theory and K-Theory,
+**Urs Schreiber** Type Theory for Equivariant Supergeometry, **Julius Dedeking** Type Theory for Reals,
+**Ernst Zermelo** Type Theory for ZFC with LEM, and **Paul Cohen** Type Theory for cardinals system
+incorporating large cardinals and forcing. 
+
+This synthesis unifies synthetic homotopy, stable homotopy spectra, cohesive geometry, real analysis,
+and set-theoretic foundations into a single, computationally verifiable formalism. We demonstrate its
+power through key theorems—Fermat’s Last Theorem, the Fundamental Theorem of Calculus, the Independence
+of CH, and Martin’s Maximum—showcasing its ability to span algebraic, analytic, topological, and
+foundational domains. AXIOSIS stands as a candidate for a universal mechanized mathematics platform,
+rivaling systems like Cubical Type Theory while extending their scope.
 
 ## Monography
 
 Compilation: https://axiosis.github.io/books/axio/axio.pdf
+Github Organization: https://github.com/groupoid/
+
+AXIOSIS achieves a landmark synthesis, unifying synthetic and classical mathematics in a mechanically verifiable framework.
+Its type formers—spanning simplicial ∞-categories, stable spectra, cohesive modalities, reals, ZFC,
+large cardinals, and forcing—cover all known mathematical domains as of February 27, 2025.
 
 ## LaTeX 
 
@@ -200,6 +246,6 @@ $ fc-match Geometria
 $ make
 ```
 
-## Copyright
+## Sole Copyright
 
 Namdak Tonpa

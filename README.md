@@ -214,13 +214,19 @@ Use case: Generic filter 𝐺 over a poset 𝑃, yielding a new model 𝑉[𝐺]
 
 Axiomatic Extended Integrated Ordered System for Infinite Structures is a novel type theory engineered
 to mechanically verify all existing theorems across mathematics, from classical analysis to modern set
-theory and homotopy. Building on advanced frameworks like: **Anders Mörtberg** CCHM/CHM/HTS,
-**Dan Kan** Simplicial HoTT, **Jack Morava** Type Theory for Chromatic Homotopy Theory and K-Theory,
-**Urs Schreiber** Type Theory for Equivariant Supergeometry, **Julius Dedeking** Type Theory for Reals,
-**Ernst Zermelo** Type Theory for ZFC with LEM, and **Paul Cohen** Type Theory for cardinals system
-incorporating large cardinals and forcing. 
+theory and homotopy. Building on top of advanced frameworks:
 
-This synthesis unifies synthetic homotopy, stable homotopy spectra, cohesive geometry, real analysis,
+* **Henk Barendregt** Type Theory for Pure Dependent Lambda Calculus,
+* **Per Martin-Löf** Type Theory for Fibrational setting and inductive types,
+* **Anders Mörtberg** Type Theory for CCHM/CHM/HTS bootstrap,
+* **Dan Kan** Simplicial HoTT,
+* **Jack Morava** Type Theory for Chromatic Homotopy Theory and K-Theory,
+* **Urs Schreiber** Type Theory for Equivariant Supergeometry,
+* **Julius Dedeking** Type Theory for Reals,
+* **Ernst Zermelo** Type Theory for ZFC with LEM, and
+* **Paul Cohen** Type Theory for cardinals system incorporating large cardinals and forcing
+
+this system synthesis unifies synthetic homotopy, stable homotopy spectra, cohesive geometry, real analysis,
 and set-theoretic foundations into a single, computationally verifiable formalism. We demonstrate its
 power through key theorems:
 

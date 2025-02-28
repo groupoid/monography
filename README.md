@@ -222,8 +222,21 @@ incorporating large cardinals and forcing.
 
 This synthesis unifies synthetic homotopy, stable homotopy spectra, cohesive geometry, real analysis,
 and set-theoretic foundations into a single, computationally verifiable formalism. We demonstrate its
-power through key theorems—Fermat’s Last Theorem, the Fundamental Theorem of Calculus, the Independence
-of CH, and Martin’s Maximum—showcasing its ability to span algebraic, analytic, topological, and
+power through key theorems:
+
+* Number Theory: Prime Number Theorem
+* Fundamental Theorem of Calculus (Analysis):
+* Analysis: Lebesgue Dominated Convergence Theorem
+* Topology: Poincaré Conjecture (3D)
+* Algebra: Classification of Finite Simple Groups
+* Set Theory: Independence of the Continuum Hypothesis (CH)
+* Category Theory: Adjoint Functor Theorem
+* Homotopy Theory: Adams Conjecture (via K-theory)
+* Consistency of ZFC with Large Cardinals
+* Fermat’s Last Theorem
+* Large Cardinal Theorem: Martin’s Maximum
+
+showcasing its ability to span algebraic, analytic, topological, and
 foundational domains. AXIOSIS stands as a candidate for a universal mechanized mathematics platform,
 rivaling systems like Cubical Type Theory while extending their scope.
 
@@ -235,10 +248,6 @@ reals, ZFC, large cardinals, and forcing — cover all known mathematical domain
 
 * Compilation: https://axiosis.github.io/books/axio/axio.pdf
 * Github Organization: https://github.com/groupoid/
-
-AXIOSIS achieves a landmark synthesis, unifying synthetic and classical mathematics in a mechanically verifiable framework.
-Its type formers—spanning simplicial ∞-categories, stable spectra, cohesive modalities, reals, ZFC,
-large cardinals, and forcing—cover all known mathematical domains as of February 27, 2025.
 
 ## LaTeX 
 

@@ -421,13 +421,13 @@ def 1_k : k
 def A1 : U := inductive { point : k → A1 }
 def 0_A1 : A1 := A1.point 0_k
 def 1_A1 : A1 := A1.point 1_k
-def A^1-contr (a : A1) : Path A1 a 0_A1 := <i> comp A1 [j : I] a (i ∧ j) 0_A1
+def A^1-contr (a : A1) : Path A1 a 0_A1 := &lt;i> comp A1 [j : I] a (i ∧ j) 0_A1
 
 def L_A1 (X : U) : U := (i : I) → X
 def isA1Local (Y : U) : U
  := isEquiv (λ (y : Y) (a : A1). y : Y × A1 → Y)
 
-def eta_A1 (X : U) (x : X) : L_A1 X := <i> x
+def eta_A1 (X : U) (x : X) : L_A1 X := &lt;i> x
 def rec_A1 (X Y : U) (f : X → Y) (loc : isA1Local Y) : L_A1 X → Y
  := λ z => comp Y [i : I] (f (z i)) (f (z 0))
 
@@ -468,7 +468,7 @@ def isA1Local-NC (X : U) : U
     isEquiv (rec_NisCover (λ x => x) (λ U f h => f) c)
 
 def eta_A1 (X : U) (x : X) : L_A1-NC X
- := ((<i> x), λ c => refl x)
+ := ((&lt;i> x), λ c => refl x)
 
          </pre></figure>
 

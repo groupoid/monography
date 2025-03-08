@@ -1,0 +1,30 @@
+module eqv where
+
+idfun (A: U) (a: A): A = a
+Path     (A: U) (a b: A): U = PathP (<i> A) a b
+HPath  (A B: U) (a: A) (b: B) (P: Path U A B) : U = PathP P a b
+refl     (A: U) (a: A): Path A a a = <i> a
+singl    (A: U) (a: A): U = (x: A) * Path A a x
+eta      (A: U) (a: A): singl A a = (a,refl A a)
+contr    (A: U) (a b: A) (p: Path A a b): Path (singl A a) (eta A a) (b,p) = <i> (p @ i,<j> p @ i/\j)
+subst    (A: U) (P: A->U) (a b: A) (p: Path A a b) (e: P a): P b = comp (<i> P (p @ i)) e []
+isContr     (A: U): U = (x: A) * ((y: A) -> Path A x y)
+fiber (A B: U) (f: A -> B) (y: B): U = (x: A) * Path B y (f x)
+isSingleton (X:U): U = (c:X) * ((x:X) -> Path X c x)
+isEquiv (A B: U) (f: A -> B): U = (y: B) -> isContr (fiber A B f y)
+equiv (A B: U): U = (f: A -> B) * isEquiv A B f
+isContrSingl (A:U) (a:A): isContr (singl A a) = ((a,refl A a),\ (z:singl A a) -> contr A a z.1 z.2)
+idIsEquiv (A: U): isEquiv A A (idfun A) = \(a: A) -> ((a, refl A a),\(z: fiber A A (idfun A) a) -> contr A a z.1 z.2)
+idEquiv (A:U): equiv A A = (\ (x:A) -> x, isContrSingl A)
+equivPath (T A: U) (f: T -> A) (p: isEquiv T A f): Path U T A =  <i> Glue A [ (i=0) -> (T,f,p), (i=1) -> (A,idfun A, idIsEquiv A)]
+invEq (A B:U)(w:equiv A B)(y:B): A = (w.2 y).1.1
+retEq (A B:U)(w:equiv A B)(y:B): Path B (w.1 (invEq A B w y)) y = <i> (w.2 y).1.2@-i
+secEq (A B:U)(w:equiv A B)(x:A): Path A (invEq A B w (w.1 x)) x = <i> ((w.2(w.1 x)).2(x,<j>w.1 x)@i).1
+
+univ_Formation (A B: U): U = equiv A B -> Path U A B
+equivToPath (A B: U): univ_Formation A B = \(p: equiv A B) -> <i> Glue B [(i=0) -> (A,p), (i=1) -> (B, subst U (equiv B) B B (<_>B) (idEquiv B)) ]
+pathToEquiv (A B: U) (p: Path U A B): equiv A B = subst U (equiv A) A B p (idEquiv A)
+eqToEq (A B : U) (p : Path U A B) : Path (Path U A B) (equivToPath A B (pathToEquiv A B p)) p
+  = <j i> let Ai: U = p@i in Glue B [ (i=0) -> (A,pathToEquiv A B p),
+                                      (i=1) -> (B,pathToEquiv B B (<k> B)),
+                                      (j=1) -> (p@i,pathToEquiv Ai B (<k> p @ (i \/ k))) ]

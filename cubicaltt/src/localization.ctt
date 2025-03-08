@@ -1,0 +1,44 @@
+module localization where
+import proto
+import path
+
+-- This definition of localization is internal, stronger than
+-- standard sort of localization in homotopy theory;
+-  but remains equivalent.
+
+-- Localization Modality (S=B, T=C)
+
+data Localize (A X: U) (S T: A -> U) (F : (x:A) -> S x -> T x)
+   = center (x: X)
+   | ext (a: A) (f: S a -> Localize A X S T F) (t: T a)
+   | isExt (a: A) (f: S a -> Localize A X S T F) (s: S a) <i>
+     [ (i=0) -> ext a f (F a s) , (i=1) -> f s ]
+   | extEq (a: A) (g h: T a -> Localize A X S T F)
+     (p: (s : S a) -> Path (Localize A X S T F) (g (F a s)) (h (F a s)))
+     (t : T a) <i> [ (i=0) -> g t , (i=1) -> h t ]
+   | isExtEq (a: A) (g h : T a -> Localize A X S T F)
+     (p: (s : S a) -> Path (Localize A X S T F) (g (F a s)) (h (F a s)))
+     (s : S a) <i> [ (i=0) -> extEq {Localize A X S T F} a g h p (F a s) @ i, (i=1) -> p s @ i]
+
+isLocal (A X: U) (S T: A -> U) (F : (x:A) -> S x -> T x) : U = undefined
+
+LocalizationRec (A X: U) (S T: A -> U) (F : (x:A) -> S x -> T x)
+     (Y : U)
+     (locality : isLocal A Y S T F)
+     (f: X -> Y)
+   : Localize A X S T F -> Y
+   = undefined
+
+LocalizationInd (A X : U) (S T : A -> U) (F : (x:A) -> S x -> T x)
+     (P : Localize A X S T F -> U)
+     (n : (x : X) -> P (center x))
+     (r : (a : A) (f: S a -> Localize A X S T F)
+          (g: (b: S a) -> P (f b))
+          (t: T a) -> P (ext a f t))
+     (s : (a : A) (f: S a -> Localize A X S T F)
+          (g: (b: S a) -> P (f b))
+          (b: S a) -> PathP (<i> P (isExt {Localize A X S T F} a f b @ i))
+                            (r a f g (F a b)) (g b))
+   : (x : Localize A X S T F) -> P x
+   = undefined
+

@@ -1,0 +1,183 @@
+{- Equivalence:
+   - Fibers;
+   - Contractability of Fibers and Singletons;
+   - Equivalence.
+   - Surjective, Injective, Embedding, Hae;
+   - Theorems, Gluening;
+   - Univalence Type.
+   Copyright (c) Groupoid Infinity, 2014-2018.
+
+   HoTT 4.6 Surjections and Embedding -}
+
+module equiv where
+import sigma
+import retract
+import trunc
+
+---
+fiber (A B: U) (f: A -> B) (y: B): U = (x: A) * Path B y (f x)
+isSingleton (X:U): U = (c:X) * ((x:X) -> Path X c x)
+isEquiv (A B: U) (f: A -> B): U = (y: B) -> isContr (fiber A B f y)
+equiv (A B: U): U = (f: A -> B) * isEquiv A B f
+
+{-
+-- slow
+propIsEquiv (A B: U) (f: A -> B): isProp (isEquiv A B f)
+  = \(u0 u1: isEquiv A B f) -> <i> \(y:B) -> propIsContr (fiber A B f y) (u0 y) (u1 y) @ i
+
+-}
+
+
+-- fast
+propIsEquivDirect (A B: U) (f: A -> B): isProp (isEquiv A B f)
+  = \(p q: isEquiv A B f) -> <i> \(y: B) ->
+    let p0: A = (p y).1.1
+        p1: Path B y (f p0) = (p y).1.2
+        p2: (w1 : fiber A B f y) -> Path (fiber A B f y) (p0,p1) w1 = (p y).2
+        q0: A = (q y).1.1
+        q1: Path B y (f q0) = (q y).1.2
+        q2: (w1 : fiber A B f y) -> Path (fiber A B f y) (q0,q1) w1 = (q y).2
+        sq (w: fiber A B f y): PathP (<j> Path (fiber A B f y) (p2 (q0,q1) @ j) w) (p2 w) (q2 w)
+           = <i j> comp (<_> fiber A B f y) (p2 w @ i \/ j)
+                      [ (i = 0) -> <k> p2 w @ j,
+                        (i = 1) -> <k> q2 w @ j \/ -k,
+                        (j = 0) -> <k> p2 (q2 w @ -k) @ i,
+                        (j = 1) -> <k> w ]
+     in (p2 (q0,q1) @ i, \(w : fiber A B f y) -> sq w @ i)
+
+idIsEquiv (A: U): isEquiv A A (idfun A)
+  = \(a: A) -> ((a, refl A a),\(z: fiber A A (idfun A) a) -> contr A a z.1 z.2)
+
+idEquiv (A:U): equiv A A = (\ (x:A) -> x, isContrSingl A)
+
+transEquiv  (A B: U) (p: Path U A B): equiv A B = subst U (equiv A) A B p (idEquiv A)
+transEquiv' (A B: U) (p: Path U B A): equiv B A = subst U (\(Y: U) -> equiv Y A) A B (<i> p @ -i) (idEquiv A)
+-------
+
+
+isSurjective (A B: U) (f: A -> B): U
+  = (b: B) * propTrunc (fiber A B f b)
+
+surjective (A B: U): U
+  = (f: A -> B)
+  * isSurjective A B f
+
+isInjective (A B: U) (f: A -> B): U
+  = (x y: A) -> Path B (f x) (f y) -> Path A x y
+
+isInjective' (A B: U) (f: A -> B): U
+  = (b: B) -> isProp (fiber A B f b)
+
+injective (A B: U): U
+  = (f: A -> B)
+  * isInjective A B f
+
+isEmbedding (A B: U) (f: A -> B) : U
+  = (x y: A) -> isEquiv (Path A x y) (Path B (f x) (f y)) (cong A B f x y)
+
+embedding (A B: U): U
+  = (f: A -> B)
+  * isEmbedding A B f
+
+isHae (A B: U) (f: A -> B): U
+  = (g: B -> A)
+  * (eta_: Path (id A) (o A B A g f) (idfun A))
+  * (eps_: Path (id B) (o B A B f g) (idfun B))
+  * ((x: A) -> Path B (f ((eta_ @ 0) x)) ((eps_ @ 0) (f x)))
+
+hae (A B: U): U
+  = (f: A -> B)
+  * isHae A B f
+
+equivLemma (A B: U): (v w: equiv A B) -> Path (A -> B) v.1 w.1 -> Path (equiv A B) v w
+  = lemSig (A -> B) (isEquiv A B) (propIsEquivDirect A B)
+
+equivPath (T A: U) (f: T -> A) (p: isEquiv T A f): Path U T A =
+  <i> Glue A [ (i=0) -> (T,f,p), (i=1) -> (A,idfun A, idIsEquiv A)]
+
+invEq (A B:U)(w:equiv A B)(y:B): A = (w.2 y).1.1
+
+retEq (A B:U)(w:equiv A B)(y:B): Path B (w.1 (invEq A B w y)) y
+  = <i> (w.2 y).1.2@-i
+
+secEq (A B:U)(w:equiv A B)(x:A): Path A (invEq A B w (w.1 x)) x
+  = <i> ((w.2(w.1 x)).2(x,<j>w.1 x)@i).1
+
+-- Univalence Formation
+univ_Formation (A B: U): U = equiv A B -> Path U A B
+
+-- Univalence Intro
+equivToPath (A B: U): univ_Formation A B
+  = \(p: equiv A B) -> <i> Glue B [(i=0) -> (A,p), (i=1) -> (B, subst U (equiv B) B B (<_>B) (idEquiv B)) ]
+
+-- Univalence Elim
+pathToEquiv (A B: U) (p: Path U A B): equiv A B = subst U (equiv A) A B p (idEquiv A)
+
+-- Univalence Computation
+eqToEq (A B : U) (p : Path U A B) : Path (Path U A B) (equivToPath A B (pathToEquiv A B p)) p
+  = <j i> let Ai: U = p@i in Glue B [ (i=0) -> (A,pathToEquiv A B p),
+                                      (i=1) -> (B,pathToEquiv B B (<k> B)),
+                                      (j=1) -> (p@i,pathToEquiv Ai B (<k> p @ (i \/ k))) ]
+
+-- Univalence Uniqueness
+transPathFun2 (A B : U) : (w : equiv A B) -> Path (equiv A B) w (pathToEquiv A B (equivToPath A B w)) = undefined
+transPathFun (A B : U) (w : equiv A B) : Path (A -> B) w.1 (pathToEquiv A B (equivToPath A B w)).1
+  = <i> \ (a:A) -> let b: B = w.1 a
+                       u: A = comp (<j>A) a []
+                       q: Path B (w.1 u) b = <i>w.1 (comp (<j>A) a [(i=1) -> <j>a])
+    in comp (<j> B) (comp (<j> B) (comp (<j> B) (comp (<j> B) (w.1 u)
+            [(i=0)->q]) [(i=0)-><k>b]) [(i=0)-><k>b]) [(i=0)-><k>b]
+
+
+idToPath (A B: U) (w: equiv A B)
+  : Path (equiv A B) (pathToEquiv A B (equivToPath A B w)) w
+  = equivLemma A B (pathToEquiv A B (equivToPath A B w)) w
+      (<i>transPathFun A B w@-i)
+
+isEquivContr (A B:U) (a: isContr A) (b:isContr B) (f:A->B) : isEquiv A B f
+  = \(y:B) -> sigmaIsContr A (\ (x:A) -> Path B y (f x)) a (\ (x:A) -> isPathContr B b y (f x))
+
+funFib1 (A:U) (B C: A -> U) (f: (x:A) -> B x -> C x) (x0:A) (z0:C x0)
+        (u: fiber (B x0) (C x0) (f x0) z0)
+      : fiber (Sigma A B) (Sigma A C) (total A B C f) (x0,z0)
+      = ((x0,u.1),<i>(x0,u.2@i))
+
+funFib2 (A:U) (B C: A -> U) (f: (x:A) -> B x -> C x) (x0:A) (z0:C x0)
+        (w: fiber (Sigma A B) (Sigma A C) (total A B C f) (x0,z0))
+      : fiber (B x0) (C x0) (f x0) z0
+      = (b0,s) where
+  x : A = w.1.1
+  b : B x = w.1.2
+  p : Path A x0 x = <i>(w.2@i).1
+  q : PathP (<i>C (p@i)) z0 (f x b) = <i>(w.2@i).2
+  b0 : B x0 = comp (<i>B (p@-i)) b []
+  r : PathP (<i>B (p@-i)) b b0 = <i>comp (<j>B (p@-j\/-i)) b [(i=0) -> <k>b]
+  s : Path (C x0) z0 (f x0 b0) = <i>comp (<j>C (p@(i/\-j))) (q@i) [(i=0) -> <k>z0,
+                                                                   (i=1) -> <k>f (p@-k) (r@k)]
+
+compFunFib (A:U) (B C : A->U) (f : (x:A) -> B x -> C x) (x0:A) (z0:C x0)
+           (u: fiber (B x0) (C x0) (f x0) z0)
+  : fiber (B x0) (C x0) (f x0) z0
+  = funFib2 A B C f x0 z0 (funFib1 A B C f x0 z0 u)
+
+retFunFib (A:U) (B C : A->U) (f : (x:A) -> B x -> C x) (x0:A) (z0:C x0)
+          (u: fiber (B x0) (C x0) (f x0) z0)
+  : Path (fiber (B x0) (C x0) (f x0) z0) (funFib2 A B C f x0 z0 (funFib1 A B C f x0 z0 u)) u
+  = <l> (comp (<i> B x0) u.1 [(l=1) -> <j>u.1],
+    <i> comp (<j> C x0) (u.2 @ i) [(l=1) -> <j> u.2 @ i,
+                                   (i=0) -> <j> z0,
+                                   (i=1) -> <j> f x0 (comp (<k> B x0) u.1 [(j=0) -> <k> u.1,
+                                                                           (l=1) -> <k>u.1 ])])
+
+equivFunFib (A: U) (B C: A -> U)
+    (f: (x:A) -> B x -> C x)
+    (cB: isContr (Sigma A B)) (cC: isContr (Sigma A C)) (x: A)
+  : isEquiv (B x) (C x) (f x)
+  = \ (z:C x) -> retIsContr (fiber (B x) (C x) (f x) z)
+                            (fiber (Sigma A B) (Sigma A C) (total A B C f) (x,z))
+                            (funFib1 A B C f x z)
+                            (funFib2 A B C f x z)
+                            (retFunFib A B C f x z)
+                            (isEquivContr (Sigma A B) (Sigma A C) cB cC
+                                          (total A B C f) (x,z))
+

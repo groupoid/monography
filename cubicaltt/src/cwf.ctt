@@ -1,0 +1,186 @@
+module cwf where
+
+{-
+
+Here is a short informal description of
+categorical semantics of dependent type theory given by Peter Dybjer.
+The code is by Thierry Coquand ported to cubical by 5HT.
+
+     http://www.cse.chalmers.se/~peterd/papers/Ise2008.pdf
+
+Another good intro to LCCC was a 80-514 course at CMU:
+
+     http://math.cmu.edu/~cnewstea/talks/20170301.pdf
+
+Definition (Fam). The Fam is the category of families
+of sets where objects are dependent function
+spaces (x:A)->B(x) and morphisms with domain
+Pi(A,B) and codomain Pi(A',B') are pairs of
+functions <f:A->A',g(x:A):B(x)->B'(f(x))>.
+
+Definition (Derivability). Ctx|-A = (c:Ctx) -> A(c).
+Definition (Comprehension). Ctx;A = (c:Ctx)  * A(c).
+Statement. Comprehension is not assoc.
+
+                  G;A;B =/= G;B;A
+
+Definition (Context).The C is context category where
+objects are contexts and morphisms are substitutions.
+Terminal object G=0 in C is called empty context.
+Context comprehension operation G;A = (x:G)*A(x) and
+its eliminators: p:G;A |- G, q: G;A |- A(p) such that
+universal property holds: for any D:ob(C), morphism g:D->G,
+and term a:D->A there is a unique morphism s=<g,a>:D->G;A
+such that p.s=g and q(s)=a. Statement. Subst is assoc.
+
+        g(g(G,x,a),y,b) = g(g(G,y,b),x,a)
+
+Definition (CwF-object). A CwF-object is a Sigma(C,C->Fam)
+of context category C with contexts as objects and
+substitutions as morphisms and functor T:C->Fam where
+object part is a map from a context G of C to famility
+of sets of terms G |- A and morphism part is a map from
+substitution g:D->G to a pair of functions which perform
+substitutions of g in terms and types respectively.
+
+Definition (CwF-morphism). Let (C,T):ob(C) where T:C->Fam.
+A CwF-morphism m: (C,T)->(C',T') is a pair <F:C->C',s:T->T'(F)>
+where F is a functor and s is a natural transformation.
+
+Definition (Category of Types). Let we have CwF with (C,T) objects
+and (C,T)->(C',T') mophisms. For a given context G in Ob(C) we can
+construct a Type(G) -- the category of types in context G with
+set of types in contexts as objects as and functions f:G;A->B(p) as morphisms.
+
+Definition (Local Cartesian Closed Category).
+
+              LCCC(C) = Sigma(C,(A:ob C)->CCC(C/A)).
+
+[1]. Alexandre Buisse, Peter Dybjer.
+     The Interpretation of Intuitionistic Type Theory
+     in Locally Cartesian Closed Categories -- an Intuitionistic Perspective.
+[2]. Martin Hofmann, Thomas Streicher.
+     The groupoid interpretation of type theory.
+[3]. Pierre Clairambault.
+     From Categories with Families to Locally Cartesian Closed Categories.
+[4]. Andreas Abel, Thierry Coquand, Peter Dybjer.
+     On the Algebraic Foundation of Proof Assistants for Intuitionistic Type Theory.
+[5]. R.A.G. Seely.
+     Locally cartesian closed categories and type theory.
+[6]. Pierre-Louis Curien, Richard Garner, Martin Hofmann.
+     Revisiting the categorical interpretation of dependent type theory.
+[7]. Simon Castellan.
+     Dependent type theory as the initial category with families.
+[8]. Peter Dybjer.
+     Internal Type Theory.
+-}
+
+import cat
+import fun
+import nat
+import list
+import bool
+import maybe
+
+{-
+
+The type checker based on Categories with Families (CwF) model.
+The contexts modeled as lists of initial objects of internal language.
+Here is example of two contexts and substitution between them.
+
+    Ctx:   Vec Exp 3 = [ A:U, B:A->U, Pi(A,B) ]
+    Ctx:   Vec Exp 5 = [ A:U, B:A->U, Pi(A,B), Sigma(A,B), A->A ]
+    Subst: Vec Exp 2 = [ Sigma (Var 1) (Var 2), Pi (Var 1) (Var 1) ]
+
+-}
+
+data Exp = Star (_:   nat)
+         | Var  (_:   nat)
+         | Pi   (_ _: Exp)
+         | Lam  (_:   Exp)
+         | App  (_ _: Exp)
+
+Ty:    U = Exp
+Ctx:   U = list Ty
+Subst: U = list Exp
+
+seq (start: nat): list Exp = cons (Var start) (seq (succ start))
+
+mutual
+
+p:   Subst = seq one
+q:   Exp   = Var zero
+ide: Subst = seq zero
+cmp: Subst -> Subst -> Subst = split
+     nil -> \(ts: Subst) -> nil
+     cons x xs -> \(ts: Subst) -> cons (sub ts x) (cmp xs ts)
+
+lift (ts: Subst): Subst = cons q (cmp ts p)
+unwrap: maybe Exp -> Exp = split { nothing -> q ; just x -> x }
+shift (t: Exp) (i: nat): Exp = sub (seq i) t
+
+isCo: Ctx -> bool = split
+  nil -> true
+  cons x xs -> and (isCo xs) (isTy xs x)
+
+isU (c:Ctx)(a b:Exp): Exp -> bool = split
+  Star  i   -> (and (isTm c (Star i) a) (isTm (cons a c) (Star i) b))
+  Var   i   -> false
+  Pi    a b -> false
+  Lam     x -> false
+  App   a b -> false
+
+isPi (c:Ctx)(e:Exp): Exp -> bool = split
+  Star  i   -> false
+  Var   i   -> false
+  Pi    a b -> isTm (cons a c) b e
+  Lam     x -> false
+  App   a b -> false
+
+isTy (c:Ctx): Ty -> bool = split
+  Star  i   -> true
+  Var   i   -> isTm c (Star zero) (Var i)
+  Pi    a b -> and (isTy c a) (isTy (cons a c) b)
+  Lam     x -> isTm c (Star zero) (Lam x)
+  App   a b -> isTm c (Star zero) (App a b)
+
+isTm (c:Ctx)(e:Exp): Ty -> bool = split
+  Star  i   -> false
+  Var   i   -> false
+  Pi    a b -> isU c a b e
+  Lam     x -> isPi c x e
+  App   a b -> false
+
+app (s: Exp): Exp -> Exp = split
+  Star  i   -> App (Star i) s
+  Var   i   -> App (Var i) s
+  Pi    a b -> App (Pi a b) s
+  Lam   x   -> sub (cons s ide) x
+  App   a b -> App (App a b) s
+
+sub (ts: Subst): Exp -> Exp = split
+  Star  i   -> Star i
+  Var   i   -> unwrap (nth Exp i ts)
+  Pi    a b -> Pi  (sub ts a) (sub (lift ts) b)
+  Lam   x   -> Lam (sub (lift ts) x)
+  App   s t -> app (sub ts t) (sub ts s)
+
+inferTy (c: Ctx): Exp -> maybe Ty = split
+  Star  i   -> just (Star i)
+  Var   i   -> just (shift (unwrap (nth Exp i c)) (succ i))
+  Pi    a b -> just (Star one)   -- implement
+  Lam   x   -> just (Star zero)  -- implement
+  App   s t -> just (Star zero)  -- implement
+
+Fam: precategory = undefined
+isContext      (C: precategory): U = undefined
+isTerminal     (C: precategory): U = undefined
+isComprehension(C: precategory)(T: catfunctor C Fam): U = undefined
+
+CwF: U
+    = (C: precategory)
+    * (T: catfunctor C Fam)
+    * (context: isContext C)
+    * (terminal: isTerminal C)
+    * (pullback: isComprehension C T)
+    * unit

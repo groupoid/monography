@@ -1,0 +1,73 @@
+{- Infinity Language:
+   - Syntax.
+   Copyright (c) Groupoid Infinity, 2014-2018. -}
+
+module infinity where
+import list
+import control
+import path
+import pi
+
+name: U = list nat
+data alg = z | o | v (_: name) | max (a b: alg)
+             | min (a b: alg)  | inv (a: alg)
+
+data pts (lang: U)
+   = star (n: nat)
+   | var (x: name) (l: nat)
+   | pi (x: name) (l: nat) (f: lang)
+   | lambda  (x: name) (l: nat) (f: lang)
+   | app (f a: lang)
+
+data PTS
+   = ppure (_: pts PTS)
+
+data exists (lang: U)
+   = sigma (n: name) (a b: lang)
+   | pair (a b: lang)
+   | fst (p: lang)
+   | snd (p: lang)
+
+data identity (lang: U)
+   = id (t a b: lang)
+   | idpair (a b: lang)
+   | idelim (a b c d e: lang)
+
+data MLTT
+   = mpure (_: pts MLTT)
+   | msigma (_: exists MLTT)
+   | mid (_: identity MLTT)
+
+data tele (A: U)   = emp | tel (n: name) (b: A) (t: tele A)
+data branch (A: U) =        br (n: name) (args: list name) (term: A)
+data label (A: U)  =       lab (n: name) (t: tele A)
+                         | com (n: name) (t: tele A) (dim: list name)
+                               (str: list (prod (prod name bool) A))
+
+data ind (lang: U)
+   = data_  (n: name) (t: tele lang) (labels:   list (label lang))
+   | case   (n: name) (t: lang)      (branches: list (branch lang))
+   | ctor   (n: name)                (args:     list lang)
+
+data IND
+   = ipure (_: pts IND)
+   | isigma (_: exists IND)
+   | iid (_: identity IND)
+   | iind (_: ind IND)
+
+data hts (lang: U)
+   = path (t a b: lang)
+   | plam (n: name) (a: alg) (b: lang)
+   | papp (f: name) (a: lang) (p: alg)
+   | comp_ (a b: lang)
+   | fill_ (a b c: lang)
+   | glue_ (a b c: lang)
+   | glue_elem (a b: lang)
+   | unglue_elem (a b: lang)
+
+data HTS
+   = hpure (_: pts HTS)
+   | hsigma (_: exists HTS)
+   | hid (_: identity HTS)
+   | hind (_: ind HTS)
+   | homotopy (_: hts HTS)

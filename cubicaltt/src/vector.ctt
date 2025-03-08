@@ -1,0 +1,20 @@
+{- Vector:
+   Copyright (c) Groupoid Infinity, 2014-2018. -}
+
+module vector where
+import nat
+import list
+
+data vector (A: U) (n: nat)
+   = vzero
+   | vsucc (x: A) (xs: vector A (pred n))
+
+vz (A: U): vector A zero = vzero
+vs (A: U) (x: A) (n: nat) (xs: vector A n): vector A (succ n) = vsucc x xs
+
+opaque vector
+
+vector2 (n: nat) (A: U): U
+  = (c: list nat)
+  * (Path nat (length nat c) n)
+

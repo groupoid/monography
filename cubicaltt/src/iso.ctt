@@ -1,0 +1,126 @@
+{- Iso Type:
+   - Commutative Square
+   - Iso To Path
+   Copyright (c) Groupoid Infinity, 2014-2018. -}
+
+module iso where
+import retract
+import equiv
+import set
+
+--         u
+--    a ------> b
+--    |         |
+--  p |         | q
+--    |         |
+--    V         V
+--    c ------> d
+--         v
+
+Square (A: U)(a b c d: A)(u: Path A a b)(v: Path A c d)(p: Path A a c)(q: Path A b d): U
+  = PathP (<i> (PathP (<j> A) (u @ i) (v @ i))) p q
+
+constSquare (A: U) (a: A) (p: Path A a a): Square A a a a a p p p p
+  = <i j> comp (<_> A) a [ (i = 0) -> <k> p @ j \/ - k,
+                           (i = 1) -> <k> p @ j /\ k,
+                           (j = 0) -> <k> p @ i \/ - k,
+                           (j = 1) -> <k> p @ i /\ k ]
+
+isIso (A B: U): U
+  = (f: A -> B)
+  * (g: B -> A)
+  * (s: section A B f g)
+  * (   retract A B f g)
+
+ISO: U
+  = (A: U)
+  * (B: U)
+  * isIso A B
+
+lemIso (A B: U) (f: A -> B) (g: B -> A) (s: section A B f g) (t: retract A B f g)
+       (y: B) (x0 x1: A) (p0: Path B y (f x0)) (p1: Path B y (f x1))
+     : Path (fiber A B f y) (x0,p0) (x1,p1) = <i> (p @ i,sq1 @ i) where
+  rem0: Path A (g y) x0 = <i> comp (<k> A) (g (p0 @ i)) [ (i = 1) -> t x0, (i = 0) -> <k> g y ]
+  rem1: Path A (g y) x1 = <i> comp (<k> A) (g (p1 @ i)) [ (i = 1) -> t x1, (i = 0) -> <k> g y ]
+  p:    Path A x0 x1    = <i> comp (<k> A) (g y)        [ (i = 0) -> rem0, (i = 1) -> rem1 ]
+  fill0: Square A (g y)(g (f x0)) (g y) x0 (<i> g (p0 @ i)) rem0 (<i> g y) (t x0) =
+         <i j> comp (<k> A) (g (p0 @ i)) [ (i = 1) -> <k> t x0 @ j /\ k,
+                                           (i = 0) -> <k> g y,
+                                           (j = 0) -> <k> g (p0 @ i) ]
+  fill1: Square A(g y)(g(f x1))(g y) x1 (<i>g (p1@i)) rem1 (<i> g y) (t x1) =
+         <i j> comp (<k> A) (g (p1 @ i)) [ (i = 1) -> <k> t x1 @ j /\ k,
+                                           (i = 0) -> <k> g y,
+                                           (j = 0) -> <k> g (p1 @ i) ]
+  fill2: Square A (g y) (g y) x0 x1 (<k> g y) p rem0 rem1 =
+                <i j> comp (<k> A) (g y) [ (i = 0) -> <k> rem0 @ j /\ k,
+                                           (i = 1) -> <k> rem1 @ j /\ k,
+                                           (j = 0) -> <k> g y ]
+  sq: Square A(g y)(g y)(g(f x0))(g(f x1))(<i>g y) (<i>g (f(p@i)))(<j>g(p0@j))(<j>g(p1@j)) =
+      <i j> comp (<k> A) (fill2 @ i @ j) [ (i = 0) -> <k> fill0 @ j @ -k,
+                                           (i = 1) -> <k> fill1 @ j @ -k,
+                                           (j = 0) -> <k> g y,
+                                           (j = 1) -> <k> t (p @ i) @ -k ]
+  sq1: Square B y y (f x0) (f x1) (<k>y) (<i> f (p @ i)) p0 p1 =
+      <i j> comp (<k> B) (f (sq @ i @j)) [ (i = 0) -> s (p0 @ j),
+                                           (i = 1) -> s (p1 @ j),
+                                           (j = 1) -> s (f (p @ i)),
+                                           (j = 0) -> s y ]
+
+isoToEquiv (A B: U) (f: A -> B) (g: B -> A) (s: section A B f g) (t: retract A B f g): isEquiv A B f
+  = \(y:B) -> ((g y,<i>s y@-i),\ (z:fiber A B f y) -> lemIso A B f g s t y (g y) z.1 (<i>s y@-i) z.2)
+
+equivProp (A B: U) (a: isProp A) (b: isProp B) (f: A -> B) (g: B -> A): equiv A B
+  = (f, isoToEquiv A B f g (\(y:B)->b(f(g y))y) (\(x:A)->a(g(f x))x))
+
+-- pi version of isoPath
+isoPath (A B: U) (f: A -> B) (g: B -> A)
+        (s: section A B f g) (t: retract A B f g): Path U A B
+  = <i> Glue B [ (i = 0) -> (A,f,isoToEquiv A B f g s t),
+                 (i = 1) -> (B,idfun B,idIsEquiv B) ]
+
+testIsoPath (A B : U) (f : A -> B) (g : B -> A)
+                      (s : (y : B) -> Path B (f (g y)) y)
+                      (t : (x : A) -> Path A (g (f x)) x) (a:A)
+                    : Path B (f a) (trans A B (isoPath A B f g s t) a) =
+                      <i> comp (<_>B) (comp (<_>B) (f a) [(i=0) -> <_> f a]) [(i=0) -> <_> f a]
+
+-- sigma version of isoPath
+isoToPath (i: ISO): Path U i.1 i.2.1
+  = isoPath i.1 i.2.1 i.2.2.1 i.2.2.2.1 i.2.2.2.2.1 i.2.2.2.2.2
+
+-- A proof that two propositions with maps between them can be identified with each other
+propPath (A B: U) (f: A -> B) (g: B -> A) (pa: isProp A) (pb: isProp B): Path U A B
+  = isoToPath (A,B,f,g,(\ (b: B) -> pb (f (g b)) b),(\ (a: A) -> pa (g (f a)) a))
+
+iso_Form (A B: U)
+  : U
+  = isIso A B -> Path U A B
+
+iso_Intro (A B: U)
+  : iso_Form A B
+  = \(x: isIso A B) -> isoToPath (A,B,x)
+
+
+iso_Elim (A B: U)
+  : Path U A B -> isIso A B
+  = \(p: Path U A B) ->
+     (coerce A B p,coerce B A (<i>p@-i), x p,y p) where
+      x (p: Path U A B): section A B (coerce A B p) (coerce B A (<i>p@-i)) = undefined
+      y (p: Path U A B): retract A B (coerce A B p) (coerce B A (<i>p@-i)) = undefined
+
+iso_Comp (A B : U) (p : Path U A B)
+  : Path (Path U A B) (iso_Intro A B (iso_Elim A B p)) p
+  = undefined
+
+iso_Uniq (A B : U) (p: isIso A B)
+  : Path (isIso A B) (iso_Elim A B (iso_Intro A B p)) p
+  = undefined
+
+IsoPathType (A B: U): isIso (isIso A B) (Path U A B)
+  = (iso_Intro A B,iso_Elim A B,iso_Comp A B,iso_Uniq A B)
+
+PiType (A: U) (B: A -> U): isIso (Pi A B) (Pi A B)
+  = (app A B,app A B,Pi_Eta A B,Pi_Eta A B)
+
+UnivType (A B: U): isIso (equiv A B) (Path U A B)
+  = (equivToPath A B, pathToEquiv A B,eqToEq A B,idToPath A B)

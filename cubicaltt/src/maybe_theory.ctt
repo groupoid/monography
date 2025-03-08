@@ -1,0 +1,26 @@
+module maybe_theory where
+
+import functor
+import maybe
+
+-- maybeMap idfun a == a
+functorMaybeId (A: U): (a: maybe A) -> Path (maybe A) (maybeId A a) a
+  = split { nothing -> maybeRefl A nothing ; just x -> maybeRefl A (just x) }
+
+-- maybeMap id == id
+functorMaybeIdFunExt (A: U): Path (maybe A -> maybe A) (maybeId A) (idfun (maybe A))
+  = funext (maybe A) (maybe A) (maybeId A) (idfun (maybe A)) (functorMaybeId A)
+
+-- an alternative proof of functorMaybeId using maybeDElim
+functorMaybeId2 (A: U): (a: maybe A) -> Path (maybe A) (maybeId A a) a
+  = maybeInd A P (maybeRefl A nothing) (\(c:A) -> maybeRefl A (just c)) where
+    P (x: maybe A): U = Path (maybe A) (maybeId A x) x
+
+functorMaybeComp (A B C: U) (f: B -> C) (g: A -> B):
+    (x: maybe A) -> Path (maybe C) (maybeMap A C (o A B C f g) x)
+    ((o (maybe A) (maybe B) (maybe C) (maybeMap B C f) (maybeMap A B g)) x)
+  = split { nothing -> maybeRefl C ((maybeMap A C (o A B C f g)) nothing)  ;
+            just x  -> maybeRefl C ((maybeMap A C (o A B C f g)) (just x)) }
+
+functor_maybe: FUNCTOR = ((maybe,maybeMap),(functorMaybeId,functorMaybeComp,tt))
+

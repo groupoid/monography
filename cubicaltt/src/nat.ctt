@@ -1,0 +1,107 @@
+{- Run-Time Nat Type:
+   - Nat and Fin;
+   - Polymorphic funtions.
+   Copyright (c) Groupoid Infinity, 2014-2018.
+
+   HoTT 1.9 The natural numbers
+   HoTT 2.13 Natural numbers -}
+
+module nat where
+
+import maybe
+import bool
+import proto
+import sigma
+
+data nat -- ℕ
+   = zero
+   | succ (n: nat)
+
+data natinf -- ℕ-∞
+   = zero
+   | succ (n: natinf)
+   | inf
+   | succ_inf
+     <i> [ (i=0) -> inf {natinf} @ i ,
+           (i=1) -> succ {natinf} inf @ i ]
+
+one   : nat = succ zero
+two   : nat = succ one
+three : nat = succ two
+four  : nat = succ three
+five  : nat = succ four
+six   : nat = succ five
+seven : nat = succ six
+
+natCase (C:U) (a b: C): nat -> C
+  = split { zero -> a ; succ n -> b }
+
+natRec (C:U) (z: C) (s: nat->C->C): (n:nat) -> C
+  = split { zero -> z ; succ n -> s n (natRec C z s n) }
+
+natElim (C:nat->U) (z: C zero) (s: (n:nat)->C(succ n)): (n:nat) -> C(n)
+  = split { zero -> z ; succ n -> s n }
+
+natInd (C:nat->U) (z: C zero) (s: (n:nat)->C(n)->C(succ n)): (n:nat) -> C(n)
+  = split { zero -> z ; succ n -> s n (natInd C z s n) }
+
+natEq: nat -> nat -> bool = split
+  zero -> split@(nat -> bool) with { zero -> true; succ n -> false }
+  succ m -> split@(nat -> bool) with { zero -> false; succ n -> natEq m n }
+
+pred: nat -> nat = split { zero -> zero ; succ n -> n }
+add (m: nat): nat -> nat = split { zero -> m; succ n -> succ (add m n) }
+
+mult: nat -> nat -> nat
+  = natRec (nat->nat) (\(_:nat) -> zero)
+            (\(_:nat) (mult_:nat->nat) (m:nat) -> add m (mult_ m))
+
+exponent : nat -> nat -> nat =
+  \(x:nat) (power:nat) ->
+     (natRec (nat->nat) (\(_:nat) -> one)
+     (\(_:nat) (exponent_:nat->nat) (m:nat) -> mult m (exponent_ m)))
+     power x
+
+succ2 (x : nat) : nat = succ (succ x)
+succ3 (x : nat) : nat = succ (succ2 x)
+succ4 (x : nat) : nat = succ (succ3 x)
+succ5 (x : nat) : nat = succ (succ4 x)
+
+n0  : nat = zero
+n1  : nat = succ n0
+n2  : nat = succ n1
+n3  : nat = succ n2
+n4  : nat = succ n3
+n5  : nat = succ n4
+n6  : nat = succ n5
+n7  : nat = succ n6
+n8  : nat = succ n7
+n9  : nat = succ n8
+n10 : nat = succ n9
+n11 : nat = succ n10
+n12 : nat = succ n11
+n13 : nat = succ n12
+n14 : nat = succ n13
+n15 : nat = succ n14
+n16 : nat = succ n15
+n17 : nat = succ n16
+n18 : nat = succ n17
+n19 : nat = succ n18
+n20 : nat = succ n19
+
+{- Finite Set Datatype -}
+
+data Fin (n: nat) = fzero | fsucc (_: Fin (pred n))
+fz (n: nat): Fin (succ n)          = fzero
+fs (n: nat): Fin n -> Fin (succ n) = \(x: Fin n) -> fsucc x
+
+opaque Fin
+
+fin11: Fin one   = fz zero
+fin21: Fin two   = fz one
+fin22: Fin two   = fs one fin11
+fin31: Fin three = fz two
+fin32: Fin three = fs two fin21
+fin33: Fin three = fs two fin22
+
+-- realityCheck : Equ nat (add n4 n5) n0 = refl nat n9

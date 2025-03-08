@@ -1,0 +1,253 @@
+{- Category Theory:
+   - Functor;
+   - Coslice Category;
+   - Universal Arrow;
+   - Equivalence.
+   Copyright (c) Groupoid Infinity, 2014-2018.
+
+   HoTT 9.2 Functors and transformations
+   HoTT 9.4 Equivalences -}
+
+module fun where
+import iso_sigma
+import cat
+
+-- Definition 9.2.1. Functor on Precategories
+catfunctor (A B: precategory): U
+  = (ob: carrier A -> carrier B)
+  * (mor: (x y: carrier A) -> hom A x y -> hom B (ob x) (ob y))
+  * (id: (x: carrier A) -> Path (hom B (ob x) (ob x)) (mor x x (path A x)) (path B (ob x)))
+  * ((x y z: carrier A) -> (f: hom A x y) -> (g: hom A y z) ->
+     Path (hom B (ob x) (ob z)) (mor x z (compose A x y z f g))
+      (compose B (ob x) (ob y) (ob z) (mor x y f) (mor y z g)))
+
+isHae (A B: U) (f: A -> B): U
+  = (g: B -> A)
+  * (eta_: Path (id A) (o A B A g f) (idfun A))
+  * (eps_: Path (id B) (o B A B f g) (idfun B))
+  * ((x: A) -> Path B (f ((eta_ @ 0) x)) ((eps_ @ 0) (f x)))
+
+grpfunctor (A: precategory) (B: groupoid): U
+  = (ob: carrier A -> B.1.1)
+  * (mor: (x y: carrier A) (z: hom A x y) (f: B.1.2 (ob x) (ob y)) (g: B.1.2 (ob y) (ob x))
+          (s: Path (B.1.2 (ob x) (ob x)) (B.2.2.1 (ob x) (ob y) (ob x) f g) (B.2.1 (ob x)))
+          (t: Path (B.1.2 (ob y) (ob y)) (B.2.2.1 (ob y) (ob x) (ob y) g f) (B.2.1 (ob y))) -> unit)
+  * unit -- ...
+
+idFunctor (A: precategory): catfunctor A A
+  = (\(x: carrier A) -> x,
+     \(x y: carrier A) (h: hom A x y) -> h,
+     \(x: carrier A) -> <_> path A x,
+     \(x y z: carrier A) (f: hom A x y) (g: hom A y z) -> <_> compose A x y z f g)
+
+compFunctor (A B C: precategory) (F: catfunctor A B) (G: catfunctor B C): catfunctor A C
+  = (\(x: carrier A) -> G.1 (F.1 x),
+     \(x y: carrier A) (h: hom A x y) -> G.2.1 (F.1 x) (F.1 y) (F.2.1 x y h),
+     \(x: carrier A) -> composition (hom C (G.1 (F.1 x)) (G.1 (F.1 x)))
+                            (G.2.1 (F.1 x) (F.1 x) (F.2.1 x x (path A x)))
+                            (G.2.1 (F.1 x) (F.1 x) (path B (F.1 x)))
+                            (path C (G.1 (F.1 x)))
+                            (<i>G.2.1 (F.1 x) (F.1 x) (F.2.2.1 x @ i))
+                            (G.2.2.1 (F.1 x)),
+     \(x y z: carrier A) (f: hom A x y) (g: hom A y z) ->
+        composition (hom C (G.1 (F.1 x)) (G.1 (F.1 z)))
+            (G.2.1 (F.1 x) (F.1 z) (F.2.1 x z (compose A x y z f g)))
+            (G.2.1 (F.1 x) (F.1 z) (compose B (F.1 x) (F.1 y) (F.1 z) (F.2.1 x y f) (F.2.1 y z g)))
+            (compose C (G.1 (F.1 x)) (G.1 (F.1 y)) (G.1 (F.1 z))
+                (G.2.1 (F.1 x) (F.1 y) (F.2.1 x y f))
+                (G.2.1 (F.1 y) (F.1 z) (F.2.1 y z g)))
+            (<i> G.2.1 (F.1 x) (F.1 z) (F.2.2.2 x y z f g @ i))
+            (G.2.2.2 (F.1 x) (F.1 y) (F.1 z) (F.2.1 x y f) (F.2.1 y z g)))
+
+compFunctor' (A B C: precategory) (F: catfunctor B C) (G: catfunctor A B): catfunctor A C = compFunctor A B C G F
+
+functorId (A B : precategory) (f g : catfunctor A B)
+    (p : Path ( (Fob : carrier A -> carrier B)
+              * ((x y : carrier A) -> hom A x y -> hom B (Fob x) (Fob y))) (f.1, f.2.1) (g.1, g.2.1))
+  : Path (catfunctor A B) f g
+  = let
+    T0 : U
+      = (Fob : carrier A -> carrier B)
+      * ((x y : carrier A) -> hom A x y -> hom B (Fob x) (Fob y))
+    T1 (t : T0) : U
+      = (Fid : (x : carrier A) -> Path (hom B (t.1 x) (t.1 x)) (t.2 x x (path A x)) (path B (t.1 x)))
+      * ((x y z: carrier A) -> (f : hom A x y) -> (g : hom A y z) -> Path (hom B (t.1 x) (t.1 z)) (t.2 x z (compose A x y z f g)) (compose B (t.1 x) (t.1 y) (t.1 z) (t.2 x y f) (t.2 y z g)))
+    pT1 (t : T0): isProp (T1 t)
+      = let
+        T2: U = (x: carrier A) -> Path (hom B (t.1 x) (t.1 x)) (t.2 x x (path A x)) (path B (t.1 x))
+        pT2: isProp T2 = propPi (carrier A) (\ (x: carrier A) -> Path (hom B (t.1 x) (t.1 x)) (t.2 x x (path A x)) (path B (t.1 x)))
+              (\ (x: carrier A) -> homSet B (t.1 x) (t.1 x) (t.2 x x (path A x)) (path B (t.1 x)))
+        T3: U = (x y z: carrier A) (f: hom A x y) (g: hom A y z) -> Path (hom B (t.1 x) (t.1 z)) (t.2 x z (compose A x y z f g)) (compose B (t.1 x) (t.1 y) (t.1 z) (t.2 x y f) (t.2 y z g))
+        pT3: isProp T3
+          = let
+            p0 (x y z : carrier A) (f : hom A x y) (g : hom A y z) : isProp (Path (hom B (t.1 x) (t.1 z)) (t.2 x z (compose A x y z f g)) (compose B (t.1 x) (t.1 y) (t.1 z) (t.2 x y f) (t.2 y z g)))
+              = homSet B (t.1 x) (t.1 z) (t.2 x z (compose A x y z f g)) (compose B (t.1 x) (t.1 y) (t.1 z) (t.2 x y f) (t.2 y z g))
+            p1 (x y z : carrier A) (f : hom A x y) : isProp ((g : hom A y z) -> Path (hom B (t.1 x) (t.1 z)) (t.2 x z (compose A x y z f g)) (compose B (t.1 x) (t.1 y) (t.1 z) (t.2 x y f) (t.2 y z g)))
+              = propPi (hom A y z)
+                  (\ (g : hom A y z) -> Path (hom B (t.1 x) (t.1 z)) (t.2 x z (compose A x y z f g)) (compose B (t.1 x) (t.1 y) (t.1 z) (t.2 x y f) (t.2 y z g)))
+                  (p0 x y z f)
+            p2 (x y z : carrier A) : isProp ((f : hom A x y) (g : hom A y z) -> Path (hom B (t.1 x) (t.1 z)) (t.2 x z (compose A x y z f g)) (compose B (t.1 x) (t.1 y) (t.1 z) (t.2 x y f) (t.2 y z g)))
+              = propPi (hom A x y)
+                  (\ (f : hom A x y) -> (g : hom A y z) -> Path (hom B (t.1 x) (t.1 z)) (t.2 x z (compose A x y z f g)) (compose B (t.1 x) (t.1 y) (t.1 z) (t.2 x y f) (t.2 y z g)))
+                  (p1 x y z)
+          in propPi3 (carrier A)
+             (\ (x y z : carrier A) -> (f : hom A x y) -> (g : hom A y z) -> Path (hom B (t.1 x) (t.1 z)) (t.2 x z (compose A x y z f g)) (compose B (t.1 x) (t.1 y) (t.1 z) (t.2 x y f) (t.2 y z g)))
+             p2
+      in propAnd T2 T3 pT2 pT3
+    p0 : Path ((t : T0) * T1 t) ((f.1, f.2.1), (f.2.2.1, f.2.2.2)) ((g.1, g.2.1), (g.2.2.1, g.2.2.2))
+      = lemSig T0 T1 pT1 ((f.1, f.2.1), (f.2.2.1, f.2.2.2)) ((g.1, g.2.1), (g.2.2.1, g.2.2.2)) p
+  in <i> ((p0 @ i).1.1, (p0 @ i).1.2, (p0 @ i).2.1, (p0 @ i).2.2)
+
+cosliceCat (C D: precategory) (a: carrier C) (F: catfunctor D C): precategory
+  = ((Ob, Hom),id,cmp,HomSet,L,R,Q) where
+    Ob: U = (y: carrier D) * hom C a (F.1 y)
+    Hom (x y: Ob) : U = (h: hom D x.1 y.1) * Path (hom C a (F.1 y.1)) y.2 (compose C a (F.1 x.1) (F.1 y.1) x.2 (F.2.1 x.1 y.1 h))
+    id (x: Ob) : Hom x x
+      = (path D x.1, <i> comp (<_> (hom C a (F.1 x.1)))
+                              (compose C a (F.1 x.1) (F.1 x.1) x.2 (F.2.2.1 x.1 @ -i))
+            [ (i = 0) -> pathR C a (F.1 x.1) x.2
+            , (i = 1) -> <_> compose C a (F.1 x.1) (F.1 x.1) x.2 (F.2.1 x.1 x.1 (path D x.1)) ])
+    cmp (x y z: Ob) (f: Hom x y) (g: Hom y z): Hom x z
+      = let
+        h: hom D x.1 z.1 = compose D x.1 y.1 z.1 f.1 g.1
+        p : Path (hom C a (F.1 z.1)) z.2 (compose C a (F.1 x.1) (F.1 z.1) x.2 (F.2.1 x.1 z.1 h))
+          = let
+            p2: Path (hom C a (F.1 z.1)) z.2
+                     (compose C a (F.1 y.1) (F.1 z.1) (compose C a (F.1 x.1) (F.1 y.1) x.2 (F.2.1 x.1 y.1 f.1)) (F.2.1 y.1 z.1 g.1))
+              = <i> comp (<_> hom C a (F.1 z.1)) (g.2 @ i)
+                [ (i = 0) -> <_> z.2
+                , (i = 1) -> <j> compose C a (F.1 y.1) (F.1 z.1) (f.2 @ j) (F.2.1 y.1 z.1 g.1) ]
+            p3 : Path (hom C a (F.1 z.1))
+                   (compose C a (F.1 y.1) (F.1 z.1) (compose C a (F.1 x.1) (F.1 y.1) x.2 (F.2.1 x.1 y.1 f.1)) (F.2.1 y.1 z.1 g.1))
+                   (compose C a (F.1 x.1) (F.1 z.1) x.2 (F.2.1 x.1 z.1 (compose D x.1 y.1 z.1 f.1 g.1)))
+              = <i> comp (<_> hom C a (F.1 z.1)) (pathC C a (F.1 x.1) (F.1 y.1) (F.1 z.1) x.2 (F.2.1 x.1 y.1 f.1) (F.2.1 y.1 z.1 g.1) @ i)
+                [ (i = 0) -> <_> compose C a (F.1 y.1) (F.1 z.1) (compose C a (F.1 x.1) (F.1 y.1) x.2 (F.2.1 x.1 y.1 f.1)) (F.2.1 y.1 z.1 g.1)
+                , (i = 1) -> <j> compose C a (F.1 x.1) (F.1 z.1) x.2 (F.2.2.2 x.1 y.1 z.1 f.1 g.1 @ -j) ]
+          in <i> comp (<_> hom C a (F.1 z.1)) (p2 @ i)
+            [ (i = 0) -> <_> z.2
+            , (i = 1) -> p3 ]
+      in (h, p)
+    HomSet (x y : Ob): isSet (Hom x y)
+      = let
+        p0: isSet (hom D x.1 y.1) = homSet D x.1 y.1
+        p1 (h: hom D x.1 y.1) : isSet (Path (hom C a (F.1 y.1)) y.2 (compose C a (F.1 x.1) (F.1 y.1) x.2 (F.2.1 x.1 y.1 h)))
+          = propSet ((Path (hom C a (F.1 y.1)) y.2 (compose C a (F.1 x.1) (F.1 y.1) x.2 (F.2.1 x.1 y.1 h))))
+              (homSet C a (F.1 y.1) y.2 (compose C a (F.1 x.1) (F.1 y.1) x.2 (F.2.1 x.1 y.1 h)))
+      in setSig (hom D x.1 y.1)
+      (\ (h: hom D x.1 y.1) -> Path (hom C a (F.1 y.1)) y.2 (compose C a (F.1 x.1) (F.1 y.1) x.2 (F.2.1 x.1 y.1 h))) p0 p1
+    homId (x y: Ob) (h0 h1: Hom x y) (p: Path (hom D x.1 y.1) h0.1 h1.1): Path (Hom x y) h0 h1
+      = let
+        A : U = hom D x.1 y.1
+        P (h : A) : U = Path (hom C a (F.1 y.1)) y.2 (compose C a (F.1 x.1) (F.1 y.1) x.2 (F.2.1 x.1 y.1 h))
+        pP (h : A) : isProp (P h) = homSet C a (F.1 y.1) y.2 (compose C a (F.1 x.1) (F.1 y.1) x.2 (F.2.1 x.1 y.1 h))
+      in lemSig A P pP h0 h1 p
+    L (x y: Ob) (f : Hom x y) : Path (Hom x y) (cmp x x y (id x) f) f = homId x y (cmp x x y (id x) f) f (pathL D x.1 y.1 f.1)
+    R (x y: Ob) (f : Hom x y) : Path (Hom x y) (cmp x y y f (id y)) f = homId x y (cmp x y y f (id y)) f (pathR D x.1 y.1 f.1)
+    Q (x y z w: Ob) (f: Hom x y) (g: Hom y z) (h: Hom z w): Path (Hom x w) (cmp x z w (cmp x y z f g) h) (cmp x y w f (cmp y z w g h))
+       = homId x w (cmp x z w (cmp x y z f g) h) (cmp x y w f (cmp y z w g h)) (pathC D x.1 y.1 z.1 w.1 f.1 g.1 h.1)
+
+sliceCat (C D: precategory)
+         (a: carrier (opCat C))
+         (F: catfunctor D (opCat C))
+       : precategory
+       = cosliceCat (opCat C) D a F
+
+ffFunctor (A B: precategory) (F: catfunctor A B) : U
+  = (a b: carrier A) -> isEquiv (hom A a b) (hom B (F.1 a) (F.1 b)) (F.2.1 a b)
+
+propFFFunctor (A B: precategory) (F: catfunctor A B): isProp (ffFunctor A B F)
+  = propPi (carrier A) (\(a: carrier A) -> (b: carrier A) -> isEquiv (hom A a b) (hom B (F.1 a) (F.1 b)) (F.2.1 a b))
+    (\(a: carrier A) -> propPi (carrier A) (\(b: carrier A) -> isEquiv (hom A a b) (hom B (F.1 a) (F.1 b)) (F.2.1 a b))
+    (\(b: carrier A) -> propIsEquiv (hom A a b) (hom B (F.1 a) (F.1 b)) (F.2.1 a b)))
+
+catIsEquiv (A B: precategory) (F: catfunctor A B): U
+  = (_: ffFunctor A B F)
+  * ((b: carrier B) -> (a : carrier A) * iso B (F.1 a) b)
+
+catEquiv (A B: precategory) : U
+  = (F: catfunctor A B)
+  * catIsEquiv A B F
+
+catPathIsEquiv (A: precategory): catIsEquiv A A (idFunctor A)
+  = (\(a b: carrier A) -> idIsEquiv (hom A a b),\(b:carrier A) -> (b, idIso A b))
+
+catPathEquiv (A: precategory): catEquiv A A
+  = (idFunctor A, catPathIsEquiv A)
+
+catIsIso (A B: precategory) (F: catfunctor A B) : U
+  = (_: ffFunctor A B F)
+  * isEquiv (carrier A) (carrier B) F.1
+
+catPropIsIso (A B: precategory) (F: catfunctor A B) : isProp (catIsIso A B F)
+  = propSig (ffFunctor A B F) (\(_: ffFunctor A B F) -> isEquiv (carrier A) (carrier B) F.1)
+            (propFFFunctor A B F)
+            (\(_: ffFunctor A B F) -> propIsEquiv (carrier A) (carrier B) F.1)
+
+catIso (A B: precategory): U
+  = (F: catfunctor A B)
+  * catIsIso A B F
+
+F12 (A B : precategory) (isC : isCategory A) (F : catfunctor A B)
+    (p1 : ffFunctor A B F) (x : carrier A) : isContr ((y : carrier A) * iso B (F.1 y) (F.1 x))
+  = undefined
+
+F23 (A B : precategory) (F : catfunctor A B) (p2 : (x : carrier A) -> isContr ((y : carrier A) * iso B (F.1 y) (F.1 x)))
+    (x : carrier B)
+    (a b : (y : carrier A) * iso B (F.1 y) x) : Path ((y : carrier A) * iso B (F.1 y) x) a b
+    = undefined
+
+catPropIsEquiv (A B: precategory) (isC: isCategory A) (F: catfunctor A B): isProp (catIsEquiv A B F)
+  = propSig (ffFunctor A B F)
+            (\(_: ffFunctor A B F) -> (b: carrier B) -> (a: carrier A) * iso B (F.1 a) b)
+            (propFFFunctor A B F)
+            (\ (ff: ffFunctor A B F) -> propPi (carrier B) (\(b: carrier B) ->
+               (a: carrier A) * iso B (F.1 a) b)
+               (\(b: carrier B) -> F23 A B F (F12 A B isC F ff) b))
+
+invEquiv (A:U) (a b:A) : Path U (Path A a b) (Path A b a)
+ = equivPath (Path A a b) (Path A b a) (inv A a b)
+             (isoToEquiv (Path A a b) (Path A b a) (inv A a b) (inv A b a)
+                         (\(x:Path A b a) -> <_> x) (\(x:Path A a b) -> <_> x))
+
+eqToIso (C : precategory) (A B : carrier C) (p : Path (carrier C) A B) : iso C A B
+  = J (carrier C) A (\(B : carrier C) -> \(p : Path (carrier C) A B) -> iso C A B) (idIso C A) B p
+
+lemIsCategory (C : precategory) (isC : isCategory C) (A B : carrier C) (e : iso C A B) : Path ((B : carrier C) * iso C A B) (A, idIso C A) (B, e)
+  = <i> (isContrProp ((B : carrier C) * iso C A B) (isC A) (A, idIso C A) (B, e) @ i)
+
+lemIsCategory2 (C : precategory) (isC : isCategory C) (A B : carrier C) : isEquiv (Path (carrier C) A B) (iso C A B) (eqToIso C A B)
+  = equivFunFib (carrier C) (Path (carrier C) A) (iso C A) (eqToIso C A) (isContrSingl (carrier C) A) (isC A) B
+
+lemIsCategory3 (C : precategory) (isC : isCategory C) (A B : carrier C) : Path U (Path (carrier C) A B) (iso C A B)
+  = equivPath (Path (carrier C) A B) (iso C A B) (eqToIso C A B) (lemIsCategory2 C isC A B)
+
+catEquivIsIso (A B: precategory) (isCA: isCategory A) (isCB: isCategory B)
+              (F: catfunctor A B) (e: catIsEquiv A B F)
+  : catIsIso A B F
+  = (e.1, \(b:carrier B) ->
+      let p : isContr ((a:carrier A)*iso B (F.1 a) b)
+            = (e.2 b, F23 A B F (F12 A B isCA F e.1) b (e.2 b))
+      in transport (<i>isContr ((a:carrier A) * invEquiv (carrier B) (F.1 a) b @ i))
+        (transport (<i> isContr ((a:carrier A) * lemIsCategory3 B isCB (F.1 a) b@-i)) p))
+
+catIsoIsEquiv (A B: precategory) (F: catfunctor A B) (e: catIsIso A B F): catIsEquiv A B F
+  = (e.1,\(b:carrier B)->((e.2 b).1.1, eqToIso B (F.1 (e.2 b).1.1) b (<i>(e.2 b).1.2@-i)))
+
+catIsEquivEqIso (A B: precategory) (isCA: isCategory A) (isCB: isCategory B) (F: catfunctor A B)
+  : equiv (catIsEquiv A B F) (catIsIso A B F)
+  = equivProp (catIsEquiv A B F) (catIsIso A B F)
+              (catPropIsEquiv A B isCA F) (catPropIsIso A B F)
+              (catEquivIsIso A B isCA isCB F) (catIsoIsEquiv A B F)
+
+catIsoEqPath (A B: precategory) : Path U (catIso A B) (Path precategory A B) = undefined
+catEquivEqPath' (A: category) : isContr ((B : category) * catEquiv A.1 B.1) = undefined
+
+catEquivEqIso (A B: precategory) (isCA: isCategory A) (isCB: isCategory B)
+  : Path U (catEquiv A B) (catIso A B)
+  = <i> (F: catfunctor A B)
+      * (equivToPath (catIsEquiv A B F) (catIsIso A B F) (catIsEquivEqIso A B isCA isCB F) @ i)
+
+catEquivEqPath (A B: precategory) (isCA: isCategory A) (isCB: isCategory B)
+  : Path U (catEquiv A B) (Path precategory A B)
+  = composition U (catEquiv A B) (catIso A B) (Path precategory A B)
+                  (catEquivEqIso A B isCA isCB) (catIsoEqPath A B)

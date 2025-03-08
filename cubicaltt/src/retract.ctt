@@ -1,0 +1,28 @@
+{- Retract Types:
+   Copyright (c) Groupoid Infinity, 2014-2018. -}
+
+module retract where
+import path
+
+section (A B: U) (f: A -> B) (g: B -> A): U = (b: B) -> Path B (f (g b)) b
+retract (A B: U) (f: A -> B) (g: B -> A): U = (a: A) -> Path A (g (f a)) a
+
+compUp (A: U) (a a' b b' : A)
+       (p: Path A a a') (q: Path A b b') (r: Path A a b)
+     : Path A a' b'
+     = <i> comp (<j>A) (r @ i) [(i = 0) -> p, (i = 1) -> q]
+
+compDown (A: U) (a a' b b': A)
+         (p: Path A a a') (q: Path A b b')
+       : Path A a' b' -> Path A a b
+       = compUp A a' a b' b (inv A a a' p) (inv A b b' q)
+
+-- if contraction space is conractible then image space is contractible too
+retIsContr (A B: U) (f: A -> B) (g: B -> A)
+           (h: retract A B f g) (v: isContr B)
+         : isContr A
+         = (g b,p) where
+ b : B = v.1
+ q : (y:B) -> Path B b y = v.2
+ p (x:A) : Path A (g b) x
+   = <i> comp (<_> A) (g (q (f x) @ i)) [(i=0) -> <j>g b,(i=1) -> h x]

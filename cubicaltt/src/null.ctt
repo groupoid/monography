@@ -1,0 +1,42 @@
+module null where
+import proto
+import path
+
+-- Nullification Modality
+--   is the Hub and Spokes HIT
+--   is a Localization at a family of maps (S a -> 1)
+
+data Null (A X: U) (S: A -> U)
+   = center (x: X)
+   | hub (x: A) (f: S x -> Null A X S)
+   | spoke (x: A) (f: S x -> Null A X S) (s: S x) <i>
+     [ (i=0) -> hub {Null A X S} x f @ i ,
+       (i=1) -> f s ]
+   | hubEq (x y: X) (a: A) (p: S a -> Path X x y) <i>
+     [ (i=0) -> center x ,
+       (i=1) -> center y ]
+   | spokeEq (x y: X) (a: A) (p: S a -> Path X x y) (s: S a) <i>
+     [ (i=0) -> hubEq {Null A X S} x y a p @ i ,
+       (i=1) -> center (p s @ i) ]
+
+isNull (A X: U) (S: A -> U): U = undefined
+
+NullRec (A : U) (S: A -> U) (X Y : U) (f: isNull A Y S) (g: X -> Y)
+    : Null A X S -> Y
+    = undefined
+
+NullInd (A X: U) (S: A -> U) (Y: Null A X S -> U)
+      (n : (x : Null A X S) -> Null A (Y x) S)
+      (b : (x : X) -> Y (center x))
+    : (x : Null A X S) -> Y x
+    = undefined
+
+{-
+      split
+        center x -> g x
+        hub x f ->
+        spoke x f s @ i ->
+        hubEq x y a p @ i ->
+        spokeEq x y a p s @ i ->
+-}
+

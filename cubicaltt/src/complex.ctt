@@ -1,0 +1,5 @@
+{- Simplicial Comlexes:
+   - Simple, Complex, Simplicial Set.
+   Copyright (c)  Groupoid Infinity, 2016-2018. -}
+
+module complex where

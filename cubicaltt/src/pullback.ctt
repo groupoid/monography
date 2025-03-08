@@ -1,0 +1,83 @@
+{- Homotopy Pullback: https://groupoid.space/mltt/types/pullback/
+   Copyright (c) Groupoid Infinity, 2014-2018.
+
+   HoTT 2.15 -}
+
+module pullback where
+import proto
+import path
+import equiv
+
+--       z2
+--    Z ----> B
+-- z1 |  pb   | g
+--    V       V
+--    A ----> C
+--        f
+
+
+-- Homotopy Limit
+pullback (A B C:U) (f: A -> C) (g: B -> C): U
+  = (a: A)
+  * (b: B)
+  * Path C (f a) (g b)
+
+kernel  (A B: U) (f: A -> B): U = pullback A A B f f
+hofiber (A B: U) (f: A -> B) (y: B): U = pullback A unit B f (\(x: unit) -> y)
+
+pb1 (A B C: U) (f: A -> C) (g: B -> C): pullback A B C f g -> A = \(x: pullback A B C f g) -> x.1
+pb2 (A B C: U) (f: A -> C) (g: B -> C): pullback A B C f g -> B = \(x: pullback A B C f g) -> x.2.1
+pb3 (A B C: U) (f: A -> C) (g: B -> C): (x: pullback A B C f g) -> Path C (f x.1) (g x.2.1)
+  = \(x: pullback A B C f g) -> x.2.2
+
+induced (Z A B C: U) (f: A -> C) (g: B -> C)
+        (z1: Z -> A) (z2: Z -> B)
+        (h: (z:Z) -> Path C ((o Z A C f z1) z) (((o Z B C g z2)) z))
+      : Z -> pullback A B C f g
+      = \(z: Z) -> ((z1 z),(z2 z),h z)
+
+pullbackSq (Z A B C: U) (f: A -> C) (g: B -> C) (z1: Z -> A) (z2: Z -> B): U
+         = (h: (z:Z) -> Path C ((o Z A C f z1) z) (((o Z B C g z2)) z))
+         * isEquiv Z (pullback A B C f g) (induced Z A B C f g z1 z2 h)
+
+isPullbackSq (Z A B C: U) (f: A -> C) (g: B -> C) (z1: Z -> A) (z2: Z -> B)
+             (h: (z:Z) -> Path C ((o Z A C f z1) z) (((o Z B C g z2)) z)): U
+           = isEquiv Z (pullback A B C f g) (induced Z A B C f g z1 z2 h)
+
+-- Exercise 2.11. Prove that the pullback P :≡ A x_C B defined in (2.15.11) is the corner of a pullback square.
+completePullback (A B C: U) (f: A -> C) (g: B -> C)
+    : pullbackSq (pullback A B C f g) A B C f g (pb1 A B C f g) (pb2 A B C f g)
+    = (\(z:Z) -> pb3 A B C f g z,P) where
+    Z: U = pullback A B C f g
+    p: Path U Z Z = <i>Z
+    s (z: Z): Z = comp p z []
+    z1: Z -> A = (pb1 A B C f g)
+    z2: Z -> B = (pb2 A B C f g)
+    z3: U = (z:Z) -> Path C ((o Z A C f z1) z) (((o Z B C g z2)) z)
+    I: Z -> Z = induced Z A B C f g z1 z2 (\(z:Z) -> pb3 A B C f g z)
+    lem1 (z:Z): PathP p z z = <i> z
+    lem2 (z:Z): PathP p (s z) z =   <i> comp p z     [(i=1) -> <j> z]
+    x1 (z:Z): fiber Z Z I z = (s z, <i> comp p (s z) [(i=0) -> lem2 z, (i=1) -> lem1 (s z)])
+    lem3 (z:Z): PathP p z (s z) =   <i> comp p (s z) [(i=0) -> lem2 z, (i=1) -> lem1 (s z)]
+    lem4 (y:Z): PathP (<i>Path (p@i) (lem2 y@i) ((lem1(s y))@i)) (<j>s y) (lem3 y)
+       = <j i> fill p (s y) [(i=0)->lem2 y, (i=1)->lem1 (s y)]@j
+    lem5 (y x: Z) (q: Path Z y x): Path Z (s y) x =   <i> comp p (q@i) [(i=0)-><j>lem2 y@-j, (i=1)->lem1 x]
+    lem6 (y x: Z) (q: Path Z y x): PathP (<i>Path (p@i) (lem2 y@i) (lem1 x@i)) (lem5 y x q) q
+       = <j i> fill p (q@i) [(i=0) -> <k>lem2 y@-k, (i=1) -> <k>lem1 x@-k] @ -j
+    lem7 (y x: Z) (q: Path Z y x): PathP (<i>Path Z y (lem5 y x q@i)) (lem3 y) q = <j i> comp p (lem5 y x q @i/\j)
+         [(i=0) -> lem2 y, (i=1) -> <i>lem5 y x q @ j, (j=0) -> <k> lem4 y @ k @ i, (j=1) -> <k>lem6 y x q@k@i]
+    lem9 (z:Z) (x2: fiber Z Z I z): Path (fiber Z Z I z) (x1 z) x2 = <i>(lem5 z x2.1 x2.2@i,lem7 z x2.1 x2.2@i)
+    P (z: Z): isContr (fiber Z Z I z) = ((x1 z),lem9 z)
+
+--   fiber_f(y) ----> A
+--            |  pb   | f
+--            V       V
+--            1 ----> B
+--              \_.y
+
+fiberPullback (A B: U) (f: A -> B) (y: B)
+  : pullbackSq (hofiber A B f y)
+               A unit B f (\(x: unit) -> y)
+               (pb1 A unit B f (\(x: unit) -> y))
+               (pb2 A unit B f (\(x: unit) -> y))
+  = completePullback A unit B f (\(x: unit) -> y)

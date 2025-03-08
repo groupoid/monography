@@ -3,3 +3,4 @@
 *.scss linguist-detectable=false
 *.tex linguist-detectable=false
 *.sh linguist-detectable=false
+*.html linguist-detectable=false

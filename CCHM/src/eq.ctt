@@ -1,6 +1,0 @@
-module eq where
-import bool
-
-eq_: U = (type: U) * (type -> type -> bool)
-eq (type: U): U = type -> type -> bool
-

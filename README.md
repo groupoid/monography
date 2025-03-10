@@ -206,6 +206,13 @@ Role: A Framework for Supergeometry in Cohesive Topos.
 Features: Hopf Fibrations, Suspensions, Truncations, Π, Σ, Id, ℕ, ℕ∞.
 Use Case: Operator links proofs to topological or physical systems.
 
+### Fabien
+
+Role: Motivic A^1-Homotopy Theory.
+Featues: Π,Σ,Path,𝑘:𝑈,0_𝑘,1_𝑘,point_𝑘,𝐴^1:U,point:𝑘→𝐴^1., a1contr, 𝐿_{A^1}:U→𝑈, 𝜂_{A^1}, rec_{A^1}, n-Trunc, 𝑁, Suspension,S^{1,1}.
+Use case: derives all structural theorems of A^1-Homotopy Theory—such as A^1-connectivity (X×A^1)≅π_n(A^1), contractibility
+of 𝐴^1, and unstable connectivity — while providing a foundation for stable A^1-homotopy via suspensions and motivic spheres.
+
 ### Julius
 
 Role: Dedekind Reals and Cuts.
@@ -223,13 +230,6 @@ Use case: Classical Logic Support.
 Role: Forced Cardinals.
 Features: ⊢ 𝜅 : Card, inaccessible(𝜅), measurable(𝜅), Force(𝑃, 𝐺) : 𝑉 → 𝑉, 𝑝 ⊩ 𝜙
 Use case: Generic filter 𝐺 over a poset 𝑃, yielding a new model 𝑉[𝐺], adjoin reals and control cardinalities or axioms.
-
-### Fabien
-
-Role: Motivic A^1-Homotopy Theory.
-Featues: Π,Σ,Path,𝑘:𝑈,0_𝑘,1_𝑘,point_𝑘,𝐴^1:U,point:𝑘→𝐴^1., a1contr, 𝐿_{A^1}:U→𝑈, 𝜂_{A^1}, rec_{A^1}, n-Trunc, 𝑁, Suspension,S^{1,1}.
-Use case: derives all structural theorems of A^1-Homotopy Theory—such as A^1-connectivity (X×A^1)≅π_n(A^1), contractibility
-of 𝐴^1, and unstable connectivity — while providing a foundation for stable A^1-homotopy via suspensions and motivic spheres.
 
 ## AXIOSIS
 

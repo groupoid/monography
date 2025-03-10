@@ -154,12 +154,26 @@ Use Case: Operator proves theorems involving linear algebra or tensor structures
 
 ### Henk
 
-Role: Pure Type System (PTS-91), Calculus of Inductive Constructions (CoC-88), infinite universes, AUTOMATH syntax.
+Role: Pure Type System (PTS-91), Calculus of Inductive Constructions (CoC-88), infinite universes, AUTOMATH-68 syntax.
 Features: Flexible typing.
 Use Case: Operator formalizes recursive or foundational proofs.
 Rationale: Henk subsumes Alonzo’s STLC with richer types, making it a strong starting point.
 
 ### Per
+
+Role: ΠΣ (MLTT-72) prover with CoC, identity types (MLTT-75), well-founded trees (MLTT-80).
+Features: Dependent types, equality proofs.
+Fit: Proves (e.g., "parity preservation"), ensures consistency.
+Use Case: Operator handles equality or model-specific theorems.
+
+### Frank
+
+Role: CoC-88 + CIC-89.
+Features: Dependent types, equality proofs.
+Fit: Proves (e.g., "parity preservation"), ensures consistency.
+Use Case: Operator handles equality or model-specific theorems.
+
+### Christine
 
 Role: ΠΣ (MLTT-72) prover with CoC, identity types (MLTT-75), extended to CIC (IND-89).
 Features: Dependent types, equality proofs.
